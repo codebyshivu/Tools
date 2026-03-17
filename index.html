@@ -495,7 +495,7 @@
       margin-right: 6px;
     }
 
-    /* ----- PREMIUM POPUP with dim overlay, reliable animation, and seconds count ----- */
+    /* ----- PREMIUM POPUP with dim overlay, reliable animation, seconds count, and wider width ----- */
     .popup-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -524,12 +524,13 @@
     .popup-card {
       background: var(--bg-card-solid);
       border-radius: 60px;
-      padding: 28px 32px;
+      padding: 32px 24px;
       text-align: center;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-light);
-      max-width: 260px;
+      max-width: 85vw;
       width: auto;
+      min-width: 280px;
       transform: scale(0.8);
       opacity: 0;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
@@ -553,17 +554,18 @@
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 18px;
+      word-break: break-word;
     }
     /* Circular progress with countdown number */
     .progress-circle {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       margin: 0 auto;
       position: relative;
     }
     .progress-circle svg {
-      width: 44px;
-      height: 44px;
+      width: 48px;
+      height: 48px;
       transform: rotate(-90deg);
     }
     .progress-circle circle {
@@ -591,12 +593,12 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--text-primary);
       background: var(--bg-card-solid);
-      width: 30px;
-      height: 30px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -766,7 +768,7 @@
         </div>
         <div class="form-group">
           <label><i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Number of days</label>
-          <input type="number" id="habitDays" min="1" value="21">
+          <input type="number" id="habitDays" min="1" placeholder="e.g. 21">
         </div>
         <div class="form-group">
           <label><i class="fas fa-calendar-plus"></i> Start date</label>
@@ -794,15 +796,15 @@
   <!-- Popup overlay (dim) -->
   <div class="popup-overlay" id="popupOverlay"></div>
 
-  <!-- PREMIUM POPUP with countdown number -->
+  <!-- PREMIUM POPUP with countdown number and wider width -->
   <div class="popup-container" id="popupContainer">
     <div class="popup-card glass-card" id="popupCard">
       <div id="popupIcon" class="popup-icon success"><i class="fas fa-check-circle"></i></div>
       <div class="popup-message" id="popupMessage">Done!</div>
       <div class="progress-circle">
-        <svg viewBox="0 0 44 44">
-          <circle class="bg-circle" cx="22" cy="22" r="18"></circle>
-          <circle class="timer-circle" cx="22" cy="22" r="18" stroke="currentColor" id="timerCircle"></circle>
+        <svg viewBox="0 0 48 48">
+          <circle class="bg-circle" cx="24" cy="24" r="20"></circle>
+          <circle class="timer-circle" cx="24" cy="24" r="20" stroke="currentColor" id="timerCircle"></circle>
         </svg>
         <span class="countdown-number" id="popupCountdown">2</span>
       </div>
@@ -1516,7 +1518,7 @@
         saveToStorage();
         showPopup('Goal added', 'success');
         nameInput.value = '';
-        daysInput.value = '21';
+        daysInput.value = '';
         startDateInput.value = getTodayString();
         document.querySelector('input[value="startNow"]').checked = true;
         renderCurrent(); renderFuture(); renderHistory();
