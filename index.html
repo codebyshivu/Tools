@@ -495,7 +495,7 @@
       margin-right: 6px;
     }
 
-    /* ----- PREMIUM POPUP with dim overlay and reliable animation ----- */
+    /* ----- PREMIUM POPUP with dim overlay, reliable animation, and seconds count ----- */
     .popup-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -510,7 +510,7 @@
     .popup-overlay.show {
       opacity: 1;
       visibility: visible;
-      pointer-events: auto; /* blocks background interaction */
+      pointer-events: auto;
     }
     .popup-container {
       position: fixed;
@@ -554,7 +554,7 @@
       color: var(--text-primary);
       margin-bottom: 18px;
     }
-    /* Circular progress */
+    /* Circular progress with countdown number */
     .progress-circle {
       width: 44px;
       height: 44px;
@@ -585,6 +585,23 @@
     @keyframes drain {
       from { stroke-dashoffset: 0; }
       to { stroke-dashoffset: 113; }
+    }
+    .countdown-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      background: var(--bg-card-solid);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     /* Modal overlays */
@@ -749,7 +766,7 @@
         </div>
         <div class="form-group">
           <label><i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Number of days</label>
-          <input type="number" id="habitDays" min="1" value="">
+          <input type="number" id="habitDays" min="1" value="21">
         </div>
         <div class="form-group">
           <label><i class="fas fa-calendar-plus"></i> Start date</label>
@@ -777,7 +794,7 @@
   <!-- Popup overlay (dim) -->
   <div class="popup-overlay" id="popupOverlay"></div>
 
-  <!-- PREMIUM POPUP -->
+  <!-- PREMIUM POPUP with countdown number -->
   <div class="popup-container" id="popupContainer">
     <div class="popup-card glass-card" id="popupCard">
       <div id="popupIcon" class="popup-icon success"><i class="fas fa-check-circle"></i></div>
@@ -787,6 +804,7 @@
           <circle class="bg-circle" cx="22" cy="22" r="18"></circle>
           <circle class="timer-circle" cx="22" cy="22" r="18" stroke="currentColor" id="timerCircle"></circle>
         </svg>
+        <span class="countdown-number" id="popupCountdown">2</span>
       </div>
     </div>
   </div>
@@ -865,24 +883,23 @@
         const selectedDate = this.value;
         const today = getTodayString();
         if (selectedDate > today) {
-          // Future date: automatically select "Plan" radio
           document.querySelector('input[name="goalOption"][value="planLater"]').checked = true;
-        } else {
-          // Past or today: you can leave as is, but we won't force
         }
       });
 
-      // ----- PREMIUM POPUP with dim overlay and reliable animation -----
+      // ----- PREMIUM POPUP with dim overlay, reliable animation, and seconds count -----
       const popupOverlay = document.getElementById('popupOverlay');
-      const popupContainer = document.getElementById('popupContainer');
       const popupCard = document.getElementById('popupCard');
       const popupIcon = document.getElementById('popupIcon');
       const popupMessage = document.getElementById('popupMessage');
       const timerCircle = document.getElementById('timerCircle');
+      const countdownSpan = document.getElementById('popupCountdown');
       let popupTimer = null;
+      let countdownInterval = null;
 
       function showPopup(msg, type = 'success') {
         if (popupTimer) clearTimeout(popupTimer);
+        if (countdownInterval) clearInterval(countdownInterval);
         
         // Set icon and color class
         popupIcon.className = 'popup-icon';
@@ -920,6 +937,9 @@
         // Set timer circle color
         timerCircle.style.stroke = colorVar;
 
+        // Reset countdown
+        countdownSpan.textContent = '2';
+
         // Reset animation
         popupCard.classList.remove('show');
         popupOverlay.classList.remove('show');
@@ -938,11 +958,22 @@
         popupCard.classList.add('show');
         popupOverlay.classList.add('show');
         
-        // Animation will run because class is added
+        // Start countdown interval
+        let secondsLeft = 2;
+        countdownInterval = setInterval(() => {
+          secondsLeft -= 1;
+          if (secondsLeft >= 0) {
+            countdownSpan.textContent = secondsLeft;
+          }
+          if (secondsLeft <= 0) {
+            clearInterval(countdownInterval);
+          }
+        }, 1000);
 
         popupTimer = setTimeout(() => {
           popupCard.classList.remove('show');
           popupOverlay.classList.remove('show');
+          clearInterval(countdownInterval);
         }, 2000);
       }
 
@@ -1120,11 +1151,9 @@
 
         // Set reminder message based on goal status
         if (goal.status === 'future') {
-          // Future goal: show start date
           const startDate = new Date(goal.startDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
           reminderMessage.innerHTML = `<i class="fas fa-calendar-alt"></i> Starts on ${startDate}`;
         } else {
-          // Current goal: show completion reminder
           const now = new Date();
           const currentHour = now.getHours();
           const todayCompleted = goal.startDate ? goal.completedDates.includes(todayStr) : false;
@@ -1473,7 +1502,6 @@
         
         if (!startDate) startDate = getTodayString();
 
-        // Determine status based on start date and option, but if future date, force future even if option is startNow? We'll respect option but also check if startDate > today, then we can set status to future automatically? Better to respect user's option but with a warning? We'll just use the option as is, but if they chose startNow with future date, we'll still set status to current? That would be weird. So let's enforce: if startDate > today, set status to future regardless of option? Or keep option but show message? We'll keep option, but if startDate > today and option is startNow, we'll set status to future (since it can't be current). Actually the rule: "If starting date is of future not today and past then auto select to plan". That means when they pick a future date, we should automatically switch to Plan option (we already do that via event listener). So at add time, the option will already be planLater if date is future. So we can trust the option.
         const newGoal = {
           id: Date.now() + '' + Math.floor(Math.random()*1000),
           name,
