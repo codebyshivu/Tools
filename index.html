@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Self Improvement • habit tracker</title>
+  <!-- Font Awesome 6 & Inter font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.2s ease;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-weight: 450;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    :root {
+      --bg-primary: #f5f7fa;
+      --bg-card: rgba(255, 255, 255, 0.7);
+      --bg-card-solid: #ffffff;
+      --text-primary: #0b1c2f;
+      --text-secondary: #2d3f59;
+      --text-tertiary: #5d6f85;
+      --accent: #1d4ed8;
+      --accent-soft: #d9e6ff;
+      --border-light: rgba(0,0,0,0.04);
+      --shadow: 0 20px 40px -15px rgba(0,20,40,0.15), 0 5px 15px rgba(0,0,0,0.02);
+      --shadow-sm: 0 8px 20px -8px rgba(0,20,40,0.12);
+      --progress-bg: #e2e8f0;
+      --grid-bg: #f1f4f9;
+      --cell-bg: #ffffff;
+      --cell-completed: #bbf7d0;
+      --cell-today-border: #1d4ed8;
+      --cell-missed: #fee2e2;
+      --cell-missed-border: #ef4444;
+      --nav-bg: rgba(255, 255, 255, 0.8);
+      --popup-bg: #1e293b;
+      --popup-text: #ffffff;
+      --delete-btn: #b91c1c;
+      --modal-overlay: rgba(0,0,0,0.3);
+      --success-color: #10b981;
+      --error-color: #ef4444;
+      --warning-color: #f59e0b;
+      --info-color: #3b82f6;
+    }
+
+    body.dark {
+      --bg-primary: #0e1625;
+      --bg-card: rgba(23, 30, 45, 0.75);
+      --bg-card-solid: #1a2332;
+      --text-primary: #f0f4fe;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #9aa9bb;
+      --accent: #6295f0;
+      --accent-soft: #253a5e;
+      --border-light: rgba(255,255,255,0.03);
+      --shadow: 0 20px 40px -15px #030614, 0 5px 15px #00000020;
+      --shadow-sm: 0 8px 20px -6px #030614;
+      --progress-bg: #293445;
+      --grid-bg: #1f2a3c;
+      --cell-bg: #26344b;
+      --cell-completed: #1e4a5f;
+      --cell-today-border: #6295f0;
+      --cell-missed: #4b2e2e;
+      --cell-missed-border: #f87171;
+      --nav-bg: rgba(14, 22, 37, 0.85);
+      --popup-bg: #31415e;
+      --popup-text: #ffffff;
+      --delete-btn: #f87171;
+      --modal-overlay: rgba(0,0,0,0.6);
+      --success-color: #34d399;
+      --error-color: #f87171;
+      --warning-color: #fbbf24;
+      --info-color: #60a5fa;
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-light);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .app-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 18px 16px 88px 16px;
+      position: relative;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding: 8px 4px;
+    }
+    .app-header h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(155deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .app-header h1 i {
+      font-size: 1.8rem;
+      margin-right: 6px;
+      background: none;
+      -webkit-text-fill-color: var(--accent);
+    }
+    .theme-toggle {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      backdrop-filter: blur(8px);
+      border-radius: 40px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 36px);
+      max-width: 440px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 60px;
+      padding: 6px 10px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-around;
+      z-index: 20;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 0.7rem;
+      font-weight: 550;
+      color: var(--text-tertiary);
+      transition: 0.2s;
+      cursor: pointer;
+      flex: 1;
+      padding: 6px 0;
+      border-radius: 40px;
+    }
+    .nav-item i {
+      font-size: 1.4rem;
+      margin-bottom: 2px;
+    }
+    .nav-item.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-weight: 600;
+    }
+
+    .section {
+      display: none;
+      animation: fadeSlide 0.25s ease;
+    }
+    .section.active-section {
+      display: block;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0.7; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .goal-card {
+      background: var(--bg-card-solid);
+      border-radius: 32px;
+      padding: 18px 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+      transition: 0.2s;
+      position: relative;
+      touch-action: pan-y;
+      cursor: pointer;
+    }
+    .goal-card:active {
+      transform: scale(0.99);
+    }
+    .goal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .goal-index {
+      background: var(--accent-soft);
+      color: var(--accent);
+      width: 34px;
+      height: 34px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .goal-name {
+      font-size: 1.3rem;
+      font-weight: 670;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+    .delete-goal {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 30px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--delete-btn);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: 0.15s;
+      backdrop-filter: blur(5px);
+      z-index: 5;
+    }
+    .goal-stats {
+      display: flex;
+      justify-content: space-between;
+      margin: 16px 0 12px;
+      background: var(--grid-bg);
+      padding: 8px 14px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 530;
+      color: var(--text-secondary);
+    }
+    .progress-bar {
+      height: 6px;
+      background: var(--progress-bg);
+      border-radius: 30px;
+      margin: 14px 0 16px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      border-radius: 30px;
+      transition: width 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .goal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      background: var(--grid-bg);
+      padding: 12px 10px;
+      border-radius: 28px;
+      margin: 10px 0 4px;
+    }
+    .day-cell {
+      aspect-ratio: 1/1;
+      background: var(--cell-bg);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      transition: 0.12s ease;
+      border: 2px solid transparent;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .day-cell.completed {
+      background: var(--cell-completed);
+      color: #0b2e1f;
+      font-weight: 650;
+    }
+    body.dark .day-cell.completed {
+      color: #e0f2e9;
+    }
+    .day-cell.today {
+      border: 2px solid var(--cell-today-border);
+      transform: scale(1.02);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+    .day-cell.missed {
+      background: var(--cell-missed);
+      border: 2px solid var(--cell-missed-border);
+    }
+    .day-cell.has-comment {
+      position: relative;
+    }
+    .day-cell.has-comment::after {
+      content: '📌';
+      font-size: 0.6rem;
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: var(--accent);
+      color: white;
+      border-radius: 10px;
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .future-action {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: none;
+      border-radius: 50px;
+      padding: 10px 14px;
+      font-weight: 650;
+      width: 100%;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--bg-card);
+      border-radius: 48px;
+      backdrop-filter: blur(18px);
+      color: var(--text-tertiary);
+    }
+    .empty-state i {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+      opacity: 0.8;
+      color: var(--accent);
+    }
+    .empty-state h3 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      font-size: 1rem;
+      margin-bottom: 16px;
+      color: var(--text-tertiary);
+    }
+    .empty-state .motivation {
+      font-style: italic;
+      font-size: 0.95rem;
+      background: var(--accent-soft);
+      padding: 10px 16px;
+      border-radius: 40px;
+      color: var(--accent);
+      margin: 20px 0;
+      display: inline-block;
+    }
+    .empty-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      padding: 10px 22px;
+      font-weight: 650;
+      font-size: 0.95rem;
+      margin-top: 8px;
+      cursor: pointer;
+      box-shadow: 0 12px 20px -12px var(--accent);
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .empty-btn i {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .add-form {
+      background: var(--bg-card-solid);
+      border-radius: 40px;
+      padding: 22px 18px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      letter-spacing: -0.2px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px 18px;
+      background: var(--grid-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 40px;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      outline: none;
+      font-weight: 500;
+    }
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      background: var(--grid-bg);
+      padding: 8px 16px;
+      border-radius: 40px;
+    }
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 550;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 12px 20px -10px var(--accent);
+      transition: 0.15s;
+    }
+    .btn-primary i {
+      margin-right: 6px;
+    }
+
+    /* ----- PREMIUM POPUP with circular timer ----- */
+    .popup-container {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 2000;
+    }
+    .popup-card {
+      background: var(--bg-card-solid);
+      border-radius: 60px;
+      padding: 28px 32px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-light);
+      max-width: 260px;
+      width: auto;
+      transform: scale(0.8);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+      pointer-events: none;
+      backdrop-filter: blur(10px);
+    }
+    .popup-card.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+    .popup-icon {
+      font-size: 3.5rem;
+      margin-bottom: 16px;
+    }
+    .popup-icon.success { color: var(--success-color); }
+    .popup-icon.error { color: var(--error-color); }
+    .popup-icon.warning { color: var(--warning-color); }
+    .popup-icon.info { color: var(--info-color); }
+    .popup-message {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+    }
+    /* Circular progress */
+    .progress-circle {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .progress-circle svg {
+      width: 44px;
+      height: 44px;
+      transform: rotate(-90deg);
+    }
+    .progress-circle circle {
+      fill: none;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+    .progress-circle .bg-circle {
+      stroke: var(--border-light);
+    }
+    .progress-circle .timer-circle {
+      stroke: var(--accent);
+      stroke-dasharray: 113;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 2s linear;
+    }
+    .popup-card.show .timer-circle {
+      animation: drain 2s linear forwards;
+    }
+    @keyframes drain {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 113; }
+    }
+
+    /* Modal overlays */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--modal-overlay);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.2s;
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-card {
+      background: var(--bg-card-solid);
+      border-radius: 40px;
+      padding: 24px 20px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-light);
+    }
+    .modal-card p {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 12px 0;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .modal-btn.yes {
+      background: var(--accent);
+      color: white;
+    }
+    .modal-btn.no {
+      background: var(--grid-bg);
+      color: var(--text-secondary);
+    }
+    .modal-btn.kasam {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .comment-modal .modal-card {
+      max-width: 340px;
+    }
+    .comment-input {
+      width: 100%;
+      padding: 14px;
+      background: var(--grid-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 30px;
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin: 16px 0;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .comment-save {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 0;
+      border-radius: 40px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .detail-modal .modal-card {
+      max-width: 420px;
+      width: 95%;
+      padding: 24px 16px;
+    }
+    .detail-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin: 20px 0;
+    }
+    .detail-day-cell {
+      aspect-ratio: 1/1;
+      background: var(--cell-bg);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .detail-day-cell.completed {
+      background: var(--cell-completed);
+      color: #0b2e1f;
+    }
+    .detail-day-cell.today {
+      border-color: var(--cell-today-border);
+    }
+    .detail-day-cell.has-comment::after {
+      content: '📌';
+      font-size: 0.7rem;
+      position: relative;
+      top: -8px;
+      left: 4px;
+    }
+    .reminder-box {
+      background: var(--accent-soft);
+      padding: 16px;
+      border-radius: 32px;
+      text-align: center;
+      margin-top: 16px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <header class="app-header">
+      <h1><i class="fas fa-arrow-up"></i> Self Improvement</h1>
+      <div class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></div>
+    </header>
+
+    <div id="currentSection" class="section active-section"></div>
+    <div id="futureSection" class="section"></div>
+    <div id="historySection" class="section"></div>
+    <div id="addSection" class="section">
+      <div class="add-form glass-card">
+        <div class="form-group">
+          <label><i class="fas fa-pen" style="margin-right: 6px;"></i>Habit name</label>
+          <input type="text" id="habitName" placeholder="e.g. Morning run" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Number of days</label>
+          <input type="number" id="habitDays" min="1" value="21">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-calendar-plus"></i> Start date</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-clock"></i> Option</label>
+          <div class="radio-group">
+            <label><input type="radio" name="goalOption" value="startNow" checked> <i class="fas fa-play"></i> Start</label>
+            <label><input type="radio" name="goalOption" value="planLater"> <i class="fas fa-calendar-plus"></i> Plan</label>
+          </div>
+        </div>
+        <button class="btn-primary" id="addGoalBtn"><i class="fas fa-plus-circle"></i> Add goal</button>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item active" data-tab="current"><i class="fas fa-flag-checkered"></i><span>Current</span></div>
+      <div class="nav-item" data-tab="future"><i class="fas fa-calendar-plus"></i><span>Future</span></div>
+      <div class="nav-item" data-tab="history"><i class="fas fa-clock-rotate-left"></i><span>History</span></div>
+      <div class="nav-item" data-tab="add"><i class="fas fa-plus-circle"></i><span>Add</span></div>
+    </div>
+  </div>
+
+  <!-- PREMIUM POPUP (replaces all alerts) -->
+  <div class="popup-container" id="popupContainer">
+    <div class="popup-card glass-card" id="popupCard">
+      <div id="popupIcon" class="popup-icon success"><i class="fas fa-check-circle"></i></div>
+      <div class="popup-message" id="popupMessage">Done!</div>
+      <div class="progress-circle">
+        <svg viewBox="0 0 44 44">
+          <circle class="bg-circle" cx="22" cy="22" r="18"></circle>
+          <circle class="timer-circle" cx="22" cy="22" r="18" stroke="currentColor" id="timerCircle"></circle>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm delete modal -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-card glass-card">
+      <p><i class="fas fa-trash" style="color: var(--delete-btn); margin-right: 8px;"></i> Delete this habit?</p>
+      <div class="modal-actions">
+        <button class="modal-btn yes" id="confirmYes"><i class="fas fa-check"></i> Yes</button>
+        <button class="modal-btn no" id="confirmNo"><i class="fas fa-times"></i> No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kasam modal for past incomplete days -->
+  <div id="kasamModal" class="modal-overlay">
+    <div class="modal-card glass-card">
+      <p><i class="fas fa-hand-peace" style="color: var(--warning-color);"></i> Did you complete this habit on <span id="kasamDate"></span>?</p>
+      <div class="modal-actions">
+        <button class="modal-btn kasam" id="kasamYes"><i class="fas fa-check-circle"></i> Kasam</button>
+        <button class="modal-btn no" id="kasamNo"><i class="fas fa-times"></i> No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comment modal for day notes -->
+  <div id="commentModal" class="modal-overlay comment-modal">
+    <div class="modal-card glass-card">
+      <p><i class="fas fa-pen" style="color: var(--accent);"></i> Note for <span id="commentDateSpan"></span></p>
+      <textarea id="commentTextarea" class="comment-input" rows="3" placeholder="Write something about this day..."></textarea>
+      <button class="comment-save" id="saveCommentBtn"><i class="fas fa-save"></i> Save comment</button>
+      <button class="modal-btn no" id="closeCommentBtn" style="margin-top: 10px;"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+
+  <!-- Detail modal (calendar view) -->
+  <div id="detailModal" class="modal-overlay detail-modal">
+    <div class="modal-card glass-card">
+      <h3 id="detailGoalName" style="font-size: 1.6rem; margin-bottom: 8px;"></h3>
+      <div id="detailCalendar" class="detail-calendar-grid"></div>
+      <div id="reminderMessage" class="reminder-box"><i class="fas fa-bell"></i> Reminder</div>
+      <button class="modal-btn no" id="closeDetailModal" style="margin-top: 16px; width: 100%;"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      let goals = [];
+      const STORAGE_KEY = 'self_improvement_habits';
+
+      function loadFromStorage() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try { goals = JSON.parse(stored); } catch(e){ goals = []; }
+        } else {
+          goals = [];
+        }
+        goals.forEach(g => { if (!g.comments) g.comments = {}; });
+      }
+      function saveToStorage() { localStorage.setItem(STORAGE_KEY, JSON.stringify(goals)); }
+
+      function getTodayString() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2,'0');
+        const day = String(d.getDate()).padStart(2,'0');
+        return `${y}-${m}-${day}`;
+      }
+
+      // Set default date in date picker to today
+      const startDateInput = document.getElementById('startDate');
+      startDateInput.value = getTodayString();
+
+      // ----- PREMIUM POPUP -----
+      const popupContainer = document.getElementById('popupContainer');
+      const popupCard = document.getElementById('popupCard');
+      const popupIcon = document.getElementById('popupIcon');
+      const popupMessage = document.getElementById('popupMessage');
+      const timerCircle = document.getElementById('timerCircle');
+      let popupTimer = null;
+
+      function showPopup(msg, type = 'success') {
+        if (popupTimer) clearTimeout(popupTimer);
+        popupIcon.className = 'popup-icon';
+        let iconHtml = '';
+        switch(type) {
+          case 'success': iconHtml = '<i class="fas fa-check-circle"></i>'; popupIcon.classList.add('success'); break;
+          case 'error': iconHtml = '<i class="fas fa-exclamation-circle"></i>'; popupIcon.classList.add('error'); break;
+          case 'warning': iconHtml = '<i class="fas fa-exclamation-triangle"></i>'; popupIcon.classList.add('warning'); break;
+          case 'info': iconHtml = '<i class="fas fa-info-circle"></i>'; popupIcon.classList.add('info'); break;
+          default: iconHtml = '<i class="fas fa-check-circle"></i>'; popupIcon.classList.add('success');
+        }
+        popupIcon.innerHTML = iconHtml;
+        popupMessage.textContent = msg;
+
+        timerCircle.style.animation = 'none';
+        timerCircle.offsetHeight;
+        timerCircle.style.animation = 'drain 2s linear forwards';
+
+        popupCard.classList.add('show');
+        popupTimer = setTimeout(() => {
+          popupCard.classList.remove('show');
+        }, 2000);
+      }
+
+      // Theme
+      const themeToggle = document.getElementById('themeToggle');
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+      function setThemeFromSystem(e) {
+        if (e.matches) {
+          document.body.classList.add('dark');
+          themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+          document.body.classList.remove('dark');
+          themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+      }
+      systemDark.addEventListener('change', setThemeFromSystem);
+      setThemeFromSystem(systemDark);
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        const icon = themeToggle.querySelector('i');
+        icon.className = document.body.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+      });
+
+      // Confirm delete modal
+      const confirmModal = document.getElementById('confirmModal');
+      const confirmYes = document.getElementById('confirmYes');
+      const confirmNo = document.getElementById('confirmNo');
+      let pendingGoalId = null;
+      function showConfirm(goalId) {
+        pendingGoalId = goalId;
+        confirmModal.classList.add('show');
+      }
+      function hideConfirm() {
+        confirmModal.classList.remove('show');
+        pendingGoalId = null;
+      }
+      confirmYes.addEventListener('click', () => {
+        if (pendingGoalId) {
+          goals = goals.filter(g => g.id !== pendingGoalId);
+          saveToStorage();
+          showPopup('Goal deleted', 'error');
+          renderCurrent();
+          renderFuture();
+          renderHistory();
+        }
+        hideConfirm();
+      });
+      confirmNo.addEventListener('click', hideConfirm);
+      confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) hideConfirm(); });
+
+      // Kasam modal
+      const kasamModal = document.getElementById('kasamModal');
+      const kasamDateSpan = document.getElementById('kasamDate');
+      const kasamYes = document.getElementById('kasamYes');
+      const kasamNo = document.getElementById('kasamNo');
+      let pendingKasam = { goalId: null, cellDate: null };
+      function showKasam(goalId, dateStr, displayDate) {
+        pendingKasam = { goalId, cellDate: dateStr };
+        kasamDateSpan.textContent = displayDate;
+        kasamModal.classList.add('show');
+      }
+      function hideKasam() {
+        kasamModal.classList.remove('show');
+        pendingKasam = { goalId: null, cellDate: null };
+      }
+      kasamYes.addEventListener('click', () => {
+        if (pendingKasam.goalId && pendingKasam.cellDate) {
+          const goal = goals.find(g => g.id === pendingKasam.goalId);
+          if (goal && !goal.completedDates.includes(pendingKasam.cellDate)) {
+            goal.completedDates.push(pendingKasam.cellDate);
+            if (!goal.comments) goal.comments = {};
+            if (goal.completedDates.length >= goal.totalDays) {
+              goal.status = 'history';
+              showPopup('Goal completed!', 'success');
+            } else {
+              showPopup('Marked with kasam', 'warning');
+            }
+            saveToStorage();
+            renderCurrent();
+            renderFuture();
+            renderHistory();
+          }
+        }
+        hideKasam();
+      });
+      kasamNo.addEventListener('click', hideKasam);
+      kasamModal.addEventListener('click', (e) => { if (e.target === kasamModal) hideKasam(); });
+
+      // Comment modal
+      const commentModal = document.getElementById('commentModal');
+      const commentDateSpan = document.getElementById('commentDateSpan');
+      const commentTextarea = document.getElementById('commentTextarea');
+      const saveCommentBtn = document.getElementById('saveCommentBtn');
+      const closeCommentBtn = document.getElementById('closeCommentBtn');
+      let pendingComment = { goalId: null, date: null };
+      function showCommentModal(goalId, dateStr, existingComment) {
+        pendingComment = { goalId, date: dateStr };
+        commentDateSpan.textContent = dateStr;
+        commentTextarea.value = existingComment || '';
+        commentModal.classList.add('show');
+      }
+      function hideCommentModal() {
+        commentModal.classList.remove('show');
+        pendingComment = { goalId: null, date: null };
+      }
+      saveCommentBtn.addEventListener('click', () => {
+        if (pendingComment.goalId && pendingComment.date) {
+          const goal = goals.find(g => g.id === pendingComment.goalId);
+          if (goal) {
+            if (!goal.comments) goal.comments = {};
+            goal.comments[pendingComment.date] = commentTextarea.value.trim();
+            saveToStorage();
+            showPopup('Note saved', 'info');
+            renderCurrent();
+          }
+        }
+        hideCommentModal();
+      });
+      closeCommentBtn.addEventListener('click', hideCommentModal);
+      commentModal.addEventListener('click', (e) => { if (e.target === commentModal) hideCommentModal(); });
+
+      // Detail modal
+      const detailModal = document.getElementById('detailModal');
+      const detailGoalName = document.getElementById('detailGoalName');
+      const detailCalendar = document.getElementById('detailCalendar');
+      const reminderMessage = document.getElementById('reminderMessage');
+      const closeDetail = document.getElementById('closeDetailModal');
+      function showDetailModal(goal) {
+        detailGoalName.textContent = goal.name;
+        let html = '';
+        const todayStr = getTodayString();
+        let todayIndex = -1;
+        if (goal.startDate) {
+          const start = new Date(goal.startDate + 'T12:00:00');
+          const today = new Date(todayStr + 'T12:00:00');
+          const diffTime = today - start;
+          const diffDays = Math.round(diffTime / (1000*60*60*24));
+          todayIndex = diffDays + 1;
+        }
+        for (let d = 1; d <= goal.totalDays; d++) {
+          let cellDate = null;
+          if (goal.startDate) {
+            const cellD = new Date(goal.startDate + 'T12:00:00');
+            cellD.setDate(cellD.getDate() + (d-1));
+            const y = cellD.getFullYear();
+            const m = String(cellD.getMonth()+1).padStart(2,'0');
+            const day = String(cellD.getDate()).padStart(2,'0');
+            cellDate = `${y}-${m}-${day}`;
+          }
+          const completed = cellDate ? goal.completedDates.includes(cellDate) : false;
+          const isToday = (d === todayIndex && goal.startDate && todayIndex <= goal.totalDays && todayIndex >= 1);
+          const hasComment = cellDate && goal.comments && goal.comments[cellDate];
+          const todayClass = isToday ? 'today' : '';
+          const completedClass = completed ? 'completed' : '';
+          const commentClass = hasComment ? 'has-comment' : '';
+          html += `<div class="detail-day-cell ${todayClass} ${completedClass} ${commentClass}" data-date="${cellDate}" data-day="${d}">${d}</div>`;
+        }
+        detailCalendar.innerHTML = html;
+
+        document.querySelectorAll('.detail-day-cell').forEach(cell => {
+          cell.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const date = cell.dataset.date;
+            if (!date) return;
+            const completed = goal.completedDates.includes(date);
+            if (!completed) {
+              showPopup('Day not completed', 'error');
+              return;
+            }
+            const existing = goal.comments ? goal.comments[date] : '';
+            showCommentModal(goal.id, date, existing);
+          });
+        });
+
+        const now = new Date();
+        const currentHour = now.getHours();
+        const todayCompleted = goal.startDate ? goal.completedDates.includes(todayStr) : false;
+        if (!todayCompleted && currentHour >= 22 && currentHour < 23) {
+          reminderMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 10 PM — not done yet!';
+        } else if (!todayCompleted) {
+          reminderMessage.innerHTML = '<i class="fas fa-bell"></i> Complete today before 11 PM';
+        } else {
+          reminderMessage.innerHTML = '<i class="fas fa-check-circle"></i> Today completed. Great job!';
+        }
+        detailModal.classList.add('show');
+      }
+      closeDetail.addEventListener('click', () => detailModal.classList.remove('show'));
+      detailModal.addEventListener('click', (e) => { if (e.target === detailModal) detailModal.classList.remove('show'); });
+
+      // Long press on day cells (for comments)
+      let dayLongPressTimer = null;
+      function startDayLongPress(goalId, cellDate, event) {
+        if (!cellDate) return;
+        dayLongPressTimer = setTimeout(() => {
+          const goal = goals.find(g => g.id === goalId);
+          if (goal) {
+            const existing = goal.comments ? goal.comments[cellDate] : '';
+            showCommentModal(goalId, cellDate, existing);
+          }
+          dayLongPressTimer = null;
+        }, 600);
+      }
+      function cancelDayLongPress() {
+        if (dayLongPressTimer) { clearTimeout(dayLongPressTimer); dayLongPressTimer = null; }
+      }
+
+      // Goal card long press (for delete)
+      let goalLongPressTimer = null;
+      let longPressGoalId = null;
+      const LONG_PRESS_DURATION = 600;
+      function startGoalLongPress(goalId, event) {
+        const target = event.target;
+        if (target.closest('.goal-grid') || target.closest('.future-action') || target.closest('.delete-goal') || target.closest('.day-cell')) {
+          return;
+        }
+        longPressGoalId = goalId;
+        goalLongPressTimer = setTimeout(() => {
+          if (longPressGoalId) showConfirm(longPressGoalId);
+          goalLongPressTimer = null;
+        }, LONG_PRESS_DURATION);
+      }
+      function cancelGoalLongPress() {
+        if (goalLongPressTimer) { clearTimeout(goalLongPressTimer); goalLongPressTimer = null; }
+        longPressGoalId = null;
+      }
+
+      function attachCardListeners() {
+        document.querySelectorAll('.goal-card').forEach(card => {
+          const goalId = card.dataset.goalId;
+          if (!goalId) return;
+          card.removeEventListener('touchstart', card._lsStart);
+          card.removeEventListener('touchend', card._lsEnd);
+          card.removeEventListener('touchcancel', card._lsEnd);
+          card.removeEventListener('touchmove', card._lsEnd);
+          card.removeEventListener('mousedown', card._lsStart);
+          card.removeEventListener('mouseup', card._lsEnd);
+          card.removeEventListener('mouseleave', card._lsEnd);
+          card.removeEventListener('click', card._click);
+          const startHandler = (e) => startGoalLongPress(goalId, e);
+          const endHandler = cancelGoalLongPress;
+          const clickHandler = (e) => {
+            if (e.target.closest('.goal-grid') || e.target.closest('.future-action') || e.target.closest('.delete-goal') || e.target.closest('.day-cell')) return;
+            const goal = goals.find(g => g.id === goalId);
+            if (goal) showDetailModal(goal);
+          };
+          card._lsStart = startHandler;
+          card._lsEnd = endHandler;
+          card._click = clickHandler;
+          card.addEventListener('touchstart', startHandler, { passive: true });
+          card.addEventListener('touchend', endHandler);
+          card.addEventListener('touchcancel', endHandler);
+          card.addEventListener('touchmove', endHandler);
+          card.addEventListener('mousedown', startHandler);
+          card.addEventListener('mouseup', endHandler);
+          card.addEventListener('mouseleave', endHandler);
+          card.addEventListener('click', clickHandler);
+        });
+      }
+
+      function attachDeleteHandlers() {
+        document.querySelectorAll('.delete-goal').forEach(btn => {
+          btn.removeEventListener('click', btn._deleteClick);
+          const handler = (e) => {
+            e.stopPropagation();
+            const card = btn.closest('.goal-card');
+            if (card) showConfirm(card.dataset.goalId);
+          };
+          btn.addEventListener('click', handler);
+          btn._deleteClick = handler;
+        });
+      }
+
+      function handleGridClick(e) {
+        e.stopPropagation();
+        const cell = e.target.closest('.day-cell');
+        if (!cell) return;
+        const grid = cell.closest('.goal-grid');
+        const card = grid.closest('.goal-card');
+        const goal = goals.find(g => g.id === card.dataset.goalId);
+        if (!goal || goal.status !== 'current' || !goal.startDate) return;
+
+        const dayIndex = parseInt(cell.dataset.dayIndex, 10);
+        const todayStr = getTodayString();
+        const start = new Date(goal.startDate + 'T12:00:00');
+        const today = new Date(todayStr + 'T12:00:00');
+        const todayIndex = Math.round((today - start) / (1000*60*60*24)) + 1;
+
+        const cellDateObj = new Date(goal.startDate + 'T12:00:00');
+        cellDateObj.setDate(cellDateObj.getDate() + (dayIndex-1));
+        const cellDate = cellDateObj.toISOString().split('T')[0];
+
+        if (dayIndex > todayIndex) {
+          showPopup('Not today', 'error');
+          return;
+        }
+
+        if (goal.completedDates.includes(cellDate)) {
+          showPopup('Already completed', 'info');
+          return;
+        }
+
+        if (dayIndex === todayIndex) {
+          goal.completedDates.push(cellDate);
+          if (!goal.comments) goal.comments = {};
+          if (goal.completedDates.length >= goal.totalDays) {
+            goal.status = 'history';
+            showPopup('Goal completed!', 'success');
+          } else {
+            showPopup('Day completed', 'success');
+          }
+          saveToStorage();
+          renderCurrent(); renderFuture(); renderHistory();
+        } else if (dayIndex < todayIndex) {
+          const formattedDate = cellDateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+          showKasam(goal.id, cellDate, formattedDate);
+        }
+      }
+
+      function attachDayLongPress() {
+        document.querySelectorAll('.day-cell').forEach(cell => {
+          const grid = cell.closest('.goal-grid');
+          if (!grid) return;
+          const card = grid.closest('.goal-card');
+          if (!card) return;
+          const goalId = card.dataset.goalId;
+          const dayIndex = cell.dataset.dayIndex;
+          if (!goalId || !dayIndex) return;
+          const goal = goals.find(g => g.id === goalId);
+          if (!goal || !goal.startDate) return;
+          const cellDateObj = new Date(goal.startDate + 'T12:00:00');
+          cellDateObj.setDate(cellDateObj.getDate() + (parseInt(dayIndex)-1));
+          const cellDate = cellDateObj.toISOString().split('T')[0];
+
+          cell.removeEventListener('touchstart', cell._lsStart);
+          cell.removeEventListener('touchend', cell._lsEnd);
+          cell.removeEventListener('touchcancel', cell._lsEnd);
+          cell.removeEventListener('touchmove', cell._lsEnd);
+          cell.removeEventListener('mousedown', cell._lsStart);
+          cell.removeEventListener('mouseup', cell._lsEnd);
+          cell.removeEventListener('mouseleave', cell._lsEnd);
+
+          const startHandler = (e) => {
+            e.stopPropagation();
+            startDayLongPress(goalId, cellDate, e);
+          };
+          const endHandler = cancelDayLongPress;
+
+          cell._lsStart = startHandler;
+          cell._lsEnd = endHandler;
+          cell.addEventListener('touchstart', startHandler, { passive: true });
+          cell.addEventListener('touchend', endHandler);
+          cell.addEventListener('touchcancel', endHandler);
+          cell.addEventListener('touchmove', endHandler);
+          cell.addEventListener('mousedown', startHandler);
+          cell.addEventListener('mouseup', endHandler);
+          cell.addEventListener('mouseleave', endHandler);
+        });
+      }
+
+      function renderCurrent() {
+        const container = document.getElementById('currentSection');
+        const currentGoals = goals.filter(g => g.status === 'current').sort((a,b) => (a.addedAs === 'startNow' ? -1 : 1));
+        if (currentGoals.length === 0) {
+          container.innerHTML = `<div class="empty-state"><i class="fas fa-seedling"></i><h3>Start fresh</h3><p>No active habits.</p><div class="motivation"><i class="fas fa-quote-left"></i> Every day is a new beginning. <i class="fas fa-quote-right"></i></div><button class="empty-btn" id="emptyAddBtn"><i class="fas fa-plus-circle"></i> Add goal</button></div>`;
+          document.getElementById('emptyAddBtn')?.addEventListener('click', ()=> switchTab('add'));
+          return;
+        }
+        let html = '';
+        currentGoals.forEach((goal, idx) => html += renderGoalCard(goal, idx+1));
+        container.innerHTML = html;
+        attachDeleteHandlers();
+        attachCardListeners();
+        document.querySelectorAll('.goal-grid').forEach(grid => grid.addEventListener('click', handleGridClick));
+        attachDayLongPress();
+        document.querySelectorAll('.future-action').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const card = e.target.closest('.goal-card');
+            if (card) startFutureGoal(card.dataset.goalId);
+          });
+        });
+      }
+
+      function renderFuture() {
+        const container = document.getElementById('futureSection');
+        const futureGoals = goals.filter(g => g.status === 'future');
+        if (futureGoals.length === 0) {
+          container.innerHTML = `<div class="empty-state"><i class="fas fa-cloud-moon"></i><h3>Quiet future</h3><p>No planned habits.</p><div class="motivation"><i class="fas fa-quote-left"></i> Plan your future, shape your destiny. <i class="fas fa-quote-right"></i></div><button class="empty-btn" id="emptyFutureAdd"><i class="fas fa-plus-circle"></i> Add goal</button></div>`;
+          document.getElementById('emptyFutureAdd')?.addEventListener('click', ()=> switchTab('add'));
+          return;
+        }
+        let html = '';
+        futureGoals.forEach((goal, idx) => {
+          html += `<div class="goal-card glass-card" data-goal-id="${goal.id}">
+            <div class="goal-header"><span class="goal-index">${idx+1}</span><span class="goal-name">${goal.name}</span></div>
+            <div style="margin-left: 8px; margin-bottom: 8px; color: var(--text-tertiary);"><i class="fas fa-clock"></i>  ${goal.totalDays} days · planned</div>
+            <button class="future-action"><i class="fas fa-rocket"></i> Start now</button>
+            <div class="delete-goal"><i class="fas fa-trash"></i></div>
+          </div>`;
+        });
+        container.innerHTML = html;
+        attachDeleteHandlers();
+        attachCardListeners();
+        container.querySelectorAll('.future-action').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const card = e.target.closest('.goal-card');
+            if (card) startFutureGoal(card.dataset.goalId);
+          });
+        });
+      }
+
+      function renderHistory() {
+        const container = document.getElementById('historySection');
+        const historyGoals = goals.filter(g => g.status === 'history');
+        if (historyGoals.length === 0) {
+          container.innerHTML = `<div class="empty-state"><i class="fas fa-scroll"></i><h3>History</h3><p>Your completed goals will appear here.</p><div class="motivation"><i class="fas fa-quote-left"></i> The past is a place of learning. <i class="fas fa-quote-right"></i></div></div>`;
+          return;
+        }
+        let html = '';
+        historyGoals.forEach((goal, idx) => {
+          html += `<div class="goal-card glass-card" data-goal-id="${goal.id}">
+            <div class="goal-header"><span class="goal-index">${idx+1}</span><span class="goal-name">${goal.name}</span></div>
+            <div style="margin: 12px 0 8px 8px;"><i class="fas fa-check-circle" style="color: var(--accent);"></i>  Completed · ${goal.completedDates.length}/${goal.totalDays} days</div>
+            <div class="delete-goal"><i class="fas fa-trash"></i></div>
+          </div>`;
+        });
+        container.innerHTML = html;
+        attachDeleteHandlers();
+        attachCardListeners();
+      }
+
+      function renderGoalCard(goal, index) {
+        const completedCount = goal.completedDates.length;
+        const remaining = goal.totalDays - completedCount;
+        const percent = Math.round((completedCount / goal.totalDays)*100) || 0;
+        const todayStr = getTodayString();
+        let todayIndex = -1;
+        if (goal.startDate) {
+          const start = new Date(goal.startDate + 'T12:00:00');
+          const today = new Date(todayStr + 'T12:00:00');
+          const diffDays = Math.round((today - start) / (1000*60*60*24));
+          todayIndex = diffDays + 1;
+        }
+
+        let gridHtml = '';
+        for (let d = 1; d <= goal.totalDays; d++) {
+          let cellDate = null;
+          if (goal.startDate) {
+            const cellD = new Date(goal.startDate + 'T12:00:00');
+            cellD.setDate(cellD.getDate() + (d-1));
+            const y = cellD.getFullYear();
+            const m = String(cellD.getMonth()+1).padStart(2,'0');
+            const day = String(cellD.getDate()).padStart(2,'0');
+            cellDate = `${y}-${m}-${day}`;
+          }
+          const completed = cellDate ? goal.completedDates.includes(cellDate) : false;
+          const isToday = (d === todayIndex && goal.startDate && todayIndex <= goal.totalDays && todayIndex >= 1);
+          let missed = false;
+          if (goal.startDate && cellDate && cellDate < todayStr && !completed) {
+            missed = true;
+          }
+          const hasComment = cellDate && goal.comments && goal.comments[cellDate];
+          const todayClass = isToday ? 'today' : '';
+          const completedClass = completed ? 'completed' : '';
+          const missedClass = missed ? 'missed' : '';
+          const commentClass = hasComment ? 'has-comment' : '';
+          gridHtml += `<div class="day-cell ${todayClass} ${completedClass} ${missedClass} ${commentClass}" data-day-index="${d}">${d}</div>`;
+        }
+
+        return `<div class="goal-card glass-card" data-goal-id="${goal.id}">
+          <div class="goal-header"><span class="goal-index">${index}</span><span class="goal-name">${goal.name}</span></div>
+          <div class="goal-stats">
+            <span><i class="fas fa-check-circle"></i> ${completedCount}</span>
+            <span><i class="fas fa-hourglass-half"></i> ${remaining}</span>
+            <span><i class="fas fa-percent"></i> ${percent}%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${percent}%;"></div></div>
+          <div class="goal-grid">${gridHtml}</div>
+          <div class="delete-goal"><i class="fas fa-trash"></i></div>
+        </div>`;
+      }
+
+      function startFutureGoal(goalId) {
+        const goal = goals.find(g => g.id === goalId);
+        if (!goal || goal.status !== 'future') return;
+        goal.status = 'current';
+        goal.startDate = getTodayString();
+        goal.completedDates = [];
+        goal.comments = goal.comments || {};
+        saveToStorage();
+        renderCurrent(); renderFuture();
+        switchTab('current');
+        showPopup('Goal started', 'info');
+      }
+
+      // Add goal with selected start date
+      document.getElementById('addGoalBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('habitName');
+        const daysInput = document.getElementById('habitDays');
+        const startDateInput = document.getElementById('startDate');
+        const name = nameInput.value.trim();
+        const days = parseInt(daysInput.value, 10);
+        let startDate = startDateInput.value;
+        if (!name || !days || days < 1) { showPopup('Fill all fields', 'error'); return; }
+        const option = document.querySelector('input[name="goalOption"]:checked').value;
+        
+        // If startDate is empty, default to today
+        if (!startDate) startDate = getTodayString();
+
+        const newGoal = {
+          id: Date.now() + '' + Math.floor(Math.random()*1000),
+          name,
+          totalDays: days,
+          addedAs: option === 'startNow' ? 'startNow' : 'planForLater',
+          status: option === 'startNow' ? 'current' : 'future',
+          startDate: option === 'startNow' ? startDate : null,
+          completedDates: [],
+          comments: {}
+        };
+        goals.push(newGoal);
+        saveToStorage();
+        showPopup('Goal added', 'success');
+        nameInput.value = '';
+        daysInput.value = '21';
+        startDateInput.value = getTodayString(); // reset to today
+        document.querySelector('input[value="startNow"]').checked = true;
+        renderCurrent(); renderFuture(); renderHistory();
+      });
+
+      // Bottom nav
+      const navItems = document.querySelectorAll('.nav-item');
+      function switchTab(tabId) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+        document.getElementById(tabId + 'Section').classList.add('active-section');
+        navItems.forEach(i => i.classList.remove('active'));
+        document.querySelector(`.nav-item[data-tab="${tabId}"]`).classList.add('active');
+        if (tabId === 'current') renderCurrent();
+        if (tabId === 'future') renderFuture();
+        if (tabId === 'history') renderHistory();
+      }
+      navItems.forEach(item => item.addEventListener('click', (e) => switchTab(item.dataset.tab)));
+
+      // Reminder check every minute (10-11pm)
+      setInterval(() => {
+        const now = new Date();
+        const hour = now.getHours();
+        if (hour >= 22 && hour < 23) {
+          const todayStr = getTodayString();
+          const incomplete = goals.some(g => g.status === 'current' && g.startDate && !g.completedDates.includes(todayStr));
+          if (incomplete) {
+            showPopup('Reminder: Today not done!', 'warning');
+          }
+        }
+      }, 60000);
+
+      // Init
+      loadFromStorage();
+      renderCurrent(); renderFuture(); renderHistory();
+    })();
+  </script>
+</body>
+</html>
