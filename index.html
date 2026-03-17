@@ -20,7 +20,7 @@
       font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
-      transition: background 0.3s ease, color 0.2s ease;
+      transition: background-color 0.3s ease, color 0.2s ease;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -90,6 +90,7 @@
       --info-color: #60a5fa;
     }
 
+    /* smoother interactions */
     .glass-card {
       background: var(--bg-card);
       backdrop-filter: blur(18px);
@@ -97,6 +98,7 @@
       border: 1px solid var(--border-light);
       border-radius: 32px;
       box-shadow: var(--shadow);
+      transition: box-shadow 0.2s ease, background-color 0.2s ease;
     }
 
     .app-wrapper {
@@ -124,6 +126,7 @@
       background: linear-gradient(155deg, var(--text-primary), var(--text-secondary));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      transition: background 0.2s;
     }
     .app-header h1 i {
       font-size: 1.8rem;
@@ -165,6 +168,7 @@
       display: flex;
       justify-content: space-around;
       z-index: 20;
+      transition: background-color 0.2s;
     }
     .nav-item {
       display: flex;
@@ -211,7 +215,7 @@
       margin-bottom: 20px;
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--border-light);
-      transition: 0.2s;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s;
       position: relative;
       touch-action: pan-y;
       cursor: pointer;
@@ -262,6 +266,10 @@
       backdrop-filter: blur(5px);
       z-index: 5;
     }
+    .delete-goal:hover {
+      background: rgba(220, 38, 38, 0.2);
+      transform: scale(0.95);
+    }
     .goal-stats {
       display: flex;
       justify-content: space-between;
@@ -308,7 +316,7 @@
       font-weight: 600;
       color: var(--text-primary);
       box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-      transition: 0.12s ease;
+      transition: 0.12s ease, background-color 0.2s;
       border: 2px solid transparent;
       cursor: pointer;
       user-select: none;
@@ -450,6 +458,10 @@
       color: var(--text-primary);
       outline: none;
       font-weight: 500;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus {
+      border-color: var(--accent);
     }
     .radio-group {
       display: flex;
@@ -483,7 +495,23 @@
       margin-right: 6px;
     }
 
-    /* ----- PREMIUM POPUP with circular timer ----- */
+    /* ----- PREMIUM POPUP with dim overlay and reliable animation ----- */
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(3px);
+      z-index: 1999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      pointer-events: none;
+    }
+    .popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto; /* blocks background interaction */
+    }
     .popup-container {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -550,7 +578,6 @@
       stroke: var(--accent);
       stroke-dasharray: 113;
       stroke-dashoffset: 0;
-      transition: stroke-dashoffset 2s linear;
     }
     .popup-card.show .timer-circle {
       animation: drain 2s linear forwards;
@@ -648,6 +675,11 @@
       width: 100%;
       cursor: pointer;
     }
+    .comment-modal .modal-btn.no {
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px 0;
+    }
 
     .detail-modal .modal-card {
       max-width: 420px;
@@ -717,7 +749,7 @@
         </div>
         <div class="form-group">
           <label><i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>Number of days</label>
-          <input type="number" id="habitDays" min="1" value="21">
+          <input type="number" id="habitDays" min="1" value="">
         </div>
         <div class="form-group">
           <label><i class="fas fa-calendar-plus"></i> Start date</label>
@@ -742,7 +774,10 @@
     </div>
   </div>
 
-  <!-- PREMIUM POPUP (replaces all alerts) -->
+  <!-- Popup overlay (dim) -->
+  <div class="popup-overlay" id="popupOverlay"></div>
+
+  <!-- PREMIUM POPUP -->
   <div class="popup-container" id="popupContainer">
     <div class="popup-card glass-card" id="popupCard">
       <div id="popupIcon" class="popup-icon success"><i class="fas fa-check-circle"></i></div>
@@ -767,7 +802,7 @@
     </div>
   </div>
 
-  <!-- Kasam modal for past incomplete days -->
+  <!-- Kasam modal -->
   <div id="kasamModal" class="modal-overlay">
     <div class="modal-card glass-card">
       <p><i class="fas fa-hand-peace" style="color: var(--warning-color);"></i> Did you complete this habit on <span id="kasamDate"></span>?</p>
@@ -778,17 +813,17 @@
     </div>
   </div>
 
-  <!-- Comment modal for day notes -->
+  <!-- Comment modal -->
   <div id="commentModal" class="modal-overlay comment-modal">
     <div class="modal-card glass-card">
       <p><i class="fas fa-pen" style="color: var(--accent);"></i> Note for <span id="commentDateSpan"></span></p>
       <textarea id="commentTextarea" class="comment-input" rows="3" placeholder="Write something about this day..."></textarea>
       <button class="comment-save" id="saveCommentBtn"><i class="fas fa-save"></i> Save comment</button>
-      <button class="modal-btn no" id="closeCommentBtn" style="margin-top: 10px;"><i class="fas fa-times"></i> Close</button>
+      <button class="modal-btn no" id="closeCommentBtn" style="margin-top: 10px; width: 100%;"><i class="fas fa-times"></i> Close</button>
     </div>
   </div>
 
-  <!-- Detail modal (calendar view) -->
+  <!-- Detail modal -->
   <div id="detailModal" class="modal-overlay detail-modal">
     <div class="modal-card glass-card">
       <h3 id="detailGoalName" style="font-size: 1.6rem; margin-bottom: 8px;"></h3>
@@ -822,11 +857,23 @@
         return `${y}-${m}-${day}`;
       }
 
-      // Set default date in date picker to today
       const startDateInput = document.getElementById('startDate');
       startDateInput.value = getTodayString();
 
-      // ----- PREMIUM POPUP -----
+      // Auto-switch to "Plan" if selected date is future
+      startDateInput.addEventListener('change', function() {
+        const selectedDate = this.value;
+        const today = getTodayString();
+        if (selectedDate > today) {
+          // Future date: automatically select "Plan" radio
+          document.querySelector('input[name="goalOption"][value="planLater"]').checked = true;
+        } else {
+          // Past or today: you can leave as is, but we won't force
+        }
+      });
+
+      // ----- PREMIUM POPUP with dim overlay and reliable animation -----
+      const popupOverlay = document.getElementById('popupOverlay');
       const popupContainer = document.getElementById('popupContainer');
       const popupCard = document.getElementById('popupCard');
       const popupIcon = document.getElementById('popupIcon');
@@ -836,29 +883,70 @@
 
       function showPopup(msg, type = 'success') {
         if (popupTimer) clearTimeout(popupTimer);
+        
+        // Set icon and color class
         popupIcon.className = 'popup-icon';
         let iconHtml = '';
+        let colorVar = '';
         switch(type) {
-          case 'success': iconHtml = '<i class="fas fa-check-circle"></i>'; popupIcon.classList.add('success'); break;
-          case 'error': iconHtml = '<i class="fas fa-exclamation-circle"></i>'; popupIcon.classList.add('error'); break;
-          case 'warning': iconHtml = '<i class="fas fa-exclamation-triangle"></i>'; popupIcon.classList.add('warning'); break;
-          case 'info': iconHtml = '<i class="fas fa-info-circle"></i>'; popupIcon.classList.add('info'); break;
-          default: iconHtml = '<i class="fas fa-check-circle"></i>'; popupIcon.classList.add('success');
+          case 'success': 
+            iconHtml = '<i class="fas fa-check-circle"></i>'; 
+            popupIcon.classList.add('success');
+            colorVar = 'var(--success-color)';
+            break;
+          case 'error': 
+            iconHtml = '<i class="fas fa-exclamation-circle"></i>'; 
+            popupIcon.classList.add('error');
+            colorVar = 'var(--error-color)';
+            break;
+          case 'warning': 
+            iconHtml = '<i class="fas fa-exclamation-triangle"></i>'; 
+            popupIcon.classList.add('warning');
+            colorVar = 'var(--warning-color)';
+            break;
+          case 'info': 
+            iconHtml = '<i class="fas fa-info-circle"></i>'; 
+            popupIcon.classList.add('info');
+            colorVar = 'var(--info-color)';
+            break;
+          default: 
+            iconHtml = '<i class="fas fa-check-circle"></i>'; 
+            popupIcon.classList.add('success');
+            colorVar = 'var(--success-color)';
         }
         popupIcon.innerHTML = iconHtml;
         popupMessage.textContent = msg;
 
-        timerCircle.style.animation = 'none';
-        timerCircle.offsetHeight;
-        timerCircle.style.animation = 'drain 2s linear forwards';
+        // Set timer circle color
+        timerCircle.style.stroke = colorVar;
 
+        // Reset animation
+        popupCard.classList.remove('show');
+        popupOverlay.classList.remove('show');
+        
+        // Force reflow to reset animation
+        void popupCard.offsetWidth;
+        
+        // Reset dashoffset
+        timerCircle.style.strokeDashoffset = '0';
+        timerCircle.style.animation = 'none';
+        
+        // Force reflow again
+        void popupCard.offsetWidth;
+        
+        // Add classes to show
         popupCard.classList.add('show');
+        popupOverlay.classList.add('show');
+        
+        // Animation will run because class is added
+
         popupTimer = setTimeout(() => {
           popupCard.classList.remove('show');
+          popupOverlay.classList.remove('show');
         }, 2000);
       }
 
-      // Theme
+      // Theme (smooth, respects system)
       const themeToggle = document.getElementById('themeToggle');
       const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
       function setThemeFromSystem(e) {
@@ -870,8 +958,9 @@
           themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
         }
       }
-      systemDark.addEventListener('change', setThemeFromSystem);
       setThemeFromSystem(systemDark);
+      systemDark.addEventListener('change', setThemeFromSystem);
+
       themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark');
         const icon = themeToggle.querySelector('i');
@@ -1029,15 +1118,23 @@
           });
         });
 
-        const now = new Date();
-        const currentHour = now.getHours();
-        const todayCompleted = goal.startDate ? goal.completedDates.includes(todayStr) : false;
-        if (!todayCompleted && currentHour >= 22 && currentHour < 23) {
-          reminderMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 10 PM — not done yet!';
-        } else if (!todayCompleted) {
-          reminderMessage.innerHTML = '<i class="fas fa-bell"></i> Complete today before 11 PM';
+        // Set reminder message based on goal status
+        if (goal.status === 'future') {
+          // Future goal: show start date
+          const startDate = new Date(goal.startDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+          reminderMessage.innerHTML = `<i class="fas fa-calendar-alt"></i> Starts on ${startDate}`;
         } else {
-          reminderMessage.innerHTML = '<i class="fas fa-check-circle"></i> Today completed. Great job!';
+          // Current goal: show completion reminder
+          const now = new Date();
+          const currentHour = now.getHours();
+          const todayCompleted = goal.startDate ? goal.completedDates.includes(todayStr) : false;
+          if (!todayCompleted && currentHour >= 22 && currentHour < 23) {
+            reminderMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 10 PM — not done yet!';
+          } else if (!todayCompleted) {
+            reminderMessage.innerHTML = '<i class="fas fa-bell"></i> Complete today before 11 PM';
+          } else {
+            reminderMessage.innerHTML = '<i class="fas fa-check-circle"></i> Today completed. Great job!';
+          }
         }
         detailModal.classList.add('show');
       }
@@ -1214,7 +1311,25 @@
         });
       }
 
+      // Check for scheduled goals that should become current
+      function checkScheduledGoals() {
+        const todayStr = getTodayString();
+        let changed = false;
+        goals.forEach(goal => {
+          if (goal.status === 'future' && goal.startDate && goal.startDate <= todayStr) {
+            goal.status = 'current';
+            changed = true;
+          }
+        });
+        if (changed) {
+          saveToStorage();
+          renderCurrent();
+          renderFuture();
+        }
+      }
+
       function renderCurrent() {
+        checkScheduledGoals(); // auto-activate scheduled goals
         const container = document.getElementById('currentSection');
         const currentGoals = goals.filter(g => g.status === 'current').sort((a,b) => (a.addedAs === 'startNow' ? -1 : 1));
         if (currentGoals.length === 0) {
@@ -1248,23 +1363,16 @@
         }
         let html = '';
         futureGoals.forEach((goal, idx) => {
+          const startDateStr = goal.startDate ? new Date(goal.startDate).toLocaleDateString() : 'Not set';
           html += `<div class="goal-card glass-card" data-goal-id="${goal.id}">
             <div class="goal-header"><span class="goal-index">${idx+1}</span><span class="goal-name">${goal.name}</span></div>
-            <div style="margin-left: 8px; margin-bottom: 8px; color: var(--text-tertiary);"><i class="fas fa-clock"></i>  ${goal.totalDays} days · planned</div>
-            <button class="future-action"><i class="fas fa-rocket"></i> Start now</button>
+            <div style="margin-left: 8px; margin-bottom: 8px; color: var(--text-tertiary);"><i class="fas fa-calendar-alt"></i> Starts: ${startDateStr} · ${goal.totalDays} days</div>
             <div class="delete-goal"><i class="fas fa-trash"></i></div>
           </div>`;
         });
         container.innerHTML = html;
         attachDeleteHandlers();
         attachCardListeners();
-        container.querySelectorAll('.future-action').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const card = e.target.closest('.goal-card');
-            if (card) startFutureGoal(card.dataset.goalId);
-          });
-        });
       }
 
       function renderHistory() {
@@ -1342,7 +1450,7 @@
         const goal = goals.find(g => g.id === goalId);
         if (!goal || goal.status !== 'future') return;
         goal.status = 'current';
-        goal.startDate = getTodayString();
+        goal.startDate = goal.startDate || getTodayString();
         goal.completedDates = [];
         goal.comments = goal.comments || {};
         saveToStorage();
@@ -1363,16 +1471,16 @@
         if (!name || !days || days < 1) { showPopup('Fill all fields', 'error'); return; }
         const option = document.querySelector('input[name="goalOption"]:checked').value;
         
-        // If startDate is empty, default to today
         if (!startDate) startDate = getTodayString();
 
+        // Determine status based on start date and option, but if future date, force future even if option is startNow? We'll respect option but also check if startDate > today, then we can set status to future automatically? Better to respect user's option but with a warning? We'll just use the option as is, but if they chose startNow with future date, we'll still set status to current? That would be weird. So let's enforce: if startDate > today, set status to future regardless of option? Or keep option but show message? We'll keep option, but if startDate > today and option is startNow, we'll set status to future (since it can't be current). Actually the rule: "If starting date is of future not today and past then auto select to plan". That means when they pick a future date, we should automatically switch to Plan option (we already do that via event listener). So at add time, the option will already be planLater if date is future. So we can trust the option.
         const newGoal = {
           id: Date.now() + '' + Math.floor(Math.random()*1000),
           name,
           totalDays: days,
           addedAs: option === 'startNow' ? 'startNow' : 'planForLater',
           status: option === 'startNow' ? 'current' : 'future',
-          startDate: option === 'startNow' ? startDate : null,
+          startDate: startDate,
           completedDates: [],
           comments: {}
         };
@@ -1381,7 +1489,7 @@
         showPopup('Goal added', 'success');
         nameInput.value = '';
         daysInput.value = '21';
-        startDateInput.value = getTodayString(); // reset to today
+        startDateInput.value = getTodayString();
         document.querySelector('input[value="startNow"]').checked = true;
         renderCurrent(); renderFuture(); renderHistory();
       });
