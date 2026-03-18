@@ -90,7 +90,6 @@
       --info-color: #60a5fa;
     }
 
-    /* smoother interactions */
     .glass-card {
       background: var(--bg-card);
       backdrop-filter: blur(18px);
@@ -495,7 +494,7 @@
       margin-right: 6px;
     }
 
-    /* ----- PREMIUM POPUP with dim overlay, reliable animation, seconds count, and wider width ----- */
+    /* ----- PREMIUM POPUP ----- */
     .popup-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -556,7 +555,6 @@
       margin-bottom: 18px;
       word-break: break-word;
     }
-    /* Circular progress with countdown number */
     .progress-circle {
       width: 48px;
       height: 48px;
@@ -683,8 +681,15 @@
       margin: 16px 0;
       resize: vertical;
       font-family: inherit;
+      transition: background 0.2s;
     }
-    .comment-save {
+    .comment-input:disabled {
+      background: var(--bg-card);
+      color: var(--text-tertiary);
+      opacity: 0.8;
+      cursor: not-allowed;
+    }
+    .comment-save, .comment-edit {
       background: var(--accent);
       color: white;
       border: none;
@@ -693,6 +698,13 @@
       font-weight: 600;
       width: 100%;
       cursor: pointer;
+    }
+    .comment-edit {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .hidden {
+      display: none;
     }
     .comment-modal .modal-btn.no {
       width: 100%;
@@ -796,7 +808,7 @@
   <!-- Popup overlay (dim) -->
   <div class="popup-overlay" id="popupOverlay"></div>
 
-  <!-- PREMIUM POPUP with countdown number and wider width -->
+  <!-- PREMIUM POPUP -->
   <div class="popup-container" id="popupContainer">
     <div class="popup-card glass-card" id="popupCard">
       <div id="popupIcon" class="popup-icon success"><i class="fas fa-check-circle"></i></div>
@@ -833,13 +845,14 @@
     </div>
   </div>
 
-  <!-- Comment modal -->
+  <!-- Comment modal with edit/save toggle -->
   <div id="commentModal" class="modal-overlay comment-modal">
     <div class="modal-card glass-card">
       <p><i class="fas fa-pen" style="color: var(--accent);"></i> Note for <span id="commentDateSpan"></span></p>
       <textarea id="commentTextarea" class="comment-input" rows="3" placeholder="Write something about this day..."></textarea>
-      <button class="comment-save" id="saveCommentBtn"><i class="fas fa-save"></i> Save comment</button>
-      <button class="modal-btn no" id="closeCommentBtn" style="margin-top: 10px; width: 100%;"><i class="fas fa-times"></i> Close</button>
+      <button class="comment-save" id="saveCommentBtn"><i class="fas fa-save"></i> Save</button>
+      <button class="comment-edit hidden" id="editCommentBtn"><i class="fas fa-edit"></i> Edit</button>
+      <button class="modal-btn no" id="closeCommentBtn" style="margin-top: 8px; width: 100%;"><i class="fas fa-times"></i> Close</button>
     </div>
   </div>
 
@@ -889,7 +902,7 @@
         }
       });
 
-      // ----- PREMIUM POPUP with dim overlay, reliable animation, and seconds count -----
+      // ----- PREMIUM POPUP -----
       const popupOverlay = document.getElementById('popupOverlay');
       const popupCard = document.getElementById('popupCard');
       const popupIcon = document.getElementById('popupIcon');
@@ -903,7 +916,6 @@
         if (popupTimer) clearTimeout(popupTimer);
         if (countdownInterval) clearInterval(countdownInterval);
         
-        // Set icon and color class
         popupIcon.className = 'popup-icon';
         let iconHtml = '';
         let colorVar = '';
@@ -935,41 +947,23 @@
         }
         popupIcon.innerHTML = iconHtml;
         popupMessage.textContent = msg;
-
-        // Set timer circle color
         timerCircle.style.stroke = colorVar;
-
-        // Reset countdown
         countdownSpan.textContent = '2';
 
-        // Reset animation
         popupCard.classList.remove('show');
         popupOverlay.classList.remove('show');
-        
-        // Force reflow to reset animation
         void popupCard.offsetWidth;
-        
-        // Reset dashoffset
         timerCircle.style.strokeDashoffset = '0';
         timerCircle.style.animation = 'none';
-        
-        // Force reflow again
         void popupCard.offsetWidth;
-        
-        // Add classes to show
         popupCard.classList.add('show');
         popupOverlay.classList.add('show');
         
-        // Start countdown interval
         let secondsLeft = 2;
         countdownInterval = setInterval(() => {
           secondsLeft -= 1;
-          if (secondsLeft >= 0) {
-            countdownSpan.textContent = secondsLeft;
-          }
-          if (secondsLeft <= 0) {
-            clearInterval(countdownInterval);
-          }
+          if (secondsLeft >= 0) countdownSpan.textContent = secondsLeft;
+          if (secondsLeft <= 0) clearInterval(countdownInterval);
         }, 1000);
 
         popupTimer = setTimeout(() => {
@@ -979,7 +973,7 @@
         }, 2000);
       }
 
-      // Theme (smooth, respects system)
+      // Theme
       const themeToggle = document.getElementById('themeToggle');
       const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
       function setThemeFromSystem(e) {
@@ -993,7 +987,6 @@
       }
       setThemeFromSystem(systemDark);
       systemDark.addEventListener('change', setThemeFromSystem);
-
       themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark');
         const icon = themeToggle.querySelector('i');
@@ -1065,36 +1058,70 @@
       kasamNo.addEventListener('click', hideKasam);
       kasamModal.addEventListener('click', (e) => { if (e.target === kasamModal) hideKasam(); });
 
-      // Comment modal
+      // Comment modal with edit/save toggle
       const commentModal = document.getElementById('commentModal');
       const commentDateSpan = document.getElementById('commentDateSpan');
       const commentTextarea = document.getElementById('commentTextarea');
       const saveCommentBtn = document.getElementById('saveCommentBtn');
+      const editCommentBtn = document.getElementById('editCommentBtn');
       const closeCommentBtn = document.getElementById('closeCommentBtn');
-      let pendingComment = { goalId: null, date: null };
+      let pendingComment = { goalId: null, date: null, isEditMode: false };
+
+      function setCommentMode(editMode) {
+        pendingComment.isEditMode = editMode;
+        if (editMode) {
+          commentTextarea.disabled = false;
+          saveCommentBtn.classList.remove('hidden');
+          editCommentBtn.classList.add('hidden');
+        } else {
+          commentTextarea.disabled = true;
+          saveCommentBtn.classList.add('hidden');
+          editCommentBtn.classList.remove('hidden');
+        }
+      }
+
       function showCommentModal(goalId, dateStr, existingComment) {
-        pendingComment = { goalId, date: dateStr };
+        pendingComment = { goalId, date: dateStr, isEditMode: false };
         commentDateSpan.textContent = dateStr;
+
+        // Always set textarea content
         commentTextarea.value = existingComment || '';
+
+        if (existingComment) {
+          // Existing comment: start in view mode
+          setCommentMode(false);
+        } else {
+          // No comment: start in edit mode (so user can type)
+          setCommentMode(true);
+        }
         commentModal.classList.add('show');
       }
+
       function hideCommentModal() {
         commentModal.classList.remove('show');
-        pendingComment = { goalId: null, date: null };
+        pendingComment = { goalId: null, date: null, isEditMode: false };
       }
+
+      // Save button (in edit mode)
       saveCommentBtn.addEventListener('click', () => {
-        if (pendingComment.goalId && pendingComment.date) {
-          const goal = goals.find(g => g.id === pendingComment.goalId);
-          if (goal) {
-            if (!goal.comments) goal.comments = {};
-            goal.comments[pendingComment.date] = commentTextarea.value.trim();
-            saveToStorage();
-            showPopup('Note saved', 'info');
-            renderCurrent();
-          }
+        if (!pendingComment.goalId || !pendingComment.date) return;
+        const goal = goals.find(g => g.id === pendingComment.goalId);
+        if (goal) {
+          if (!goal.comments) goal.comments = {};
+          goal.comments[pendingComment.date] = commentTextarea.value.trim();
+          saveToStorage();
+          showPopup('Note saved', 'info');
+          renderCurrent(); // update pin icon
+          // Switch to view mode
+          setCommentMode(false);
         }
-        hideCommentModal();
       });
+
+      // Edit button
+      editCommentBtn.addEventListener('click', () => {
+        setCommentMode(true);
+      });
+
       closeCommentBtn.addEventListener('click', hideCommentModal);
       commentModal.addEventListener('click', (e) => { if (e.target === commentModal) hideCommentModal(); });
 
@@ -1141,11 +1168,11 @@
             e.stopPropagation();
             const date = cell.dataset.date;
             if (!date) return;
-            const completed = goal.completedDates.includes(date);
-            if (!completed) {
-              showPopup('Day not completed', 'error');
-              return;
-            }
+            // We no longer require completion to view comment
+            // const completed = goal.completedDates.includes(date);
+            // if (!completed) { showPopup('Day not completed', 'error'); return; }
+            // Close detail modal first, then show comment modal
+            detailModal.classList.remove('show');
             const existing = goal.comments ? goal.comments[date] : '';
             showCommentModal(goal.id, date, existing);
           });
@@ -1172,7 +1199,7 @@
       closeDetail.addEventListener('click', () => detailModal.classList.remove('show'));
       detailModal.addEventListener('click', (e) => { if (e.target === detailModal) detailModal.classList.remove('show'); });
 
-      // Long press on day cells (for comments)
+      // Long press on day cells (for comments) - use same logic as detail modal
       let dayLongPressTimer = null;
       function startDayLongPress(goalId, cellDate, event) {
         if (!cellDate) return;
@@ -1180,6 +1207,7 @@
           const goal = goals.find(g => g.id === goalId);
           if (goal) {
             const existing = goal.comments ? goal.comments[cellDate] : '';
+            // If long press from main grid, we don't need to close anything
             showCommentModal(goalId, cellDate, existing);
           }
           dayLongPressTimer = null;
@@ -1360,7 +1388,7 @@
       }
 
       function renderCurrent() {
-        checkScheduledGoals(); // auto-activate scheduled goals
+        checkScheduledGoals();
         const container = document.getElementById('currentSection');
         const currentGoals = goals.filter(g => g.status === 'current').sort((a,b) => (a.addedAs === 'startNow' ? -1 : 1));
         if (currentGoals.length === 0) {
@@ -1490,7 +1518,7 @@
         showPopup('Goal started', 'info');
       }
 
-      // Add goal with selected start date
+      // Add goal
       document.getElementById('addGoalBtn').addEventListener('click', (e) => {
         e.preventDefault();
         const nameInput = document.getElementById('habitName');
