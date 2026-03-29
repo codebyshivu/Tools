@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>indian · AI Assistant with Version Control</title>
+    <title>BharatAI · Indian AI Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
@@ -35,7 +35,7 @@
             overflow: hidden;
         }
 
-        /* Sidebar */
+        /* Sidebar – matches screenshot style */
         .sidebar {
             position: fixed;
             left: -100%;
@@ -415,6 +415,9 @@
             white-space: pre-wrap;
             word-break: break-word;
         }
+        code {
+            font-family: inherit;
+        }
 
         /* Rich text and allowed HTML styles */
         .assistant .bubble h1, .assistant .bubble h2, .assistant .bubble h3 {
@@ -677,7 +680,7 @@
                 <button id="hamburgerBtn" class="hamburger"><i class="fas fa-bars"></i></button>
                 <div class="logo-area">
                     <div class="logo-icon"><i class="fas fa-brain"></i></div>
-                    <span class="logo-text">Indian Ai</span>
+                    <span class="logo-text">BharatAI</span>
                 </div>
             </div>
             <div class="header-actions">
@@ -690,7 +693,7 @@
 
         <div class="input-area">
             <div class="input-wrapper">
-                <textarea id="userInput" rows="1" placeholder="Message DeepSeek"></textarea>
+                <textarea id="userInput" rows="1" placeholder="Message BharatAI"></textarea>
                 <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
             </div>
             <div class="status-bar" id="statusMsg">● Ready</div>
@@ -727,8 +730,8 @@
             <div class="setting-group">
                 <label>🤖 Model</label>
                 <select id="modelSelect">
-                    <option value="deepseek/deepseek-chat">Indian Ai/Indian Ai-chat</option>
-                    <option value="deepseek/deepseek-reasoner">Indian Ai-reasoner</option>
+                    <option value="deepseek/deepseek-chat">deepseek/deepseek-chat</option>
+                    <option value="deepseek/deepseek-reasoner">deepseek-reasoner</option>
                     <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
                 </select>
             </div>
@@ -901,7 +904,7 @@
         });
     }
 
-    // Date grouping functions
+    // Date grouping – matches screenshot: "Today", "30 Days", and month names like "2026-02"
     function getDateGroup(date) {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -911,13 +914,15 @@
         last7.setDate(last7.getDate() - 7);
         const last30 = new Date(today);
         last30.setDate(last30.getDate() - 30);
+
         const convDate = new Date(date);
         const convDay = new Date(convDate.getFullYear(), convDate.getMonth(), convDate.getDate());
+
         if (convDay.getTime() === today.getTime()) return "Today";
         if (convDay.getTime() === yesterday.getTime()) return "Yesterday";
-        if (convDay > last7) return "Last 7 days";
-        if (convDay > last30) return "Last 30 days";
-        return convDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
+        if (convDay > last7) return "7 Days";
+        if (convDay > last30) return "30 Days";
+        return convDate.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit' });
     }
 
     function groupConversations(conversations) {
@@ -927,7 +932,7 @@
             if (!groups[group]) groups[group] = [];
             groups[group].push(conv);
         });
-        const order = ["Today", "Yesterday", "Last 7 days", "Last 30 days"];
+        const order = ["Today", "Yesterday", "7 Days", "30 Days"];
         const sortedGroups = [];
         for (const key of order) {
             if (groups[key]) {
@@ -935,7 +940,13 @@
                 delete groups[key];
             }
         }
-        const remaining = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+        const remaining = Object.keys(groups).sort((a, b) => {
+            const [yearA, monthA] = a.split('-');
+            const [yearB, monthB] = b.split('-');
+            const dateA = new Date(yearA, monthA-1);
+            const dateB = new Date(yearB, monthB-1);
+            return dateB - dateA;
+        });
         for (const key of remaining) {
             sortedGroups.push({ title: key, conversations: groups[key] });
         }
@@ -985,7 +996,7 @@
     }
 
     function loadData() {
-        const stored = localStorage.getItem('deepseek_conversations');
+        const stored = localStorage.getItem('bharatai_conversations');
         if (stored) {
             conversations = JSON.parse(stored);
             conversations.forEach(conv => {
@@ -1048,7 +1059,7 @@
     }
 
     function saveAll() {
-        localStorage.setItem('deepseek_conversations', JSON.stringify(conversations));
+        localStorage.setItem('bharatai_conversations', JSON.stringify(conversations));
         localStorage.setItem('api_key', apiKey);
         localStorage.setItem('api_endpoint', endpoint);
         localStorage.setItem('model', model);
@@ -1070,7 +1081,7 @@
         avatar.innerHTML = '<i class="fas fa-robot"></i>';
         const bubble = document.createElement('div');
         bubble.className = 'bubble';
-        bubble.innerText = 'How can I help you today?';
+        bubble.innerText = 'Namaste! 🙏 I\'m BharatAI, your Indian AI assistant. How can I help you today?';
         msgDiv.appendChild(avatar);
         msgDiv.appendChild(bubble);
         chatContainer.appendChild(msgDiv);
@@ -1151,7 +1162,7 @@
                         <div class="code-header">
                             <span><i class="fas fa-code"></i> ${part.lang || 'code'}</span>
                             <div class="code-actions">
-                                <button class="copy-code" data-code="${encodedCode}"><i class="far fa-copy"></i> Copy</button>
+                                <button class="copy-code"><i class="far fa-copy"></i> Copy</button>
                             </div>
                         </div>
                         <pre><code>${encodedCode}</code></pre>
@@ -1166,14 +1177,29 @@
         return `<div style="white-space: pre-wrap;">${formatMarkdown(escapeHtml(content))}</div>`;
     }
 
+    // Fixed copy function – extracts code from the <pre><code> element, decodes HTML entities, and copies
     function attachCodeActions(container) {
-        container.querySelectorAll('.copy-code').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const code = btn.getAttribute('data-code');
-                navigator.clipboard.writeText(decodeHtml(code));
-                const original = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                setTimeout(() => btn.innerHTML = original, 1500);
+        container.querySelectorAll('.code-block .copy-code').forEach(btn => {
+            // Remove any existing listeners to avoid duplicates (though we create fresh elements each render)
+            btn.replaceWith(btn.cloneNode(true));
+            const newBtn = container.querySelector(`.code-block .copy-code`);
+            if (!newBtn) return;
+            newBtn.addEventListener('click', (e) => {
+                const codeBlock = e.target.closest('.code-block');
+                if (!codeBlock) return;
+                const codeElement = codeBlock.querySelector('pre code');
+                if (!codeElement) return;
+                const rawCode = codeElement.textContent; // already HTML-escaped for display
+                const decoded = decodeHtml(rawCode);
+                navigator.clipboard.writeText(decoded).then(() => {
+                    const original = newBtn.innerHTML;
+                    newBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        newBtn.innerHTML = original;
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                });
             });
         });
     }
