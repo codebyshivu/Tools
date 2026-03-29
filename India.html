@@ -11,13 +11,9 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
             background: #0a0c15;
-            height: 100%;
-            min-height: 100vh;
-            /* Use dvh for dynamic viewport height (mobile browsers) */
-            min-height: 100dvh;
+            height: 100dvh;
             overflow: hidden;
             position: relative;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
         body.light-theme { background: #f3f4f6; }
         body::before {
@@ -34,7 +30,6 @@
         }
         .app {
             height: 100%;
-            min-height: 100dvh;
             display: flex;
             position: relative;
             overflow: hidden;
@@ -47,7 +42,6 @@
             top: 0;
             width: 300px;
             height: 100%;
-            height: 100dvh;
             background: rgba(12, 16, 28, 0.98);
             backdrop-filter: blur(20px);
             border-right: 1px solid rgba(56, 189, 248, 0.2);
@@ -180,6 +174,7 @@
         }
         .header {
             padding: 0.8rem 1.5rem;
+            padding-top: max(0.8rem, env(safe-area-inset-top));
             background: rgba(10, 14, 23, 0.7);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(56, 189, 248, 0.2);
@@ -458,12 +453,13 @@
             color: #cbd5e6;
         }
 
-        /* Input area – fixed at bottom */
+        /* Input area – fixed at bottom with safe area */
         .input-area {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(12px);
             border-top: 1px solid rgba(51, 65, 85, 0.5);
             padding: 0.8rem 1rem;
+            padding-bottom: max(0.8rem, env(safe-area-inset-bottom));
             flex-shrink: 0;
         }
         .input-wrapper {
@@ -641,10 +637,10 @@
             .message { max-width: 95%; }
             .chat-container { padding: 0.8rem; }
             .bubble { font-size: 0.85rem; padding: 0.7rem 0.9rem; }
-            .header { padding: 0.6rem 1rem; }
+            .header { padding: 0.6rem 1rem; padding-top: max(0.6rem, env(safe-area-inset-top)); }
             .logo-text { font-size: 1.2rem; }
             .icon-btn, .hamburger { width: 36px; height: 36px; }
-            .input-wrapper { margin: 0; }
+            .input-area { padding: 0.6rem 1rem; padding-bottom: max(0.6rem, env(safe-area-inset-bottom)); }
             textarea#userInput { padding: 10px 14px; font-size: 0.85rem; }
             #sendBtn { width: 38px; height: 38px; margin: 4px; }
             .modal-tabs { gap: 0.5rem; }
