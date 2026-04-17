@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nokia Snake Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .nokia-phone {
+            width: 300px;
+            height: 500px;
+            background-color: #333;
+            border-radius: 20px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .screen {
+            width: 100%;
+            height: 60%;
+            background-color: #111;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        canvas {
+            border: 2px solid #444;
+            background-color: #000;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .button {
+            width: 50px;
+            height: 50px;
+            background-color: #444;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #555;
+        }
+
+        .score {
+            color: #fff;
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        .power-button {
+            width: 20px;
+            height: 20px;
+            background-color: #444;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nokia-phone">
+        <!-- Power Button -->
+        <div class="power-button"></div>
+
+        <!-- Screen -->
+        <div class="screen">
+            <canvas id="gameCanvas" width="200" height="200"></canvas>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="row">
+                <div class="button" onclick="changeDirection('UP')">↑</div>
+            </div>
+            <div class="row">
+                <div class="button" onclick="changeDirection('LEFT')">←</div>
+                <div class="button" onclick="changeDirection('DOWN')">↓</div>
+                <div class="button" onclick="changeDirection('RIGHT')">→</div>
+            </div>
+        </div>
+
+        <!-- Score -->
+        <div class="score">Score: <span id="score">0</span></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
+
+        const box = 10;
+        let snake = [{x: 9 * box, y: 10 * box}];
+        let food = {
+            x: Math.floor(Math.random() * 20) * box,
+            y: Math.floor(Math.random() * 20) * box
+        };
+        let direction = null;
+        let score = 0;
+        let gameSpeed = 100;
+
+        function changeDirection(dir) {
+            if (dir === "LEFT" && direction !== "RIGHT") direction = "LEFT";
+            else if (dir === "UP" && direction !== "DOWN") direction = "UP";
+            else if (dir === "RIGHT" && direction !== "LEFT") direction = "RIGHT";
+            else if (dir === "DOWN" && direction !== "UP") direction = "DOWN";
+        }
+
+        function drawGame() {
+            // Clear canvas
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw snake
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = (i === 0) ? "#4CAF50" : "#8BC34A";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeStyle = "#000";
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
+
+            // Draw food
+            ctx.fillStyle = "#FF5722";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            // Snake head position
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+
+            // Move snake
+            if (direction === "LEFT") snakeX -= box;
+            if (direction === "UP") snakeY -= box;
+            if (direction === "RIGHT") snakeX += box;
+            if (direction === "DOWN") snakeY += box;
+
+            // Check if snake eats food
+            if (snakeX === food.x && snakeY === food.y) {
+                score++;
+                scoreElement.textContent = score;
+                food = {
+                    x: Math.floor(Math.random() * 20) * box,
+                    y: Math.floor(Math.random() * 20) * box
+                };
+                // Increase speed slightly
+                gameSpeed = Math.max(50, gameSpeed - 5);
+                clearInterval(game);
+                game = setInterval(drawGame, gameSpeed);
+            } else {
+                snake.pop();
+            }
+
+            // Create new head
+            let newHead = {x: snakeX, y: snakeY};
+
+            // Game over conditions
+            if (
+                snakeX < 0 || snakeY < 0 ||
+                snakeX >= canvas.width || snakeY >= canvas.height ||
+                collision(newHead, snake)
+            ) {
+                clearInterval(game);
+                alert("Game Over! Your score: " + score);
+                location.reload();
+            }
+
+            snake.unshift(newHead);
+        }
+
+        function collision(head, array) {
+            for (let i = 0; i < array.length; i++) {
+                if (head.x === array[i].x && head.y === array[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        let game = setInterval(drawGame, gameSpeed);
+    </script>
+</body>
+</html>
