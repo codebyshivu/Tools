@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Elite Habit Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:Poppins; }
+
+body {
+  background: linear-gradient(135deg, #020617, #0f172a);
+  color:white;
+  display:flex;
+  justify-content:center;
+  padding:20px;
+}
+
+.app {
+  width:100%;
+  max-width:400px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(15px);
+  padding:20px;
+  border-radius:20px;
+  margin-bottom:15px;
+}
+
+h1 { text-align:center; margin-bottom:10px; }
+
+.streak {
+  font-size:36px;
+  text-align:center;
+  color:#22c55e;
+}
+
+.progress-bar {
+  height:8px;
+  background:#1e293b;
+  border-radius:10px;
+  margin:15px 0;
+}
+
+.progress {
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#22c55e,#4ade80);
+}
+
+button {
+  width:100%;
+  padding:12px;
+  margin:5px 0;
+  border:none;
+  border-radius:10px;
+  font-size:14px;
+}
+
+.success { background:#22c55e; }
+.fail { background:#ef4444; }
+.reset { background:#f59e0b; }
+
+.calendar {
+  display:grid;
+  grid-template-columns: repeat(7,1fr);
+  gap:5px;
+  margin-top:10px;
+}
+
+.day {
+  padding:10px;
+  text-align:center;
+  border-radius:8px;
+  background:#1e293b;
+  font-size:12px;
+}
+
+.good { background:#22c55e; color:black; }
+.bad { background:#ef4444; }
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="card">
+    <h1>🔥 Elite Tracker</h1>
+    <div class="streak" id="streak">0</div>
+
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <button class="success" onclick="mark(true)">✔ Followed</button>
+    <button class="fail" onclick="mark(false)">❌ Failed</button>
+    <button class="reset" onclick="resetAll()">Reset</button>
+  </div>
+
+  <div class="card">
+    <h3>📅 Calendar</h3>
+    <div class="calendar" id="calendar"></div>
+  </div>
+
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("data")) || {};
+let streak = 0;
+
+function getDate() {
+  return new Date().toISOString().split("T")[0];
+}
+
+function mark(success) {
+  data[getDate()] = success;
+  save();
+}
+
+function save() {
+  localStorage.setItem("data", JSON.stringify(data));
+  update();
+}
+
+function resetAll() {
+  if(confirm("Reset all data?")){
+    data = {};
+    save();
+  }
+}
+
+function update() {
+  let today = new Date();
+  streak = 0;
+
+  for(let i=0;i<365;i++){
+    let d = new Date();
+    d.setDate(today.getDate() - i);
+    let key = d.toISOString().split("T")[0];
+
+    if(data[key]) streak++;
+    else if(data[key] === false) break;
+  }
+
+  document.getElementById("streak").innerText = streak;
+  document.getElementById("progress").style.width = Math.min((streak/7)*100,100)+"%";
+
+  renderCalendar();
+}
+
+function renderCalendar() {
+  let cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+
+  for(let i=13;i>=0;i--){
+    let d = new Date();
+    d.setDate(d.getDate() - i);
+    let key = d.toISOString().split("T")[0];
+
+    let div = document.createElement("div");
+    div.className = "day";
+
+    if(data[key] === true) div.classList.add("good");
+    if(data[key] === false) div.classList.add("bad");
+
+    div.innerText = d.getDate();
+    cal.appendChild(div);
+  }
+}
+
+// 🔔 Notification Reminder
+if ("Notification" in window) {
+  Notification.requestPermission();
+}
+
+setInterval(() => {
+  let hour = new Date().getHours();
+  if(hour === 21){ // 9 PM reminder
+    if(Notification.permission === "granted"){
+      new Notification("Reminder", {
+        body: "Update your habit tracker today 💪"
+      });
+    }
+  }
+}, 3600000);
+
+update();
+</script>
+
+</body>
+</html>
