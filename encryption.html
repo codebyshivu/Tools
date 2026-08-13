@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <meta name="theme-color" content="#1a0a2e" />
+    <title>Jinendra Vani · Content Encryption</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --bg: #0d0717;
+            --surface: #1a0f2a;
+            --card: #25163a;
+            --border: #3d235a;
+            --primary: #b886ff;
+            --primary-dim: #7a4bb5;
+            --gold: #f0c060;
+            --gold-dim: #b8943a;
+            --text: #f0e8ff;
+            --text-muted: #b8a8d8;
+            --success: #6bdb8a;
+            --danger: #ff7a7a;
+            --radius: 16px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+        html {
+            font-size: 16px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 12px 12px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .app {
+            max-width: 520px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .header {
+            background: linear-gradient(145deg, #1f0f3a, #120820);
+            border-radius: var(--radius);
+            padding: 22px 20px 18px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::after {
+            content: "✦";
+            position: absolute;
+            right: 16px;
+            top: 12px;
+            font-size: 20px;
+            color: var(--gold);
+            opacity: 0.3;
+        }
+        .header .sub {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f0e8ff 20%, #b886ff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        .header .tag {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+        .header .badge {
+            display: inline-block;
+            background: rgba(184, 134, 255, 0.15);
+            border: 1px solid rgba(184, 134, 255, 0.2);
+            border-radius: 20px;
+            padding: 2px 14px;
+            font-size: 0.6rem;
+            color: var(--primary);
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        /* cards */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        .card-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        /* stats grid */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            text-align: center;
+        }
+        .stat-item {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 10px 4px;
+            border: 1px solid var(--border);
+        }
+        .stat-item .num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+        .stat-item .num.gold {
+            color: var(--gold);
+        }
+        .stat-item .num.green {
+            color: var(--success);
+        }
+        .stat-item .num.red {
+            color: var(--danger);
+        }
+        .stat-item .label {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* progress */
+        .progress-wrap {
+            margin: 10px 0 4px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--card);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .progress-bar .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary-dim), var(--gold));
+            border-radius: 20px;
+            transition: width 0.25s ease;
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .current-file {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 6px 0 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 1.4em;
+        }
+        .current-file strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* status log */
+        .status-log {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 10px 12px;
+            max-height: 100px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            font-family: "SF Mono", "Menlo", monospace;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            margin-top: 8px;
+            line-height: 1.6;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        .status-log::-webkit-scrollbar {
+            width: 4px;
+        }
+        .status-log::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .status-log::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        .status-log .log-entry {
+            padding: 1px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .status-log .log-entry:last-child {
+            border-bottom: none;
+        }
+        .status-log .log-ok {
+            color: var(--success);
+        }
+        .status-log .log-fail {
+            color: var(--danger);
+        }
+        .status-log .log-info {
+            color: var(--primary);
+        }
+        .status-log .log-dim {
+            color: var(--text-muted);
+        }
+
+        /* buttons */
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 4px 0 2px;
+        }
+        .btn-group .btn {
+            flex: 1 1 auto;
+            min-width: 80px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            background: var(--card);
+            border: 1px solid var(--border);
+            touch-action: manipulation;
+            user-select: none;
+            text-align: center;
+            min-height: 50px;
+            line-height: 1.2;
+            position: relative;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-primary {
+            background: linear-gradient(145deg, #4d2b7a, #2d1550);
+            border-color: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:active {
+            background: #3d1f6a;
+        }
+        .btn-gold {
+            background: linear-gradient(145deg, #b8943a, #8a6d2a);
+            border-color: var(--gold);
+            color: #fff;
+        }
+        .btn-gold:active {
+            background: #a07d30;
+        }
+        .btn-success {
+            background: linear-gradient(145deg, #2a7a4a, #1a5a3a);
+            border-color: var(--success);
+            color: #fff;
+        }
+        .btn-success:active {
+            background: #206a3a;
+        }
+        .btn-danger {
+            background: linear-gradient(145deg, #7a2a2a, #5a1a1a);
+            border-color: var(--danger);
+            color: #fff;
+        }
+        .btn-danger:active {
+            background: #6a2020;
+        }
+        .btn-outline {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+        .btn-outline:active {
+            background: var(--card);
+        }
+        .btn:disabled {
+            opacity: 0.4;
+            transform: none !important;
+            pointer-events: none;
+            filter: grayscale(0.3);
+        }
+        .btn .icon {
+            font-size: 1.1rem;
+        }
+
+        /* hidden input */
+        #folderInput {
+            display: none;
+        }
+
+        /* file list */
+        .file-list-wrap {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-top: 6px;
+            border-radius: 10px;
+            background: var(--card);
+            padding: 4px 2px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+        .file-list-wrap::-webkit-scrollbar {
+            width: 4px;
+        }
+        .file-list-wrap::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .file-list-wrap::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            gap: 6px;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-item .name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-item .status-icon {
+            font-size: 0.7rem;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .file-item .status-icon.ok {
+            color: var(--success);
+        }
+        .file-item .status-icon.fail {
+            color: var(--danger);
+        }
+        .file-item .status-icon.wait {
+            color: var(--text-muted);
+        }
+
+        /* responsive */
+        @media (max-width: 420px) {
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .stat-item .num {
+                font-size: 1.2rem;
+            }
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            .btn {
+                font-size: 0.75rem;
+                padding: 10px 12px;
+                min-height: 44px;
+            }
+            .btn-group {
+                gap: 6px;
+            }
+            .btn-group .btn {
+                min-width: 60px;
+            }
+        }
+        @media (max-width: 360px) {
+            .stat-item .num {
+                font-size: 1rem;
+            }
+            .stat-item .label {
+                font-size: 0.5rem;
+            }
+            .header h1 {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* utility */
+        .mt-1 {
+            margin-top: 6px;
+        }
+        .mt-2 {
+            margin-top: 12px;
+        }
+        .mb-1 {
+            margin-bottom: 6px;
+        }
+        .mb-2 {
+            margin-bottom: 12px;
+        }
+        .flex {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gap-1 {
+            gap: 6px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+        .text-sm {
+            font-size: 0.75rem;
+        }
+        .truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: all 0.4s ease;
+            max-width: 90%;
+            text-align: center;
+            pointer-events: none;
+            z-index: 999;
+            backdrop-filter: blur(8px);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            border-color: var(--success);
+        }
+        .toast.error {
+            border-color: var(--danger);
+        }
+
+        /* loader spinner */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .btn .spinner {
+            width: 16px;
+            height: 16px;
+            border-width: 2px;
+        }
+
+        /* misc */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 12px 0;
+        }
+        .pill {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+        .pill.gold {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(240, 192, 96, 0.08);
+        }
+        .pill.green {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(107, 219, 138, 0.08);
+        }
+        .pill.red {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(255, 122, 122, 0.08);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app" id="app">
+        <!-- Header -->
+        <div class="header">
+            <div class="sub">✦ Jinendra Vani</div>
+            <h1>Content Encryption</h1>
+            <div class="tag">Offline · AES-256-GCM · Android Assets</div>
+            <div class="badge">🔒 assets/p/ · .dat</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card">
+            <div class="card-title">📊 Summary</div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="num" id="statFound">0</div>
+                    <div class="label">Found</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num gold" id="statEncrypted">0</div>
+                    <div class="label">Encrypted</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num red" id="statFailed">0</div>
+                    <div class="label">Failed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num" id="statSize">0</div>
+                    <div class="label">MB</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="card">
+            <div class="card-title">⏳ Progress</div>
+            <div class="progress-wrap">
+                <div class="progress-bar">
+                    <div class="fill" id="progressFill" style="width:0%;"></div>
+                </div>
+                <div class="progress-label">
+                    <span id="progressText">0 / 0</span>
+                    <span id="progressPct">0%</span>
+                </div>
+            </div>
+            <div class="current-file" id="currentFile">📄 <strong>Ready</strong></div>
+            <div class="status-log" id="statusLog"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card">
+            <div class="card-title">⚡ Actions</div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="btnSelect">
+                    <span class="icon">📂</span> Select Folder
+                </button>
+                <button class="btn btn-gold" id="btnEncrypt" disabled>
+                    <span class="icon">🔐</span> Encrypt
+                </button>
+            </div>
+            <div class="btn-group mt-1">
+                <button class="btn btn-success" id="btnDownload" disabled>
+                    <span class="icon">📦</span> Download ZIP
+                </button>
+                <button class="btn btn-outline" id="btnClear">
+                    <span class="icon">✕</span> Clear
+                </button>
+            </div>
+            <div class="btn-group mt-1">
+                <button class="btn btn-outline" id="btnVerify" disabled>
+                    <span class="icon">✓</span> Verify All
+                </button>
+            </div>
+            <div class="text-muted text-sm mt-1" style="text-align:center;font-size:0.65rem;">
+                <span id="fileCountLabel">No folder selected</span>
+            </div>
+        </div>
+
+        <!-- File list -->
+        <div class="card" id="fileListCard" style="display:none;">
+            <div class="card-title">📁 Files <span class="pill" id="fileListPill">0</span></div>
+            <div class="file-list-wrap" id="fileListWrap"></div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align:center;font-size:0.6rem;color:var(--text-muted);padding:20px 0 8px;opacity:0.5;letter-spacing:0.5px;">
+            Jinendra Vani · Offline Encryption Tool · AES-256-GCM
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <input type="file" id="folderInput" webkitdirectory multiple />
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── CONSTANTS ──────────────────────────────────────────────
+            const SECRET = '32JHi3Juwpih9Fdq72tNsfaFYlLtUsi5IwlAqf8VmfNXgbr8E5A2AsqcJJEqQchWdtGTGAf2ENRWqTl+';
+            const IV_LEN = 12;
+            const TAG_LEN = 16;
+            const ALGO = 'AES-GCM';
+
+            // ─── DOM REFS ──────────────────────────────────────────────
+            const $ = id => document.getElementById(id);
+            const statFound = $('statFound');
+            const statEncrypted = $('statEncrypted');
+            const statFailed = $('statFailed');
+            const statSize = $('statSize');
+            const progressFill = $('progressFill');
+            const progressText = $('progressText');
+            const progressPct = $('progressPct');
+            const currentFile = $('currentFile');
+            const statusLog = $('statusLog');
+            const btnSelect = $('btnSelect');
+            const btnEncrypt = $('btnEncrypt');
+            const btnDownload = $('btnDownload');
+            const btnClear = $('btnClear');
+            const btnVerify = $('btnVerify');
+            const folderInput = $('folderInput');
+            const fileListWrap = $('fileListWrap');
+            const fileListCard = $('fileListCard');
+            const fileListPill = $('fileListPill');
+            const fileCountLabel = $('fileCountLabel');
+            const toast = $('toast');
+
+            // ─── STATE ──────────────────────────────────────────────────
+            let state = {
+                files: [], // { file: File, relPath: string, size: number, encrypted: null|Uint8Array, status: 'wait'|'ok'|'fail' }
+                key: null, // CryptoKey
+                keyRaw: null, // ArrayBuffer
+                isEncrypting: false,
+                isVerified: false,
+                totalBytes: 0,
+                encryptedCount: 0,
+                failedCount: 0,
+            };
+
+            // ─── TOAST ──────────────────────────────────────────────────
+            let toastTimer = null;
+
+            function showToast(msg, type) {
+                if (toastTimer) { clearTimeout(toastTimer);
+                    toastTimer = null; }
+                toast.textContent = msg;
+                toast.className = 'toast' + (type ? ' ' + type : '');
+                // force reflow
+                void toast.offsetWidth;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                    toastTimer = null;
+                }, 2800);
+            }
+
+            // ─── LOG ────────────────────────────────────────────────────
+            function log(msg, cls) {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry' + (cls ? ' ' + cls : '');
+                entry.textContent = msg;
+                statusLog.appendChild(entry);
+                statusLog.scrollTop = statusLog.scrollHeight;
+                // keep log manageable
+                while (statusLog.children.length > 200) {
+                    statusLog.removeChild(statusLog.firstChild);
+                }
+            }
+
+            // ─── CRC32 (for ZIP) ──────────────────────────────────────
+            function crc32(data) {
+                let crc = 0xFFFFFFFF;
+                const view = data instanceof Uint8Array ? data : new Uint8Array(data);
+                for (let i = 0; i < view.length; i++) {
+                    crc ^= view[i];
+                    for (let j = 0; j < 8; j++) {
+                        if (crc & 1) crc = (crc >>> 1) ^ 0xEDB88320;
+                        else crc = crc >>> 1;
+                    }
+                }
+                return (crc ^ 0xFFFFFFFF) >>> 0;
+            }
+
+            // ─── DOS DATE / TIME ──────────────────────────────────────
+            function dosDateTime(ts) {
+                const d = ts ? new Date(ts) : new Date();
+                const year = d.getFullYear();
+                const month = d.getMonth() + 1;
+                const day = d.getDate();
+                const hours = d.getHours();
+                const mins = d.getMinutes();
+                const secs = d.getSeconds();
+                const dt = ((year - 1980) << 9) | (month << 5) | day;
+                const tm = (hours << 11) | (mins << 5) | (secs >> 1);
+                return [dt & 0xFFFF, tm & 0xFFFF];
+            }
+
+            // ─── ZIP GENERATOR ─────────────────────────────────────────
+            function generateZip(files, baseName) {
+                // files: array of { path: string, data: Uint8Array }
+                // returns Uint8Array of ZIP
+                const entries = [];
+                let centralDir = [];
+                let offset = 0;
+
+                for (const f of files) {
+                    const name = f.path.replace(/\\/g, '/');
+                    const nameBytes = new TextEncoder().encode(name);
+                    const data = f.data;
+                    const crc = crc32(data);
+                    const [modDate, modTime] = dosDateTime(Date.now());
+                    const uncompSize = data.length;
+                    const compSize = data.length; // stored, no compression
+
+                    // Local file header
+                    const lfh = new Uint8Array(30 + nameBytes.length);
+                    let pos = 0;
+                    const write32 = (v) => { lfh[pos++] = v & 0xFF;
+                        lfh[pos++] = (v >> 8) & 0xFF;
+                        lfh[pos++] = (v >> 16) & 0xFF;
+                        lfh[pos++] = (v >> 24) & 0xFF; };
+                    const write16 = (v) => { lfh[pos++] = v & 0xFF;
+                        lfh[pos++] = (v >> 8) & 0xFF; };
+
+                    write32(0x04034b50); // sig
+                    write16(0x0a14); // version
+                    write16(0x0000); // flags
+                    write16(0x0000); // compression method
+                    write16(modTime);
+                    write16(modDate);
+                    write32(crc);
+                    write32(compSize);
+                    write32(uncompSize);
+                    write16(nameBytes.length);
+                    write16(0x0000); // extra field length
+                    lfh.set(nameBytes, pos);
+
+                    const lfhSize = 30 + nameBytes.length;
+                    const dataOffset = offset + lfhSize;
+
+                    // Central directory entry
+                    const cen = new Uint8Array(46 + nameBytes.length);
+                    let cpos = 0;
+                    const cw32 = (v) => { cen[cpos++] = v & 0xFF;
+                        cen[cpos++] = (v >> 8) & 0xFF;
+                        cen[cpos++] = (v >> 16) & 0xFF;
+                        cen[cpos++] = (v >> 24) & 0xFF; };
+                    const cw16 = (v) => { cen[cpos++] = v & 0xFF;
+                        cen[cpos++] = (v >> 8) & 0xFF; };
+                    cw32(0x02014b50);
+                    cw16(0x0a14);
+                    cw16(0x0a14);
+                    cw16(0x0000);
+                    cw16(0x0000);
+                    cw16(modTime);
+                    cw16(modDate);
+                    cw32(crc);
+                    cw32(compSize);
+                    cw32(uncompSize);
+                    cw16(nameBytes.length);
+                    cw16(0x0000);
+                    cw16(0x0000);
+                    cw16(0x0000);
+                    cw16(0x0000);
+                    cw32(0x00000000);
+                    cw32(dataOffset);
+                    cen.set(nameBytes, cpos);
+
+                    entries.push({
+                        lfh: lfh,
+                        data: data,
+                        lfhSize: lfhSize,
+                        dataSize: data.length,
+                        cen: cen,
+                        cenSize: cen.length,
+                    });
+                    offset += lfhSize + data.length;
+                }
+
+                // Calculate total size
+                let totalSize = offset;
+                const cdSize = entries.reduce((s, e) => s + e.cenSize, 0);
+                const eocdSize = 22;
+                const cdOffset = offset;
+                totalSize += cdSize + eocdSize;
+
+                const result = new Uint8Array(totalSize);
+                let writePos = 0;
+
+                // Write local file headers + data
+                for (const e of entries) {
+                    result.set(e.lfh, writePos);
+                    writePos += e.lfhSize;
+                    result.set(e.data, writePos);
+                    writePos += e.dataSize;
+                }
+
+                // Write central directory
+                for (const e of entries) {
+                    result.set(e.cen, writePos);
+                    writePos += e.cenSize;
+                }
+
+                // End of central directory
+                const eocd = new Uint8Array(22);
+                let ep = 0;
+                const ew32 = (v) => { eocd[ep++] = v & 0xFF;
+                    eocd[ep++] = (v >> 8) & 0xFF;
+                    eocd[ep++] = (v >> 16) & 0xFF;
+                    eocd[ep++] = (v >> 24) & 0xFF; };
+                const ew16 = (v) => { eocd[ep++] = v & 0xFF;
+                    eocd[ep++] = (v >> 8) & 0xFF; };
+                ew32(0x06054b50);
+                ew16(0x0000);
+                ew16(0x0000);
+                ew16(entries.length);
+                ew16(entries.length);
+                ew32(cdSize);
+                ew32(cdOffset);
+                ew16(0x0000);
+                result.set(eocd, writePos);
+
+                return result;
+            }
+
+            // ─── KEY DERIVATION ──────────────────────────────────────
+            async function deriveKey() {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(SECRET);
+                const hash = await crypto.subtle.digest('SHA-256', data);
+                return hash; // ArrayBuffer 32 bytes
+            }
+
+            async function getCryptoKey() {
+                if (state.key) return state.key;
+                const raw = await deriveKey();
+                state.keyRaw = raw;
+                const key = await crypto.subtle.importKey(
+                    'raw', raw, { name: ALGO }, false, ['encrypt', 'decrypt']
+                );
+                state.key = key;
+                return key;
+            }
+
+            // ─── ENCRYPT ──────────────────────────────────────────────
+            async function encryptFile(key, data) {
+                const iv = crypto.getRandomValues(new Uint8Array(IV_LEN));
+                const encrypted = await crypto.subtle.encrypt({
+                    name: ALGO,
+                    iv: iv,
+                    tagLength: 128,
+                }, key, data);
+                // Combine IV + ciphertext (which includes tag)
+                const result = new Uint8Array(IV_LEN + encrypted.byteLength);
+                result.set(iv, 0);
+                result.set(new Uint8Array(encrypted), IV_LEN);
+                return result;
+            }
+
+            // ─── DECRYPT ──────────────────────────────────────────────
+            async function decryptFile(key, data) {
+                if (data.length < IV_LEN) throw new Error('Data too short');
+                const iv = data.slice(0, IV_LEN);
+                const ciphertext = data.slice(IV_LEN);
+                const decrypted = await crypto.subtle.decrypt({
+                    name: ALGO,
+                    iv: iv,
+                    tagLength: 128,
+                }, key, ciphertext);
+                return new Uint8Array(decrypted);
+            }
+
+            // ─── FILE PROCESSING ──────────────────────────────────────
+            async function processFiles() {
+                if (state.isEncrypting) return;
+                if (state.files.length === 0) {
+                    showToast('No files to encrypt. Select a folder first.', 'error');
+                    return;
+                }
+
+                // Check if any files are already encrypted
+                const allDone = state.files.every(f => f.status === 'ok');
+                if (allDone && state.encryptedCount === state.files.length) {
+                    showToast('All files already encrypted.', 'success');
+                    return;
+                }
+
+                state.isEncrypting = true;
+                btnEncrypt.disabled = true;
+                btnSelect.disabled = true;
+                btnDownload.disabled = true;
+                btnVerify.disabled = true;
+
+                // Show the encrypting state on the button
+                btnEncrypt.innerHTML = '<span class="spinner"></span> Encrypting...';
+
+                let key;
+                try {
+                    key = await getCryptoKey();
+                } catch (e) {
+                    log('❌ Failed to derive key: ' + e.message, 'log-fail');
+                    showToast('Key derivation failed', 'error');
+                    state.isEncrypting = false;
+                    btnEncrypt.innerHTML = '<span class="icon">🔐</span> Encrypt';
+                    btnEncrypt.disabled = false;
+                    btnSelect.disabled = false;
+                    return;
+                }
+
+                let processed = 0;
+                let success = 0;
+                let failed = 0;
+                let total = state.files.length;
+
+                // Reset status for files that are not already ok
+                for (const f of state.files) {
+                    if (f.status !== 'ok') {
+                        f.status = 'wait';
+                        f.encrypted = null;
+                    }
+                }
+
+                // Count already ok files
+                const alreadyOk = state.files.filter(f => f.status === 'ok').length;
+                success = alreadyOk;
+                processed = alreadyOk;
+
+                // Update UI
+                updateStatsAndUI();
+
+                for (const f of state.files) {
+                    if (f.status === 'ok') continue;
+                    processed++;
+                    try {
+                        currentFile.innerHTML = '📄 <strong>' + escapeHtml(f.relPath) + '</strong>';
+                        log('🔐 Encrypting: ' + f.relPath, 'log-info');
+
+                        const fileData = await f.file.arrayBuffer();
+                        const encrypted = await encryptFile(key, new Uint8Array(fileData));
+
+                        // ─── VERIFICATION ────────────────────────────
+                        const decrypted = await decryptFile(key, encrypted);
+                        const original = new Uint8Array(fileData);
+
+                        // Compare byte-by-byte
+                        if (decrypted.length !== original.length) {
+                            throw new Error('Verification failed: length mismatch');
+                        }
+                        for (let i = 0; i < original.length; i++) {
+                            if (decrypted[i] !== original[i]) {
+                                throw new Error('Verification failed: byte mismatch at ' + i);
+                            }
+                        }
+
+                        f.encrypted = encrypted;
+                        f.status = 'ok';
+                        success++;
+                        log('✅ Verified OK: ' + f.relPath, 'log-ok');
+
+                    } catch (e) {
+                        f.status = 'fail';
+                        f.encrypted = null;
+                        failed++;
+                        log('❌ Failed: ' + f.relPath + ' — ' + e.message, 'log-fail');
+                    }
+
+                    // Update UI every few files
+                    if (processed % 2 === 0 || processed === total) {
+                        state.encryptedCount = success;
+                        state.failedCount = failed;
+                        updateStatsAndUI();
+                        updateProgress(processed, total);
+                        updateFileList();
+                    }
+                }
+
+                state.encryptedCount = success;
+                state.failedCount = failed;
+                updateStatsAndUI();
+                updateProgress(total, total);
+                updateFileList();
+
+                state.isEncrypting = false;
+                btnEncrypt.innerHTML = '<span class="icon">🔐</span> Encrypt';
+                btnEncrypt.disabled = false;
+                btnSelect.disabled = false;
+
+                const allOk = success === total && failed === 0;
+                if (allOk) {
+                    btnDownload.disabled = false;
+                    btnVerify.disabled = false;
+                    log('🎉 All ' + total + ' files encrypted and verified successfully!', 'log-ok');
+                    showToast('✅ All files encrypted successfully!', 'success');
+                } else if (failed === 0 && success > 0) {
+                    btnDownload.disabled = false;
+                    btnVerify.disabled = false;
+                    log('⚠️ ' + success + ' files encrypted, ' + (total - success) + ' skipped.', 'log-info');
+                    showToast('⚠️ ' + success + ' encrypted, ' + (total - success) + ' skipped.', 'error');
+                } else {
+                    if (success > 0) btnDownload.disabled = false;
+                    if (success > 0) btnVerify.disabled = false;
+                    log('⚠️ Encrypted: ' + success + ' | Failed: ' + failed, 'log-fail');
+                    showToast('⚠️ ' + success + ' OK, ' + failed + ' failed.', 'error');
+                }
+
+                // Update stats
+                state.encryptedCount = success;
+                state.failedCount = failed;
+                updateStatsAndUI();
+
+                // Update file list
+                updateFileList();
+
+                // Clean up
+                currentFile.innerHTML = '📄 <strong>Done</strong>';
+            }
+
+            // ─── VERIFY ALL ────────────────────────────────────────────
+            async function verifyAll() {
+                if (state.isEncrypting) return;
+                if (state.files.length === 0) {
+                    showToast('No files to verify.', 'error');
+                    return;
+                }
+
+                let key;
+                try {
+                    key = await getCryptoKey();
+                } catch (e) {
+                    showToast('Key derivation failed', 'error');
+                    return;
+                }
+
+                let verified = 0;
+                let failed = 0;
+                let total = state.files.filter(f => f.encrypted !== null && f.encrypted.length > 0).length;
+
+                if (total === 0) {
+                    showToast('No encrypted data found. Encrypt first.', 'error');
+                    return;
+                }
+
+                log('🔍 Verifying ' + total + ' encrypted files...', 'log-info');
+                currentFile.innerHTML = '📄 <strong>Verifying...</strong>';
+
+                for (const f of state.files) {
+                    if (!f.encrypted || f.encrypted.length === 0) continue;
+                    try {
+                        currentFile.innerHTML = '📄 <strong>' + escapeHtml(f.relPath) + '</strong>';
+                        const original = await f.file.arrayBuffer();
+                        const decrypted = await decryptFile(key, f.encrypted);
+                        const orig = new Uint8Array(original);
+                        if (decrypted.length !== orig.length) {
+                            throw new Error('Length mismatch');
+                        }
+                        for (let i = 0; i < orig.length; i++) {
+                            if (decrypted[i] !== orig[i]) {
+                                throw new Error('Byte mismatch at ' + i);
+                            }
+                        }
+                        f.status = 'ok';
+                        verified++;
+                        log('✅ Verified: ' + f.relPath, 'log-ok');
+                    } catch (e) {
+                        f.status = 'fail';
+                        failed++;
+                        log('❌ Verify failed: ' + f.relPath + ' — ' + e.message, 'log-fail');
+                    }
+                }
+
+                state.encryptedCount = verified;
+                state.failedCount = failed;
+                updateStatsAndUI();
+                updateFileList();
+
+                if (failed === 0) {
+                    showToast('✅ All ' + verified + ' files verified OK.', 'success');
+                    log('🎉 All ' + verified + ' files verified successfully.', 'log-ok');
+                } else {
+                    showToast('⚠️ ' + verified + ' OK, ' + failed + ' failed.', 'error');
+                    log('⚠️ Verified: ' + verified + ' | Failed: ' + failed, 'log-fail');
+                }
+                currentFile.innerHTML = '📄 <strong>Verify complete</strong>';
+            }
+
+            // ─── UI HELPERS ────────────────────────────────────────────
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function formatSize(bytes) {
+                if (bytes === 0) return '0';
+                const mb = bytes / (1024 * 1024);
+                if (mb < 0.01) return '<0.01';
+                return mb.toFixed(1);
+            }
+
+            function updateStatsAndUI() {
+                const total = state.files.length;
+                const enc = state.encryptedCount || 0;
+                const fail = state.failedCount || 0;
+                const totalBytes = state.files.reduce((sum, f) => sum + f.size, 0);
+
+                statFound.textContent = total;
+                statEncrypted.textContent = enc;
+                statFailed.textContent = fail;
+                statSize.textContent = formatSize(totalBytes);
+
+                fileCountLabel.textContent = total > 0 ?
+                    total + ' file' + (total !== 1 ? 's' : '') + ' selected' :
+                    'No folder selected';
+
+                // Show file list card if files > 0
+                if (total > 0) {
+                    fileListCard.style.display = 'block';
+                    fileListPill.textContent = total;
+                } else {
+                    fileListCard.style.display = 'none';
+                }
+
+                // Buttons
+                btnEncrypt.disabled = (total === 0 || state.isEncrypting);
+                const hasEncrypted = state.files.some(f => f.encrypted && f.encrypted.length > 0);
+                btnDownload.disabled = !hasEncrypted || state.isEncrypting;
+                btnVerify.disabled = !hasEncrypted || state.isEncrypting;
+
+                // Update file list
+                updateFileList();
+            }
+
+            function updateProgress(current, total) {
+                const pct = total > 0 ? (current / total) * 100 : 0;
+                progressFill.style.width = Math.min(pct, 100) + '%';
+                progressText.textContent = current + ' / ' + total;
+                progressPct.textContent = Math.round(Math.min(pct, 100)) + '%';
+            }
+
+            function updateFileList() {
+                const wrap = fileListWrap;
+                if (state.files.length === 0) {
+                    wrap.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:0.7rem;">No files loaded</div>';
+                    return;
+                }
+
+                let html = '';
+                const maxShow = 100;
+                const show = state.files.slice(0, maxShow);
+                for (const f of show) {
+                    const icon = f.status === 'ok' ? '✅' : f.status === 'fail' ? '❌' : '⏳';
+                    const cls = f.status === 'ok' ? 'ok' : f.status === 'fail' ? 'fail' : 'wait';
+                    const size = (f.size / 1024).toFixed(1) + ' KB';
+                    html += '<div class="file-item">' +
+                        '<span class="name">' + escapeHtml(f.relPath) + '</span>' +
+                        '<span style="font-size:0.6rem;color:var(--text-muted);flex-shrink:0;margin:0 4px;">' + size +
+                        '</span>' +
+                        '<span class="status-icon ' + cls + '">' + icon + '</span>' +
+                        '</div>';
+                }
+                if (state.files.length > maxShow) {
+                    html += '<div class="file-item" style="color:var(--text-muted);font-style:italic;">… and ' +
+                        (state.files.length - maxShow) + ' more</div>';
+                }
+                wrap.innerHTML = html;
+            }
+
+            // ─── FOLDER SELECTION ──────────────────────────────────────
+            function handleFolderSelect(e) {
+                const input = e.target;
+                const files = input.files;
+                if (!files || files.length === 0) return;
+
+                const newFiles = [];
+                let totalSize = 0;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const relPath = file.webkitRelativePath || file.name;
+                    if (!relPath) continue;
+                    // Skip directories (they have size 0 and no content)
+                    if (file.size === 0 && file.type === '') continue;
+                    // Sanity: reject unsafe paths
+                    if (relPath.includes('../') || relPath.includes('..\\')) continue;
+                    const normPath = relPath.replace(/\\/g, '/');
+                    newFiles.push({
+                        file: file,
+                        relPath: normPath,
+                        size: file.size,
+                        encrypted: null,
+                        status: 'wait',
+                    });
+                    totalSize += file.size;
+                }
+
+                if (newFiles.length === 0) {
+                    showToast('No valid files found in the selected folder.', 'error');
+                    return;
+                }
+
+                // Replace state
+                state.files = newFiles;
+                state.totalBytes = totalSize;
+                state.encryptedCount = 0;
+                state.failedCount = 0;
+                state.isVerified = false;
+                state.isEncrypting = false;
+
+                // Reset UI
+                updateStatsAndUI();
+                updateProgress(0, state.files.length);
+                progressFill.style.width = '0%';
+                progressText.textContent = '0 / ' + state.files.length;
+                progressPct.textContent = '0%';
+                currentFile.innerHTML = '📄 <strong>' + state.files.length + ' files loaded</strong>';
+                statusLog.innerHTML = '';
+                log('📂 Loaded ' + state.files.length + ' files from folder.', 'log-info');
+
+                btnEncrypt.disabled = false;
+                btnDownload.disabled = true;
+                btnVerify.disabled = true;
+
+                showToast('✅ ' + state.files.length + ' files loaded', 'success');
+
+                // Reset input so same folder can be selected again
+                input.value = '';
+            }
+
+            // ─── DOWNLOAD ZIP ──────────────────────────────────────────
+            function downloadZip() {
+                const encryptedFiles = state.files.filter(f => f.encrypted && f.encrypted.length > 0);
+                if (encryptedFiles.length === 0) {
+                    showToast('No encrypted files to download.', 'error');
+                    return;
+                }
+
+                // Prepare entries: path with .dat extension
+                const entries = [];
+                for (const f of encryptedFiles) {
+                    // Change extension to .dat
+                    let path = f.relPath;
+                    const lastDot = path.lastIndexOf('.');
+                    if (lastDot > 0) {
+                        path = path.substring(0, lastDot) + '.dat';
+                    } else {
+                        path = path + '.dat';
+                    }
+                    entries.push({
+                        path: path,
+                        data: f.encrypted,
+                    });
+                }
+
+                try {
+                    const zipData = generateZip(entries, 'JinendraVani_Assets');
+                    const blob = new Blob([zipData], { type: 'application/zip' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'JinendraVani_Assets.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 5000);
+                    showToast('📦 Downloading ' + entries.length + ' files...', 'success');
+                    log('📦 Downloaded ZIP with ' + entries.length + ' encrypted files.', 'log-info');
+                } catch (e) {
+                    showToast('ZIP generation failed: ' + e.message, 'error');
+                    log('❌ ZIP error: ' + e.message, 'log-fail');
+                }
+            }
+
+            // ─── CLEAR ──────────────────────────────────────────────────
+            function clearAll() {
+                if (state.isEncrypting) return;
+                state.files = [];
+                state.encryptedCount = 0;
+                state.failedCount = 0;
+                state.totalBytes = 0;
+                state.isVerified = false;
+                state.isEncrypting = false;
+                state.key = null;
+                state.keyRaw = null;
+
+                updateStatsAndUI();
+                updateProgress(0, 0);
+                progressFill.style.width = '0%';
+                progressText.textContent = '0 / 0';
+                progressPct.textContent = '0%';
+                currentFile.innerHTML = '📄 <strong>Ready</strong>';
+                statusLog.innerHTML = '';
+                fileListWrap.innerHTML =
+                '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:0.7rem;">No files loaded</div>';
+                fileListCard.style.display = 'none';
+                btnEncrypt.disabled = true;
+                btnDownload.disabled = true;
+                btnVerify.disabled = true;
+                btnEncrypt.innerHTML = '<span class="icon">🔐</span> Encrypt';
+                showToast('🧹 Cleared all data', '');
+                log('🧹 Cleared all data.', 'log-dim');
+            }
+
+            // ─── INIT ──────────────────────────────────────────────────
+            async function init() {
+                // Pre-derive key to warm up
+                try {
+                    await getCryptoKey();
+                    log('🔑 Key derived successfully (SHA-256).', 'log-info');
+                } catch (e) {
+                    log('⚠️ Key derivation pre-check failed: ' + e.message, 'log-fail');
+                }
+
+                // Event listeners
+                btnSelect.addEventListener('click', () => {
+                    if (state.isEncrypting) return;
+                    folderInput.click();
+                });
+
+                folderInput.addEventListener('change', handleFolderSelect);
+
+                btnEncrypt.addEventListener('click', processFiles);
+
+                btnDownload.addEventListener('click', downloadZip);
+
+                btnVerify.addEventListener('click', verifyAll);
+
+                btnClear.addEventListener('click', clearAll);
+
+                // Initial state
+                updateStatsAndUI();
+                updateProgress(0, 0);
+                log('🟢 Ready. Select a folder to begin.', 'log-info');
+
+                // Check if Web Crypto is available
+                if (!window.crypto || !window.crypto.subtle) {
+                    log('❌ Web Crypto API not available. Please use a modern browser.', 'log-fail');
+                    showToast('Web Crypto API not available', 'error');
+                }
+
+                // Check if webkitdirectory is supported
+                if (!('webkitdirectory' in folderInput)) {
+                    log('⚠️ Your browser does not support folder selection. Please use Chrome.', 'log-fail');
+                    showToast('Folder selection not supported', 'error');
+                }
+
+                console.log('🔐 Jinendra Vani Encryption Tool initialized.');
+                console.log('📁 Select a folder to encrypt assets for assets/p/');
+            }
+
+            // Run on DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+</body>
+</html>
