@@ -701,7 +701,6 @@
                     toastTimer = null; }
                 toast.textContent = msg;
                 toast.className = 'toast' + (type ? ' ' + type : '');
-                // force reflow
                 void toast.offsetWidth;
                 toast.classList.add('show');
                 toastTimer = setTimeout(() => {
@@ -717,7 +716,6 @@
                 entry.textContent = msg;
                 statusLog.appendChild(entry);
                 statusLog.scrollTop = statusLog.scrollHeight;
-                // keep log manageable
                 while (statusLog.children.length > 200) {
                     statusLog.removeChild(statusLog.firstChild);
                 }
@@ -751,12 +749,10 @@
                 return [dt & 0xFFFF, tm & 0xFFFF];
             }
 
-            // ─── ZIP GENERATOR ─────────────────────────────────────────
-            function generateZip(files, baseName) {
+            // ─── ZIP GENERATOR (rewritten for reliability) ──────────
+            function generateZip(files) {
                 // files: array of { path: string, data: Uint8Array }
-                // returns Uint8Array of ZIP
                 const entries = [];
-                let centralDir = [];
                 let offset = 0;
 
                 for (const f of files) {
@@ -765,81 +761,90 @@
                     const data = f.data;
                     const crc = crc32(data);
                     const [modDate, modTime] = dosDateTime(Date.now());
+                    const compSize = data.length;
                     const uncompSize = data.length;
-                    const compSize = data.length; // stored, no compression
 
-                    // Local file header
+                    // Local file header (30 + name length)
                     const lfh = new Uint8Array(30 + nameBytes.length);
                     let pos = 0;
-                    const write32 = (v) => { lfh[pos++] = v & 0xFF;
+                    const w32 = (v) => { lfh[pos++] = v & 0xFF;
                         lfh[pos++] = (v >> 8) & 0xFF;
                         lfh[pos++] = (v >> 16) & 0xFF;
                         lfh[pos++] = (v >> 24) & 0xFF; };
-                    const write16 = (v) => { lfh[pos++] = v & 0xFF;
+                    const w16 = (v) => { lfh[pos++] = v & 0xFF;
                         lfh[pos++] = (v >> 8) & 0xFF; };
 
-                    write32(0x04034b50); // sig
-                    write16(0x0a14); // version
-                    write16(0x0000); // flags
-                    write16(0x0000); // compression method
-                    write16(modTime);
-                    write16(modDate);
-                    write32(crc);
-                    write32(compSize);
-                    write32(uncompSize);
-                    write16(nameBytes.length);
-                    write16(0x0000); // extra field length
+                    w32(0x04034b50); // signature
+                    w16(0x0314); // version needed (UTF-8)
+                    w16(0x0800); // general purpose bit flag (UTF-8 filename)
+                    w16(0x0000); // compression method (store)
+                    w16(modTime);
+                    w16(modDate);
+                    w32(crc);
+                    w32(compSize);
+                    w32(uncompSize);
+                    w16(nameBytes.length);
+                    w16(0x0000); // extra field length
                     lfh.set(nameBytes, pos);
 
                     const lfhSize = 30 + nameBytes.length;
-                    const dataOffset = offset + lfhSize;
-
-                    // Central directory entry
-                    const cen = new Uint8Array(46 + nameBytes.length);
-                    let cpos = 0;
-                    const cw32 = (v) => { cen[cpos++] = v & 0xFF;
-                        cen[cpos++] = (v >> 8) & 0xFF;
-                        cen[cpos++] = (v >> 16) & 0xFF;
-                        cen[cpos++] = (v >> 24) & 0xFF; };
-                    const cw16 = (v) => { cen[cpos++] = v & 0xFF;
-                        cen[cpos++] = (v >> 8) & 0xFF; };
-                    cw32(0x02014b50);
-                    cw16(0x0a14);
-                    cw16(0x0a14);
-                    cw16(0x0000);
-                    cw16(0x0000);
-                    cw16(modTime);
-                    cw16(modDate);
-                    cw32(crc);
-                    cw32(compSize);
-                    cw32(uncompSize);
-                    cw16(nameBytes.length);
-                    cw16(0x0000);
-                    cw16(0x0000);
-                    cw16(0x0000);
-                    cw16(0x0000);
-                    cw32(0x00000000);
-                    cw32(dataOffset);
-                    cen.set(nameBytes, cpos);
 
                     entries.push({
                         lfh: lfh,
                         data: data,
                         lfhSize: lfhSize,
                         dataSize: data.length,
-                        cen: cen,
-                        cenSize: cen.length,
+                        nameBytes: nameBytes,
+                        crc: crc,
+                        modTime: modTime,
+                        modDate: modDate,
                     });
                     offset += lfhSize + data.length;
                 }
 
-                // Calculate total size
-                let totalSize = offset;
-                const cdSize = entries.reduce((s, e) => s + e.cenSize, 0);
-                const eocdSize = 22;
-                const cdOffset = offset;
-                totalSize += cdSize + eocdSize;
+                // Central directory
+                const cdEntries = [];
+                let cdSize = 0;
+                let dataOffset = 0;
+                let currentOffset = 0;
 
+                for (const e of entries) {
+                    const nameLen = e.nameBytes.length;
+                    const cen = new Uint8Array(46 + nameLen);
+                    let pos = 0;
+                    const w32 = (v) => { cen[pos++] = v & 0xFF;
+                        cen[pos++] = (v >> 8) & 0xFF;
+                        cen[pos++] = (v >> 16) & 0xFF;
+                        cen[pos++] = (v >> 24) & 0xFF; };
+                    const w16 = (v) => { cen[pos++] = v & 0xFF;
+                        cen[pos++] = (v >> 8) & 0xFF; };
+
+                    w32(0x02014b50); // signature
+                    w16(0x0314); // version made by
+                    w16(0x0314); // version needed
+                    w16(0x0800); // flags
+                    w16(0x0000); // compression method
+                    w16(e.modTime);
+                    w16(e.modDate);
+                    w32(e.crc);
+                    w32(e.dataSize);
+                    w32(e.dataSize);
+                    w16(nameLen);
+                    w16(0x0000); // extra
+                    w16(0x0000); // comment
+                    w16(0x0000); // disk number
+                    w16(0x0000); // internal attr
+                    w32(0x00000000); // external attr
+                    w32(dataOffset); // relative offset of local header
+
+                    cen.set(e.nameBytes, pos);
+
+                    cdEntries.push(cen);
+                    cdSize += cen.length;
+                    dataOffset += e.lfhSize + e.dataSize;
+                }
+
+                const totalSize = offset + cdSize + 22;
                 const result = new Uint8Array(totalSize);
                 let writePos = 0;
 
@@ -852,9 +857,9 @@
                 }
 
                 // Write central directory
-                for (const e of entries) {
-                    result.set(e.cen, writePos);
-                    writePos += e.cenSize;
+                for (const cd of cdEntries) {
+                    result.set(cd, writePos);
+                    writePos += cd.length;
                 }
 
                 // End of central directory
@@ -867,15 +872,15 @@
                 const ew16 = (v) => { eocd[ep++] = v & 0xFF;
                     eocd[ep++] = (v >> 8) & 0xFF; };
                 ew32(0x06054b50);
-                ew16(0x0000);
-                ew16(0x0000);
+                ew16(0x0000); // disk number
+                ew16(0x0000); // disk with CD
                 ew16(entries.length);
                 ew16(entries.length);
                 ew32(cdSize);
-                ew32(cdOffset);
-                ew16(0x0000);
-                result.set(eocd, writePos);
+                ew32(offset); // offset of CD
+                ew16(0x0000); // comment length
 
+                result.set(eocd, writePos);
                 return result;
             }
 
@@ -884,7 +889,7 @@
                 const encoder = new TextEncoder();
                 const data = encoder.encode(SECRET);
                 const hash = await crypto.subtle.digest('SHA-256', data);
-                return hash; // ArrayBuffer 32 bytes
+                return hash;
             }
 
             async function getCryptoKey() {
@@ -906,7 +911,6 @@
                     iv: iv,
                     tagLength: 128,
                 }, key, data);
-                // Combine IV + ciphertext (which includes tag)
                 const result = new Uint8Array(IV_LEN + encrypted.byteLength);
                 result.set(iv, 0);
                 result.set(new Uint8Array(encrypted), IV_LEN);
@@ -929,14 +933,8 @@
             // ─── FILE PROCESSING ──────────────────────────────────────
             async function processFiles() {
                 if (state.isEncrypting) return;
-                if (state.files.length === 0) {
-                    showToast('No files to encrypt. Select a folder first.', 'error');
-                    return;
-                }
-
-                // Check if any files are already encrypted
-                const allDone = state.files.every(f => f.status === 'ok');
-                if (allDone && state.encryptedCount === state.files.length) {
+                const filesToProcess = state.files.filter(f => f.status !== 'ok');
+                if (filesToProcess.length === 0) {
                     showToast('All files already encrypted.', 'success');
                     return;
                 }
@@ -946,8 +944,6 @@
                 btnSelect.disabled = true;
                 btnDownload.disabled = true;
                 btnVerify.disabled = true;
-
-                // Show the encrypting state on the button
                 btnEncrypt.innerHTML = '<span class="spinner"></span> Encrypting...';
 
                 let key;
@@ -966,24 +962,19 @@
                 let processed = 0;
                 let success = 0;
                 let failed = 0;
-                let total = state.files.length;
+                const total = state.files.length;
 
-                // Reset status for files that are not already ok
+                // Reset status for files not already ok
                 for (const f of state.files) {
                     if (f.status !== 'ok') {
                         f.status = 'wait';
                         f.encrypted = null;
+                    } else {
+                        success++; // count already ok
                     }
                 }
 
-                // Count already ok files
-                const alreadyOk = state.files.filter(f => f.status === 'ok').length;
-                success = alreadyOk;
-                processed = alreadyOk;
-
-                // Update UI
-                updateStatsAndUI();
-
+                // Process each file that is not ok
                 for (const f of state.files) {
                     if (f.status === 'ok') continue;
                     processed++;
@@ -994,11 +985,9 @@
                         const fileData = await f.file.arrayBuffer();
                         const encrypted = await encryptFile(key, new Uint8Array(fileData));
 
-                        // ─── VERIFICATION ────────────────────────────
+                        // Verification
                         const decrypted = await decryptFile(key, encrypted);
                         const original = new Uint8Array(fileData);
-
-                        // Compare byte-by-byte
                         if (decrypted.length !== original.length) {
                             throw new Error('Verification failed: length mismatch');
                         }
@@ -1020,7 +1009,6 @@
                         log('❌ Failed: ' + f.relPath + ' — ' + e.message, 'log-fail');
                     }
 
-                    // Update UI every few files
                     if (processed % 2 === 0 || processed === total) {
                         state.encryptedCount = success;
                         state.failedCount = failed;
@@ -1041,41 +1029,28 @@
                 btnEncrypt.disabled = false;
                 btnSelect.disabled = false;
 
-                const allOk = success === total && failed === 0;
-                if (allOk) {
+                if (failed === 0 && success > 0) {
                     btnDownload.disabled = false;
                     btnVerify.disabled = false;
-                    log('🎉 All ' + total + ' files encrypted and verified successfully!', 'log-ok');
+                    log('🎉 All ' + success + ' files encrypted and verified!', 'log-ok');
                     showToast('✅ All files encrypted successfully!', 'success');
-                } else if (failed === 0 && success > 0) {
+                } else if (success > 0) {
                     btnDownload.disabled = false;
                     btnVerify.disabled = false;
-                    log('⚠️ ' + success + ' files encrypted, ' + (total - success) + ' skipped.', 'log-info');
-                    showToast('⚠️ ' + success + ' encrypted, ' + (total - success) + ' skipped.', 'error');
-                } else {
-                    if (success > 0) btnDownload.disabled = false;
-                    if (success > 0) btnVerify.disabled = false;
                     log('⚠️ Encrypted: ' + success + ' | Failed: ' + failed, 'log-fail');
                     showToast('⚠️ ' + success + ' OK, ' + failed + ' failed.', 'error');
+                } else {
+                    showToast('❌ Encryption failed for all files.', 'error');
                 }
-
-                // Update stats
-                state.encryptedCount = success;
-                state.failedCount = failed;
-                updateStatsAndUI();
-
-                // Update file list
-                updateFileList();
-
-                // Clean up
                 currentFile.innerHTML = '📄 <strong>Done</strong>';
             }
 
             // ─── VERIFY ALL ────────────────────────────────────────────
             async function verifyAll() {
                 if (state.isEncrypting) return;
-                if (state.files.length === 0) {
-                    showToast('No files to verify.', 'error');
+                const toVerify = state.files.filter(f => f.encrypted && f.encrypted.length > 0);
+                if (toVerify.length === 0) {
+                    showToast('No encrypted data found. Encrypt first.', 'error');
                     return;
                 }
 
@@ -1087,32 +1062,20 @@
                     return;
                 }
 
-                let verified = 0;
-                let failed = 0;
-                let total = state.files.filter(f => f.encrypted !== null && f.encrypted.length > 0).length;
-
-                if (total === 0) {
-                    showToast('No encrypted data found. Encrypt first.', 'error');
-                    return;
-                }
-
-                log('🔍 Verifying ' + total + ' encrypted files...', 'log-info');
+                let verified = 0,
+                    failed = 0;
+                log('🔍 Verifying ' + toVerify.length + ' encrypted files...', 'log-info');
                 currentFile.innerHTML = '📄 <strong>Verifying...</strong>';
 
-                for (const f of state.files) {
-                    if (!f.encrypted || f.encrypted.length === 0) continue;
+                for (const f of toVerify) {
                     try {
                         currentFile.innerHTML = '📄 <strong>' + escapeHtml(f.relPath) + '</strong>';
                         const original = await f.file.arrayBuffer();
                         const decrypted = await decryptFile(key, f.encrypted);
                         const orig = new Uint8Array(original);
-                        if (decrypted.length !== orig.length) {
-                            throw new Error('Length mismatch');
-                        }
+                        if (decrypted.length !== orig.length) throw new Error('Length mismatch');
                         for (let i = 0; i < orig.length; i++) {
-                            if (decrypted[i] !== orig[i]) {
-                                throw new Error('Byte mismatch at ' + i);
-                            }
+                            if (decrypted[i] !== orig[i]) throw new Error('Byte mismatch at ' + i);
                         }
                         f.status = 'ok';
                         verified++;
@@ -1128,7 +1091,6 @@
                 state.failedCount = failed;
                 updateStatsAndUI();
                 updateFileList();
-
                 if (failed === 0) {
                     showToast('✅ All ' + verified + ' files verified OK.', 'success');
                     log('🎉 All ' + verified + ' files verified successfully.', 'log-ok');
@@ -1168,7 +1130,6 @@
                     total + ' file' + (total !== 1 ? 's' : '') + ' selected' :
                     'No folder selected';
 
-                // Show file list card if files > 0
                 if (total > 0) {
                     fileListCard.style.display = 'block';
                     fileListPill.textContent = total;
@@ -1176,13 +1137,10 @@
                     fileListCard.style.display = 'none';
                 }
 
-                // Buttons
                 btnEncrypt.disabled = (total === 0 || state.isEncrypting);
                 const hasEncrypted = state.files.some(f => f.encrypted && f.encrypted.length > 0);
                 btnDownload.disabled = !hasEncrypted || state.isEncrypting;
                 btnVerify.disabled = !hasEncrypted || state.isEncrypting;
-
-                // Update file list
                 updateFileList();
             }
 
@@ -1199,7 +1157,6 @@
                     wrap.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:0.7rem;">No files loaded</div>';
                     return;
                 }
-
                 let html = '';
                 const maxShow = 100;
                 const show = state.files.slice(0, maxShow);
@@ -1221,7 +1178,7 @@
                 wrap.innerHTML = html;
             }
 
-            // ─── FOLDER SELECTION ──────────────────────────────────────
+            // ─── FOLDER SELECTION (filter .txt .json, skip Banner) ──
             function handleFolderSelect(e) {
                 const input = e.target;
                 const files = input.files;
@@ -1234,11 +1191,15 @@
                     const file = files[i];
                     const relPath = file.webkitRelativePath || file.name;
                     if (!relPath) continue;
-                    // Skip directories (they have size 0 and no content)
                     if (file.size === 0 && file.type === '') continue;
-                    // Sanity: reject unsafe paths
-                    if (relPath.includes('../') || relPath.includes('..\\')) continue;
                     const normPath = relPath.replace(/\\/g, '/');
+
+                    // Filter: only .txt or .json, skip Banner folder
+                    const ext = normPath.split('.').pop().toLowerCase();
+                    if (ext !== 'txt' && ext !== 'json') continue;
+                    // Skip if path contains "banner" as a directory (case-insensitive)
+                    if (normPath.toLowerCase().includes('/banner/') || normPath.toLowerCase().startsWith('banner/')) continue;
+
                     newFiles.push({
                         file: file,
                         relPath: normPath,
@@ -1250,11 +1211,10 @@
                 }
 
                 if (newFiles.length === 0) {
-                    showToast('No valid files found in the selected folder.', 'error');
+                    showToast('No .txt or .json files found (Banner excluded).', 'error');
                     return;
                 }
 
-                // Replace state
                 state.files = newFiles;
                 state.totalBytes = totalSize;
                 state.encryptedCount = 0;
@@ -1262,7 +1222,6 @@
                 state.isVerified = false;
                 state.isEncrypting = false;
 
-                // Reset UI
                 updateStatsAndUI();
                 updateProgress(0, state.files.length);
                 progressFill.style.width = '0%';
@@ -1270,15 +1229,12 @@
                 progressPct.textContent = '0%';
                 currentFile.innerHTML = '📄 <strong>' + state.files.length + ' files loaded</strong>';
                 statusLog.innerHTML = '';
-                log('📂 Loaded ' + state.files.length + ' files from folder.', 'log-info');
+                log('📂 Loaded ' + state.files.length + ' .txt/.json files (Banner skipped).', 'log-info');
 
                 btnEncrypt.disabled = false;
                 btnDownload.disabled = true;
                 btnVerify.disabled = true;
-
                 showToast('✅ ' + state.files.length + ' files loaded', 'success');
-
-                // Reset input so same folder can be selected again
                 input.value = '';
             }
 
@@ -1290,10 +1246,8 @@
                     return;
                 }
 
-                // Prepare entries: path with .dat extension
                 const entries = [];
                 for (const f of encryptedFiles) {
-                    // Change extension to .dat
                     let path = f.relPath;
                     const lastDot = path.lastIndexOf('.');
                     if (lastDot > 0) {
@@ -1301,14 +1255,11 @@
                     } else {
                         path = path + '.dat';
                     }
-                    entries.push({
-                        path: path,
-                        data: f.encrypted,
-                    });
+                    entries.push({ path: path, data: f.encrypted });
                 }
 
                 try {
-                    const zipData = generateZip(entries, 'JinendraVani_Assets');
+                    const zipData = generateZip(entries);
                     const blob = new Blob([zipData], { type: 'application/zip' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -1346,7 +1297,7 @@
                 currentFile.innerHTML = '📄 <strong>Ready</strong>';
                 statusLog.innerHTML = '';
                 fileListWrap.innerHTML =
-                '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:0.7rem;">No files loaded</div>';
+                    '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:0.7rem;">No files loaded</div>';
                 fileListCard.style.display = 'none';
                 btnEncrypt.disabled = true;
                 btnDownload.disabled = true;
@@ -1358,7 +1309,6 @@
 
             // ─── INIT ──────────────────────────────────────────────────
             async function init() {
-                // Pre-derive key to warm up
                 try {
                     await getCryptoKey();
                     log('🔑 Key derived successfully (SHA-256).', 'log-info');
@@ -1366,50 +1316,35 @@
                     log('⚠️ Key derivation pre-check failed: ' + e.message, 'log-fail');
                 }
 
-                // Event listeners
                 btnSelect.addEventListener('click', () => {
                     if (state.isEncrypting) return;
                     folderInput.click();
                 });
-
                 folderInput.addEventListener('change', handleFolderSelect);
-
                 btnEncrypt.addEventListener('click', processFiles);
-
                 btnDownload.addEventListener('click', downloadZip);
-
                 btnVerify.addEventListener('click', verifyAll);
-
                 btnClear.addEventListener('click', clearAll);
 
-                // Initial state
                 updateStatsAndUI();
                 updateProgress(0, 0);
                 log('🟢 Ready. Select a folder to begin.', 'log-info');
 
-                // Check if Web Crypto is available
                 if (!window.crypto || !window.crypto.subtle) {
-                    log('❌ Web Crypto API not available. Please use a modern browser.', 'log-fail');
+                    log('❌ Web Crypto API not available.', 'log-fail');
                     showToast('Web Crypto API not available', 'error');
                 }
-
-                // Check if webkitdirectory is supported
                 if (!('webkitdirectory' in folderInput)) {
-                    log('⚠️ Your browser does not support folder selection. Please use Chrome.', 'log-fail');
+                    log('⚠️ Your browser does not support folder selection. Use Chrome.', 'log-fail');
                     showToast('Folder selection not supported', 'error');
                 }
-
-                console.log('🔐 Jinendra Vani Encryption Tool initialized.');
-                console.log('📁 Select a folder to encrypt assets for assets/p/');
             }
 
-            // Run on DOM ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
                 init();
             }
-
         })();
     </script>
 </body>
