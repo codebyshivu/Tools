@@ -175,7 +175,7 @@
       align-items: center;
       justify-content: center;
       gap: 2px;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 550;
       color: var(--text-tertiary);
       transition: 0.2s;
@@ -183,15 +183,26 @@
       flex: 1;
       padding: 6px 0;
       border-radius: 40px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
     .nav-item i {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       margin-bottom: 2px;
     }
     .nav-item.active {
       color: var(--accent);
       background: var(--accent-soft);
       font-weight: 600;
+    }
+    .nav-item.encrypt-btn {
+      color: var(--text-tertiary);
+    }
+    .nav-item.encrypt-btn i {
+      color: #e67e22;
+    }
+    body.dark .nav-item.encrypt-btn i {
+      color: #f39c12;
     }
 
     .section {
@@ -239,12 +250,14 @@
       justify-content: center;
       font-weight: 700;
       font-size: 1.1rem;
+      flex-shrink: 0;
     }
     .goal-name {
       font-size: 1.3rem;
       font-weight: 670;
       letter-spacing: -0.3px;
       line-height: 1.2;
+      word-break: break-word;
     }
     .delete-goal {
       position: absolute;
@@ -760,6 +773,23 @@
       color: var(--text-secondary);
       font-weight: 500;
     }
+
+    /* small tweaks for 5 nav items */
+    .bottom-nav .nav-item {
+      font-size: 0.6rem;
+    }
+    .bottom-nav .nav-item i {
+      font-size: 1.2rem;
+    }
+    @media (max-width: 400px) {
+      .bottom-nav .nav-item {
+        font-size: 0.55rem;
+        padding: 4px 0;
+      }
+      .bottom-nav .nav-item i {
+        font-size: 1.1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -802,6 +832,9 @@
       <div class="nav-item" data-tab="future"><i class="fas fa-calendar-plus"></i><span>Future</span></div>
       <div class="nav-item" data-tab="history"><i class="fas fa-clock-rotate-left"></i><span>History</span></div>
       <div class="nav-item" data-tab="add"><i class="fas fa-plus-circle"></i><span>Add</span></div>
+      <div class="nav-item encrypt-btn" data-tab="encrypt" id="encryptNavBtn">
+        <i class="fas fa-lock"></i><span>Encrypt</span>
+      </div>
     </div>
   </div>
 
@@ -893,7 +926,6 @@
       const startDateInput = document.getElementById('startDate');
       startDateInput.value = getTodayString();
 
-      // Auto-switch to "Plan" if selected date is future
       startDateInput.addEventListener('change', function() {
         const selectedDate = this.value;
         const today = getTodayString();
@@ -1084,14 +1116,11 @@
         pendingComment = { goalId, date: dateStr, isEditMode: false };
         commentDateSpan.textContent = dateStr;
 
-        // Always set textarea content
         commentTextarea.value = existingComment || '';
 
         if (existingComment) {
-          // Existing comment: start in view mode
           setCommentMode(false);
         } else {
-          // No comment: start in edit mode (so user can type)
           setCommentMode(true);
         }
         commentModal.classList.add('show');
@@ -1102,7 +1131,6 @@
         pendingComment = { goalId: null, date: null, isEditMode: false };
       }
 
-      // Save button (in edit mode)
       saveCommentBtn.addEventListener('click', () => {
         if (!pendingComment.goalId || !pendingComment.date) return;
         const goal = goals.find(g => g.id === pendingComment.goalId);
@@ -1111,13 +1139,11 @@
           goal.comments[pendingComment.date] = commentTextarea.value.trim();
           saveToStorage();
           showPopup('Note saved', 'info');
-          renderCurrent(); // update pin icon
-          // Switch to view mode
+          renderCurrent();
           setCommentMode(false);
         }
       });
 
-      // Edit button
       editCommentBtn.addEventListener('click', () => {
         setCommentMode(true);
       });
@@ -1168,17 +1194,12 @@
             e.stopPropagation();
             const date = cell.dataset.date;
             if (!date) return;
-            // We no longer require completion to view comment
-            // const completed = goal.completedDates.includes(date);
-            // if (!completed) { showPopup('Day not completed', 'error'); return; }
-            // Close detail modal first, then show comment modal
             detailModal.classList.remove('show');
             const existing = goal.comments ? goal.comments[date] : '';
             showCommentModal(goal.id, date, existing);
           });
         });
 
-        // Set reminder message based on goal status
         if (goal.status === 'future') {
           const startDate = new Date(goal.startDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
           reminderMessage.innerHTML = `<i class="fas fa-calendar-alt"></i> Starts on ${startDate}`;
@@ -1199,7 +1220,7 @@
       closeDetail.addEventListener('click', () => detailModal.classList.remove('show'));
       detailModal.addEventListener('click', (e) => { if (e.target === detailModal) detailModal.classList.remove('show'); });
 
-      // Long press on day cells (for comments) - use same logic as detail modal
+      // Long press on day cells
       let dayLongPressTimer = null;
       function startDayLongPress(goalId, cellDate, event) {
         if (!cellDate) return;
@@ -1207,7 +1228,6 @@
           const goal = goals.find(g => g.id === goalId);
           if (goal) {
             const existing = goal.comments ? goal.comments[cellDate] : '';
-            // If long press from main grid, we don't need to close anything
             showCommentModal(goalId, cellDate, existing);
           }
           dayLongPressTimer = null;
@@ -1217,7 +1237,7 @@
         if (dayLongPressTimer) { clearTimeout(dayLongPressTimer); dayLongPressTimer = null; }
       }
 
-      // Goal card long press (for delete)
+      // Goal card long press
       let goalLongPressTimer = null;
       let longPressGoalId = null;
       const LONG_PRESS_DURATION = 600;
@@ -1370,7 +1390,6 @@
         });
       }
 
-      // Check for scheduled goals that should become current
       function checkScheduledGoals() {
         const todayStr = getTodayString();
         let changed = false;
@@ -1518,7 +1537,6 @@
         showPopup('Goal started', 'info');
       }
 
-      // Add goal
       document.getElementById('addGoalBtn').addEventListener('click', (e) => {
         e.preventDefault();
         const nameInput = document.getElementById('habitName');
@@ -1552,13 +1570,30 @@
         renderCurrent(); renderFuture(); renderHistory();
       });
 
+      // ----- ENCRYPT NAV -----
+      // Open encryption.html in a new tab when the "Encrypt" nav item is clicked
+      const encryptNavBtn = document.getElementById('encryptNavBtn');
+      encryptNavBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Open encryption.html in a new tab/window
+        window.open('encryption.html', '_blank');
+        // Also remove active state from all nav items and set this as active (optional)
+        navItems.forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        // Show a small popup feedback
+        showPopup('Opening encryption tool...', 'info');
+      });
+
       // Bottom nav
-      const navItems = document.querySelectorAll('.nav-item');
+      const navItems = document.querySelectorAll('.nav-item:not(#encryptNavBtn)');
       function switchTab(tabId) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
         document.getElementById(tabId + 'Section').classList.add('active-section');
         navItems.forEach(i => i.classList.remove('active'));
-        document.querySelector(`.nav-item[data-tab="${tabId}"]`).classList.add('active');
+        document.querySelector(`.nav-item[data-tab="${tabId}"]`)?.classList.add('active');
+        // Remove active from encrypt btn if it was active
+        encryptNavBtn.classList.remove('active');
         if (tabId === 'current') renderCurrent();
         if (tabId === 'future') renderFuture();
         if (tabId === 'history') renderHistory();
@@ -1581,6 +1616,11 @@
       // Init
       loadFromStorage();
       renderCurrent(); renderFuture(); renderHistory();
+
+      // If encryption.html is missing, show a helpful error
+      // (we can't pre-check, but the user will see a blank tab if not found)
+      // We'll catch any error silently via the popup feedback.
+
     })();
   </script>
 </body>
