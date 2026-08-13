@@ -3,152 +3,718 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <meta name="theme-color" content="#1a0a2e" />
-    <title>Jinendra Vani · Content Encryption</title>
+    <meta name="theme-color" content="#0b0a1a" />
+    <title>Jinendra Vani · Encrypt</title>
     <style>
-        /* (same styles as before – kept for brevity) */
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        :root { --bg:#0d0717; --surface:#1a0f2a; --card:#25163a; --border:#3d235a; --primary:#b886ff; --primary-dim:#7a4bb5; --gold:#f0c060; --gold-dim:#b8943a; --text:#f0e8ff; --text-muted:#b8a8d8; --success:#6bdb8a; --danger:#ff7a7a; --radius:16px; --shadow:0 8px 32px rgba(0,0,0,0.6); }
-        html { font-size:16px; }
-        body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:12px 12px 40px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; }
-        .app { max-width:520px; width:100%; margin:0 auto; }
-        .header { background:linear-gradient(145deg, #1f0f3a, #120820); border-radius:var(--radius); padding:22px 20px 18px; margin-bottom:20px; box-shadow:var(--shadow); border:1px solid var(--border); text-align:center; position:relative; overflow:hidden; }
-        .header::after { content:"✦"; position:absolute; right:16px; top:12px; font-size:20px; color:var(--gold); opacity:0.3; }
-        .header .sub { font-size:0.7rem; text-transform:uppercase; letter-spacing:3px; color:var(--gold); font-weight:600; margin-bottom:2px; }
-        .header h1 { font-size:1.6rem; font-weight:700; background:linear-gradient(135deg, #f0e8ff 20%, #b886ff 80%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-0.5px; line-height:1.2; }
-        .header .tag { font-size:0.8rem; color:var(--text-muted); margin-top:4px; font-weight:400; letter-spacing:0.3px; }
-        .header .badge { display:inline-block; background:rgba(184,134,255,0.15); border:1px solid rgba(184,134,255,0.2); border-radius:20px; padding:2px 14px; font-size:0.6rem; color:var(--primary); margin-top:6px; letter-spacing:0.5px; }
-        .card { background:var(--surface); border-radius:var(--radius); padding:18px 16px; margin-bottom:16px; border:1px solid var(--border); box-shadow:var(--shadow); }
-        .card-title { font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:12px; font-weight:600; }
-        .stats { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; text-align:center; }
-        .stat-item { background:var(--card); border-radius:12px; padding:10px 4px; border:1px solid var(--border); }
-        .stat-item .num { font-size:1.5rem; font-weight:700; color:#fff; line-height:1.2; }
-        .stat-item .num.gold { color:var(--gold); }
-        .stat-item .num.green { color:var(--success); }
-        .stat-item .num.red { color:var(--danger); }
-        .stat-item .label { font-size:0.55rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px; margin-top:2px; }
-        .progress-wrap { margin:10px 0 4px; }
-        .progress-bar { width:100%; height:8px; background:var(--card); border-radius:20px; overflow:hidden; border:1px solid var(--border); }
-        .progress-bar .fill { height:100%; width:0%; background:linear-gradient(90deg, var(--primary-dim), var(--gold)); border-radius:20px; transition:width 0.25s ease; }
-        .progress-label { display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-top:4px; }
-        .current-file { font-size:0.75rem; color:var(--text-muted); padding:6px 0 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:1.4em; }
-        .current-file strong { color:var(--text); font-weight:500; }
-        .status-log { background:var(--card); border-radius:10px; padding:10px 12px; max-height:100px; overflow-y:auto; font-size:0.75rem; font-family:"SF Mono", "Menlo", monospace; color:var(--text-muted); border:1px solid var(--border); margin-top:8px; line-height:1.6; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
-        .status-log::-webkit-scrollbar { width:4px; }
-        .status-log::-webkit-scrollbar-track { background:transparent; }
-        .status-log::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
-        .status-log .log-entry { padding:1px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
-        .status-log .log-entry:last-child { border-bottom:none; }
-        .status-log .log-ok { color:var(--success); }
-        .status-log .log-fail { color:var(--danger); }
-        .status-log .log-info { color:var(--primary); }
-        .status-log .log-dim { color:var(--text-muted); }
-        .btn-group { display:flex; flex-wrap:wrap; gap:10px; margin:4px 0 2px; }
-        .btn-group .btn { flex:1 1 auto; min-width:80px; }
-        .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:12px 18px; border-radius:12px; border:none; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s ease; color:#fff; background:var(--card); border:1px solid var(--border); touch-action:manipulation; user-select:none; text-align:center; min-height:50px; line-height:1.2; position:relative; }
-        .btn:active { transform:scale(0.96); }
-        .btn-primary { background:linear-gradient(145deg, #4d2b7a, #2d1550); border-color:var(--primary); color:#fff; }
-        .btn-primary:active { background:#3d1f6a; }
-        .btn-gold { background:linear-gradient(145deg, #b8943a, #8a6d2a); border-color:var(--gold); color:#fff; }
-        .btn-gold:active { background:#a07d30; }
-        .btn-success { background:linear-gradient(145deg, #2a7a4a, #1a5a3a); border-color:var(--success); color:#fff; }
-        .btn-success:active { background:#206a3a; }
-        .btn-outline { background:transparent; border-color:var(--border); color:var(--text-muted); }
-        .btn-outline:active { background:var(--card); }
-        .btn:disabled { opacity:0.4; transform:none !important; pointer-events:none; filter:grayscale(0.3); }
-        .btn .icon { font-size:1.1rem; }
-        #folderInput, #fileInput { display:none; }
-        .file-list-wrap { max-height:180px; overflow-y:auto; margin-top:6px; border-radius:10px; background:var(--card); padding:4px 2px; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
-        .file-list-wrap::-webkit-scrollbar { width:4px; }
-        .file-list-wrap::-webkit-scrollbar-track { background:transparent; }
-        .file-list-wrap::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
-        .file-item { display:flex; align-items:center; justify-content:space-between; padding:4px 8px; font-size:0.7rem; color:var(--text-muted); border-bottom:1px solid rgba(255,255,255,0.04); gap:6px; }
-        .file-item:last-child { border-bottom:none; }
-        .file-item .name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .file-item .status-icon { font-size:0.7rem; width:18px; text-align:center; flex-shrink:0; }
-        .file-item .status-icon.ok { color:var(--success); }
-        .file-item .status-icon.fail { color:var(--danger); }
-        .file-item .status-icon.wait { color:var(--text-muted); }
-        @media (max-width:420px) { .stats { grid-template-columns:1fr 1fr; gap:6px; } .stat-item .num { font-size:1.2rem; } .header h1 { font-size:1.3rem; } .btn { font-size:0.75rem; padding:10px 12px; min-height:44px; } .btn-group { gap:6px; } .btn-group .btn { min-width:60px; } }
-        @media (max-width:360px) { .stat-item .num { font-size:1rem; } .stat-item .label { font-size:0.5rem; } .header h1 { font-size:1.1rem; } }
-        .mt-1 { margin-top:6px; }
-        .mt-2 { margin-top:12px; }
-        .mb-1 { margin-bottom:6px; }
-        .flex { display:flex; align-items:center; gap:8px; }
-        .text-muted { color:var(--text-muted); }
-        .text-sm { font-size:0.75rem; }
-        .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--card); border:1px solid var(--border); padding:12px 24px; border-radius:14px; font-size:0.85rem; color:var(--text); box-shadow:var(--shadow); opacity:0; transition:all 0.4s ease; max-width:90%; text-align:center; pointer-events:none; z-index:999; backdrop-filter:blur(8px); }
-        .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-        .toast.success { border-color:var(--success); }
-        .toast.error { border-color:var(--danger); }
-        .spinner { display:inline-block; width:18px; height:18px; border:2px solid rgba(255,255,255,0.1); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-        .btn .spinner { width:16px; height:16px; border-width:2px; }
-        .pill { display:inline-block; padding:2px 10px; border-radius:20px; font-size:0.6rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; background:var(--card); border:1px solid var(--border); color:var(--text-muted); }
-        .pill.gold { border-color:var(--gold); color:var(--gold); background:rgba(240,192,96,0.08); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0b0a1a;
+            --surface: #14132b;
+            --card: #1e1d3a;
+            --border: #32305a;
+            --primary: #8b7dff;
+            --primary-glow: rgba(139, 125, 255, 0.25);
+            --gold: #f7c948;
+            --gold-dim: #c99e2e;
+            --text: #efecff;
+            --text-muted: #a8a0cc;
+            --success: #5fdb8a;
+            --danger: #ff6b6b;
+            --radius: 16px;
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+            --transition: 0.25s ease;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px 12px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .app {
+            max-width: 540px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(145deg, #1a1838, #0f0e26);
+            border-radius: var(--radius);
+            padding: 24px 20px 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: "✦";
+            position: absolute;
+            right: 20px;
+            top: 14px;
+            font-size: 22px;
+            color: var(--gold);
+            opacity: 0.25;
+        }
+
+        .header .sub {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3.5px;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f0ecff 0%, #8b7dff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .header .tag {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: rgba(139, 125, 255, 0.12);
+            border: 1px solid rgba(139, 125, 255, 0.2);
+            border-radius: 30px;
+            padding: 3px 16px;
+            font-size: 0.6rem;
+            color: var(--primary);
+            margin-top: 8px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px 18px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(4px);
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .pill {
+            font-size: 0.55rem;
+            background: var(--card);
+            padding: 1px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .stat-item {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 12px 4px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .stat-item .num {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .stat-item .num.gold {
+            color: var(--gold);
+        }
+        .stat-item .num.green {
+            color: var(--success);
+        }
+        .stat-item .num.red {
+            color: var(--danger);
+        }
+
+        .stat-item .label {
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.6px;
+            margin-top: 4px;
+        }
+
+        /* Progress */
+        .progress-wrap {
+            margin: 12px 0 6px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--card);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--gold));
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .current-file {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 8px 0 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 1.6em;
+        }
+
+        .current-file strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Log */
+        .status-log {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 10px 12px;
+            max-height: 110px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+            font-family: "SF Mono", "Menlo", monospace;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            line-height: 1.7;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .status-log::-webkit-scrollbar {
+            width: 4px;
+        }
+        .status-log::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .status-log::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .status-log .log-entry {
+            padding: 1px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .status-log .log-entry:last-child {
+            border-bottom: none;
+        }
+        .status-log .log-ok {
+            color: var(--success);
+        }
+        .status-log .log-fail {
+            color: var(--danger);
+        }
+        .status-log .log-info {
+            color: var(--primary);
+        }
+        .status-log .log-dim {
+            color: var(--text-muted);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 6px 0 2px;
+        }
+
+        .btn-group .btn {
+            flex: 1 1 auto;
+            min-width: 80px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            background: var(--card);
+            border: 1px solid var(--border);
+            touch-action: manipulation;
+            user-select: none;
+            text-align: center;
+            min-height: 52px;
+            line-height: 1.2;
+            position: relative;
+            flex: 1 1 0;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #3d2f7a, #241d50);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:active {
+            background: #2f2368;
+        }
+
+        .btn-gold {
+            background: linear-gradient(145deg, #b8943a, #8a6d2a);
+            border-color: var(--gold);
+            color: #fff;
+        }
+
+        .btn-gold:active {
+            background: #a07d30;
+        }
+
+        .btn-success {
+            background: linear-gradient(145deg, #2a7a4a, #1a5a3a);
+            border-color: var(--success);
+            color: #fff;
+        }
+
+        .btn-success:active {
+            background: #206a3a;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:active {
+            background: var(--card);
+        }
+
+        .btn-danger-outline {
+            background: transparent;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .btn-danger-outline:active {
+            background: rgba(255, 107, 107, 0.08);
+        }
+
+        .btn:disabled {
+            opacity: 0.35;
+            transform: none !important;
+            pointer-events: none;
+            filter: grayscale(0.3);
+        }
+
+        .btn .icon {
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        /* Hidden inputs */
+        #folderInput,
+        #fileInput {
+            display: none;
+        }
+
+        /* File list */
+        .file-list-wrap {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 8px;
+            border-radius: 10px;
+            background: var(--card);
+            padding: 4px 2px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .file-list-wrap::-webkit-scrollbar {
+            width: 4px;
+        }
+        .file-list-wrap::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .file-list-wrap::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            gap: 8px;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-item .name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-item .status-icon {
+            font-size: 0.75rem;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .file-item .status-icon.ok {
+            color: var(--success);
+        }
+        .file-item .status-icon.fail {
+            color: var(--danger);
+        }
+        .file-item .status-icon.wait {
+            color: var(--text-muted);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: all 0.4s ease;
+            max-width: 90%;
+            text-align: center;
+            pointer-events: none;
+            z-index: 999;
+            backdrop-filter: blur(12px);
+            font-weight: 500;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-color: var(--success);
+        }
+        .toast.error {
+            border-color: var(--danger);
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn .spinner {
+            width: 18px;
+            height: 18px;
+            border-width: 2px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+            .stat-item .num {
+                font-size: 1.3rem;
+            }
+            .header h1 {
+                font-size: 1.4rem;
+            }
+            .btn {
+                font-size: 0.75rem;
+                padding: 12px 14px;
+                min-height: 46px;
+            }
+            .btn-group {
+                gap: 6px;
+            }
+            .btn-group .btn {
+                min-width: 60px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .stat-item .num {
+                font-size: 1.1rem;
+            }
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            .btn {
+                font-size: 0.7rem;
+                padding: 10px 10px;
+            }
+        }
+
+        /* Utilities */
+        .text-muted {
+            color: var(--text-muted);
+        }
+        .text-sm {
+            font-size: 0.7rem;
+        }
+        .mt-1 {
+            margin-top: 8px;
+        }
+        .mt-2 {
+            margin-top: 14px;
+        }
+        .mb-1 {
+            margin-bottom: 8px;
+        }
+        .flex {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gap-1 {
+            gap: 6px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* badge */
+        .pill {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .pill.gold {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(247, 201, 72, 0.08);
+        }
+
+        .pill.green {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(95, 219, 138, 0.08);
+        }
+
+        .pill.red {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(255, 107, 107, 0.08);
+        }
     </style>
 </head>
 <body>
 
     <div class="app" id="app">
+        <!-- Header -->
         <div class="header">
             <div class="sub">✦ Jinendra Vani</div>
             <h1>Content Encryption</h1>
-            <div class="tag">Offline · AES-256-GCM · Android Assets</div>
+            <div class="tag">Offline · AES‑256‑GCM · Android Assets</div>
             <div class="badge">🔒 assets/p/ · .dat</div>
         </div>
 
+        <!-- Stats -->
         <div class="card">
             <div class="card-title">📊 Summary</div>
             <div class="stats">
-                <div class="stat-item"><div class="num" id="statFound">0</div><div class="label">Found</div></div>
-                <div class="stat-item"><div class="num gold" id="statEncrypted">0</div><div class="label">Encrypted</div></div>
-                <div class="stat-item"><div class="num red" id="statFailed">0</div><div class="label">Failed</div></div>
-                <div class="stat-item"><div class="num" id="statSize">0</div><div class="label">MB</div></div>
+                <div class="stat-item">
+                    <div class="num" id="statFound">0</div>
+                    <div class="label">Found</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num gold" id="statEncrypted">0</div>
+                    <div class="label">Encrypted</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num red" id="statFailed">0</div>
+                    <div class="label">Failed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="num" id="statSize">0</div>
+                    <div class="label">MB</div>
+                </div>
             </div>
         </div>
 
+        <!-- Progress -->
         <div class="card">
             <div class="card-title">⏳ Progress</div>
             <div class="progress-wrap">
-                <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%;"></div></div>
-                <div class="progress-label"><span id="progressText">0 / 0</span><span id="progressPct">0%</span></div>
+                <div class="progress-bar">
+                    <div class="fill" id="progressFill" style="width:0%;"></div>
+                </div>
+                <div class="progress-label">
+                    <span id="progressText">0 / 0</span>
+                    <span id="progressPct">0%</span>
+                </div>
             </div>
             <div class="current-file" id="currentFile">📄 <strong>Ready</strong></div>
             <div class="status-log" id="statusLog"></div>
         </div>
 
+        <!-- Actions -->
         <div class="card">
             <div class="card-title">⚡ Actions</div>
             <div class="btn-group">
-                <button class="btn btn-primary" id="btnSelectFolder"><span class="icon">📂</span> Select Folder</button>
-                <button class="btn btn-primary" id="btnSelectFiles"><span class="icon">📄</span> Select Files</button>
+                <button class="btn btn-primary" id="btnSelectFolder">
+                    <span class="icon">📂</span> Folder
+                </button>
+                <button class="btn btn-primary" id="btnSelectFiles">
+                    <span class="icon">📄</span> Files
+                </button>
             </div>
-            <div class="btn-group mt-1">
-                <button class="btn btn-gold" id="btnEncrypt" disabled><span class="icon">🔐</span> Encrypt</button>
-                <button class="btn btn-success" id="btnDownload" disabled><span class="icon">📦</span> Download ZIP</button>
+            <div class="btn-group">
+                <button class="btn btn-gold" id="btnEncrypt" disabled>
+                    <span class="icon">🔐</span> Encrypt
+                </button>
+                <button class="btn btn-success" id="btnDownload" disabled>
+                    <span class="icon">📦</span> Download
+                </button>
             </div>
-            <div class="btn-group mt-1">
-                <button class="btn btn-outline" id="btnVerify" disabled><span class="icon">✓</span> Verify All</button>
-                <button class="btn btn-outline" id="btnClear"><span class="icon">✕</span> Clear</button>
+            <div class="btn-group">
+                <button class="btn btn-outline" id="btnVerify" disabled>
+                    <span class="icon">✓</span> Verify
+                </button>
+                <button class="btn btn-danger-outline" id="btnClear">
+                    <span class="icon">✕</span> Clear
+                </button>
             </div>
-            <div class="text-muted text-sm mt-1" style="text-align:center;font-size:0.65rem;">
+            <div class="text-muted text-sm text-center mt-1" style="font-size:0.65rem;">
                 <span id="fileCountLabel">No files selected</span>
             </div>
         </div>
 
+        <!-- File list -->
         <div class="card" id="fileListCard" style="display:none;">
-            <div class="card-title">📁 Files <span class="pill" id="fileListPill">0</span></div>
+            <div class="card-title">
+                📁 Files
+                <span class="pill" id="fileListPill">0</span>
+            </div>
             <div class="file-list-wrap" id="fileListWrap"></div>
         </div>
 
-        <div style="text-align:center;font-size:0.6rem;color:var(--text-muted);padding:20px 0 8px;opacity:0.5;letter-spacing:0.5px;">
-            Jinendra Vani · Offline Encryption Tool · AES-256-GCM
+        <div style="text-align:center;font-size:0.55rem;color:var(--text-muted);padding:18px 0 4px;opacity:0.4;letter-spacing:0.8px;">
+            Jinendra Vani · Offline Encryption Tool
         </div>
     </div>
 
+    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
+    <!-- Hidden inputs -->
     <input type="file" id="folderInput" webkitdirectory multiple />
     <input type="file" id="fileInput" multiple accept=".txt,.json" />
 
@@ -188,7 +754,7 @@
 
             // ─── STATE ──────────────────────────────────────────────────
             let state = {
-                files: [], // { file: File, relPath: string, size: number, encrypted: null|Uint8Array, status: 'wait'|'ok'|'fail' }
+                files: [], // { file, relPath, size, encrypted: Uint8Array|null, status: 'wait'|'ok'|'fail' }
                 key: null,
                 keyRaw: null,
                 isEncrypting: false,
@@ -249,6 +815,7 @@
             }
 
             function generateZip(files) {
+                // files: array of { path: string, data: Uint8Array }
                 const entries = [];
                 let offset = 0;
                 for (const f of files) {
@@ -398,7 +965,7 @@
                     if (ext !== 'txt' && ext !== 'json') continue;
                     // Skip Banner folder (case-insensitive)
                     if (relPath.toLowerCase().includes('/banner/') || relPath.toLowerCase().startsWith('banner/')) continue;
-                    // Skip if size zero? allow
+                    // Skip zero-size? keep them
                     newFiles.push({
                         file: file,
                         relPath: relPath,
@@ -408,7 +975,7 @@
                     });
                 }
                 if (newFiles.length === 0) {
-                    showToast('No valid .txt/.json files found (Banner skipped).', 'error');
+                    showToast('No .txt/.json files found (Banner skipped).', 'error');
                     return;
                 }
 
@@ -416,13 +983,8 @@
                 const existingPaths = new Set(state.files.map(f => f.relPath));
                 for (const nf of newFiles) {
                     if (existingPaths.has(nf.relPath)) {
-                        // replace existing entry (keep same position)
                         const idx = state.files.findIndex(f => f.relPath === nf.relPath);
-                        if (idx !== -1) {
-                            state.files[idx] = nf;
-                        } else {
-                            state.files.push(nf);
-                        }
+                        if (idx !== -1) state.files[idx] = nf;
                     } else {
                         state.files.push(nf);
                     }
@@ -461,7 +1023,7 @@
                 btnSelectFiles.disabled = true;
                 btnDownload.disabled = true;
                 btnVerify.disabled = true;
-                btnEncrypt.innerHTML = '<span class="spinner"></span> Encrypting...';
+                btnEncrypt.innerHTML = '<span class="spinner"></span> Encrypting';
 
                 let key;
                 try {
@@ -610,6 +1172,64 @@
                 currentFile.innerHTML = '📄 <strong>Verify complete</strong>';
             }
 
+            // ─── DOWNLOAD ─────────────────────────────────────────────
+            function download() {
+                const encryptedFiles = state.files.filter(f => f.encrypted && f.encrypted.length > 0);
+                if (encryptedFiles.length === 0) {
+                    showToast('No encrypted files to download.', 'error');
+                    return;
+                }
+
+                // If only one file, download it directly as .dat
+                if (encryptedFiles.length === 1) {
+                    const f = encryptedFiles[0];
+                    let name = f.relPath;
+                    const lastDot = name.lastIndexOf('.');
+                    if (lastDot > 0) name = name.substring(0, lastDot) + '.dat';
+                    else name = name + '.dat';
+                    const blob = new Blob([f.encrypted], { type: 'application/octet-stream' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 5000);
+                    showToast('📄 Downloaded: ' + name, 'success');
+                    log('📄 Downloaded single file: ' + name, 'log-info');
+                    return;
+                }
+
+                // Multiple files: create ZIP
+                const entries = [];
+                for (const f of encryptedFiles) {
+                    let path = f.relPath;
+                    const lastDot = path.lastIndexOf('.');
+                    if (lastDot > 0) path = path.substring(0, lastDot) + '.dat';
+                    else path = path + '.dat';
+                    entries.push({ path, data: f.encrypted });
+                }
+
+                try {
+                    const zipData = generateZip(entries);
+                    const blob = new Blob([zipData], { type: 'application/zip' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'encrypted_files.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => URL.revokeObjectURL(url), 5000);
+                    showToast('📦 Downloaded ZIP with ' + entries.length + ' files.', 'success');
+                    log('📦 Downloaded ZIP with ' + entries.length + ' encrypted files.', 'log-info');
+                } catch (e) {
+                    showToast('ZIP generation failed: ' + e.message, 'error');
+                    log('❌ ZIP error: ' + e.message, 'log-fail');
+                }
+            }
+
             // ─── UI HELPERS ──────────────────────────────────────────
             function escapeHtml(str) {
                 const div = document.createElement('div');
@@ -683,40 +1303,6 @@
                 wrap.innerHTML = html;
             }
 
-            // ─── DOWNLOAD ZIP ─────────────────────────────────────────
-            function downloadZip() {
-                const encryptedFiles = state.files.filter(f => f.encrypted && f.encrypted.length > 0);
-                if (encryptedFiles.length === 0) {
-                    showToast('No encrypted files to download.', 'error');
-                    return;
-                }
-                const entries = [];
-                for (const f of encryptedFiles) {
-                    let path = f.relPath;
-                    const lastDot = path.lastIndexOf('.');
-                    if (lastDot > 0) path = path.substring(0, lastDot) + '.dat';
-                    else path = path + '.dat';
-                    entries.push({ path, data: f.encrypted });
-                }
-                try {
-                    const zipData = generateZip(entries);
-                    const blob = new Blob([zipData], { type: 'application/zip' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'JinendraVani_Assets.zip';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    setTimeout(() => URL.revokeObjectURL(url), 5000);
-                    showToast('📦 Downloading ' + entries.length + ' files...', 'success');
-                    log('📦 Downloaded ZIP with ' + entries.length + ' encrypted files.', 'log-info');
-                } catch (e) {
-                    showToast('ZIP generation failed: ' + e.message, 'error');
-                    log('❌ ZIP error: ' + e.message, 'log-fail');
-                }
-            }
-
             // ─── CLEAR ────────────────────────────────────────────────
             function clearAll() {
                 if (state.isEncrypting) return;
@@ -770,7 +1356,7 @@
                 });
 
                 btnEncrypt.addEventListener('click', processFiles);
-                btnDownload.addEventListener('click', downloadZip);
+                btnDownload.addEventListener('click', download);
                 btnVerify.addEventListener('click', verifyAll);
                 btnClear.addEventListener('click', clearAll);
 
