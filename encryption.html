@@ -6,556 +6,91 @@
     <meta name="theme-color" content="#1a0a2e" />
     <title>Jinendra Vani · Content Encryption</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        :root {
-            --bg: #0d0717;
-            --surface: #1a0f2a;
-            --card: #25163a;
-            --border: #3d235a;
-            --primary: #b886ff;
-            --primary-dim: #7a4bb5;
-            --gold: #f0c060;
-            --gold-dim: #b8943a;
-            --text: #f0e8ff;
-            --text-muted: #b8a8d8;
-            --success: #6bdb8a;
-            --danger: #ff7a7a;
-            --radius: 16px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-        }
-        html {
-            font-size: 16px;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 12px 12px 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
-        .app {
-            max-width: 520px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        /* header */
-        .header {
-            background: linear-gradient(145deg, #1f0f3a, #120820);
-            border-radius: var(--radius);
-            padding: 22px 20px 18px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .header::after {
-            content: "✦";
-            position: absolute;
-            right: 16px;
-            top: 12px;
-            font-size: 20px;
-            color: var(--gold);
-            opacity: 0.3;
-        }
-        .header .sub {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: var(--gold);
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        .header h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #f0e8ff 20%, #b886ff 80%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-            line-height: 1.2;
-        }
-        .header .tag {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-            font-weight: 400;
-            letter-spacing: 0.3px;
-        }
-        .header .badge {
-            display: inline-block;
-            background: rgba(184, 134, 255, 0.15);
-            border: 1px solid rgba(184, 134, 255, 0.2);
-            border-radius: 20px;
-            padding: 2px 14px;
-            font-size: 0.6rem;
-            color: var(--primary);
-            margin-top: 6px;
-            letter-spacing: 0.5px;
-        }
-
-        /* cards */
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 18px 16px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-        .card-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        /* stats grid */
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 8px;
-            text-align: center;
-        }
-        .stat-item {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 10px 4px;
-            border: 1px solid var(--border);
-        }
-        .stat-item .num {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            line-height: 1.2;
-        }
-        .stat-item .num.gold {
-            color: var(--gold);
-        }
-        .stat-item .num.green {
-            color: var(--success);
-        }
-        .stat-item .num.red {
-            color: var(--danger);
-        }
-        .stat-item .label {
-            font-size: 0.55rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
-
-        /* progress */
-        .progress-wrap {
-            margin: 10px 0 4px;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--card);
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-        .progress-bar .fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary-dim), var(--gold));
-            border-radius: 20px;
-            transition: width 0.25s ease;
-        }
-        .progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-        .current-file {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            padding: 6px 0 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-height: 1.4em;
-        }
-        .current-file strong {
-            color: var(--text);
-            font-weight: 500;
-        }
-
-        /* status log */
-        .status-log {
-            background: var(--card);
-            border-radius: 10px;
-            padding: 10px 12px;
-            max-height: 100px;
-            overflow-y: auto;
-            font-size: 0.75rem;
-            font-family: "SF Mono", "Menlo", monospace;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            margin-top: 8px;
-            line-height: 1.6;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border) transparent;
-        }
-        .status-log::-webkit-scrollbar {
-            width: 4px;
-        }
-        .status-log::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .status-log::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-        .status-log .log-entry {
-            padding: 1px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        }
-        .status-log .log-entry:last-child {
-            border-bottom: none;
-        }
-        .status-log .log-ok {
-            color: var(--success);
-        }
-        .status-log .log-fail {
-            color: var(--danger);
-        }
-        .status-log .log-info {
-            color: var(--primary);
-        }
-        .status-log .log-dim {
-            color: var(--text-muted);
-        }
-
-        /* buttons */
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 4px 0 2px;
-        }
-        .btn-group .btn {
-            flex: 1 1 auto;
-            min-width: 80px;
-        }
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 12px 18px;
-            border-radius: 12px;
-            border: none;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #fff;
-            background: var(--card);
-            border: 1px solid var(--border);
-            touch-action: manipulation;
-            user-select: none;
-            text-align: center;
-            min-height: 50px;
-            line-height: 1.2;
-            position: relative;
-        }
-        .btn:active {
-            transform: scale(0.96);
-        }
-        .btn-primary {
-            background: linear-gradient(145deg, #4d2b7a, #2d1550);
-            border-color: var(--primary);
-            color: #fff;
-        }
-        .btn-primary:active {
-            background: #3d1f6a;
-        }
-        .btn-gold {
-            background: linear-gradient(145deg, #b8943a, #8a6d2a);
-            border-color: var(--gold);
-            color: #fff;
-        }
-        .btn-gold:active {
-            background: #a07d30;
-        }
-        .btn-success {
-            background: linear-gradient(145deg, #2a7a4a, #1a5a3a);
-            border-color: var(--success);
-            color: #fff;
-        }
-        .btn-success:active {
-            background: #206a3a;
-        }
-        .btn-danger {
-            background: linear-gradient(145deg, #7a2a2a, #5a1a1a);
-            border-color: var(--danger);
-            color: #fff;
-        }
-        .btn-danger:active {
-            background: #6a2020;
-        }
-        .btn-outline {
-            background: transparent;
-            border-color: var(--border);
-            color: var(--text-muted);
-        }
-        .btn-outline:active {
-            background: var(--card);
-        }
-        .btn:disabled {
-            opacity: 0.4;
-            transform: none !important;
-            pointer-events: none;
-            filter: grayscale(0.3);
-        }
-        .btn .icon {
-            font-size: 1.1rem;
-        }
-
-        /* hidden input */
-        #folderInput {
-            display: none;
-        }
-
-        /* file list */
-        .file-list-wrap {
-            max-height: 180px;
-            overflow-y: auto;
-            margin-top: 6px;
-            border-radius: 10px;
-            background: var(--card);
-            padding: 4px 2px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border) transparent;
-        }
-        .file-list-wrap::-webkit-scrollbar {
-            width: 4px;
-        }
-        .file-list-wrap::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .file-list-wrap::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-        .file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 4px 8px;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            gap: 6px;
-        }
-        .file-item:last-child {
-            border-bottom: none;
-        }
-        .file-item .name {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .file-item .status-icon {
-            font-size: 0.7rem;
-            width: 18px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-        .file-item .status-icon.ok {
-            color: var(--success);
-        }
-        .file-item .status-icon.fail {
-            color: var(--danger);
-        }
-        .file-item .status-icon.wait {
-            color: var(--text-muted);
-        }
-
-        /* responsive */
-        @media (max-width: 420px) {
-            .stats {
-                grid-template-columns: 1fr 1fr;
-                gap: 6px;
-            }
-            .stat-item .num {
-                font-size: 1.2rem;
-            }
-            .header h1 {
-                font-size: 1.3rem;
-            }
-            .btn {
-                font-size: 0.75rem;
-                padding: 10px 12px;
-                min-height: 44px;
-            }
-            .btn-group {
-                gap: 6px;
-            }
-            .btn-group .btn {
-                min-width: 60px;
-            }
-        }
-        @media (max-width: 360px) {
-            .stat-item .num {
-                font-size: 1rem;
-            }
-            .stat-item .label {
-                font-size: 0.5rem;
-            }
-            .header h1 {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* utility */
-        .mt-1 {
-            margin-top: 6px;
-        }
-        .mt-2 {
-            margin-top: 12px;
-        }
-        .mb-1 {
-            margin-bottom: 6px;
-        }
-        .mb-2 {
-            margin-bottom: 12px;
-        }
-        .flex {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .gap-1 {
-            gap: 6px;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .text-muted {
-            color: var(--text-muted);
-        }
-        .text-sm {
-            font-size: 0.75rem;
-        }
-        .truncate {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* toast */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--card);
-            border: 1px solid var(--border);
-            padding: 12px 24px;
-            border-radius: 14px;
-            font-size: 0.85rem;
-            color: var(--text);
-            box-shadow: var(--shadow);
-            opacity: 0;
-            transition: all 0.4s ease;
-            max-width: 90%;
-            text-align: center;
-            pointer-events: none;
-            z-index: 999;
-            backdrop-filter: blur(8px);
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        .toast.success {
-            border-color: var(--success);
-        }
-        .toast.error {
-            border-color: var(--danger);
-        }
-
-        /* loader spinner */
-        .spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--gold);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        .btn .spinner {
-            width: 16px;
-            height: 16px;
-            border-width: 2px;
-        }
-
-        /* misc */
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 12px 0;
-        }
-        .pill {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-        }
-        .pill.gold {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: rgba(240, 192, 96, 0.08);
-        }
-        .pill.green {
-            border-color: var(--success);
-            color: var(--success);
-            background: rgba(107, 219, 138, 0.08);
-        }
-        .pill.red {
-            border-color: var(--danger);
-            color: var(--danger);
-            background: rgba(255, 122, 122, 0.08);
-        }
+        /* (same styles as before – kept for brevity) */
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        :root { --bg:#0d0717; --surface:#1a0f2a; --card:#25163a; --border:#3d235a; --primary:#b886ff; --primary-dim:#7a4bb5; --gold:#f0c060; --gold-dim:#b8943a; --text:#f0e8ff; --text-muted:#b8a8d8; --success:#6bdb8a; --danger:#ff7a7a; --radius:16px; --shadow:0 8px 32px rgba(0,0,0,0.6); }
+        html { font-size:16px; }
+        body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:12px 12px 40px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; }
+        .app { max-width:520px; width:100%; margin:0 auto; }
+        .header { background:linear-gradient(145deg, #1f0f3a, #120820); border-radius:var(--radius); padding:22px 20px 18px; margin-bottom:20px; box-shadow:var(--shadow); border:1px solid var(--border); text-align:center; position:relative; overflow:hidden; }
+        .header::after { content:"✦"; position:absolute; right:16px; top:12px; font-size:20px; color:var(--gold); opacity:0.3; }
+        .header .sub { font-size:0.7rem; text-transform:uppercase; letter-spacing:3px; color:var(--gold); font-weight:600; margin-bottom:2px; }
+        .header h1 { font-size:1.6rem; font-weight:700; background:linear-gradient(135deg, #f0e8ff 20%, #b886ff 80%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-0.5px; line-height:1.2; }
+        .header .tag { font-size:0.8rem; color:var(--text-muted); margin-top:4px; font-weight:400; letter-spacing:0.3px; }
+        .header .badge { display:inline-block; background:rgba(184,134,255,0.15); border:1px solid rgba(184,134,255,0.2); border-radius:20px; padding:2px 14px; font-size:0.6rem; color:var(--primary); margin-top:6px; letter-spacing:0.5px; }
+        .card { background:var(--surface); border-radius:var(--radius); padding:18px 16px; margin-bottom:16px; border:1px solid var(--border); box-shadow:var(--shadow); }
+        .card-title { font-size:0.75rem; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); margin-bottom:12px; font-weight:600; }
+        .stats { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; text-align:center; }
+        .stat-item { background:var(--card); border-radius:12px; padding:10px 4px; border:1px solid var(--border); }
+        .stat-item .num { font-size:1.5rem; font-weight:700; color:#fff; line-height:1.2; }
+        .stat-item .num.gold { color:var(--gold); }
+        .stat-item .num.green { color:var(--success); }
+        .stat-item .num.red { color:var(--danger); }
+        .stat-item .label { font-size:0.55rem; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px; margin-top:2px; }
+        .progress-wrap { margin:10px 0 4px; }
+        .progress-bar { width:100%; height:8px; background:var(--card); border-radius:20px; overflow:hidden; border:1px solid var(--border); }
+        .progress-bar .fill { height:100%; width:0%; background:linear-gradient(90deg, var(--primary-dim), var(--gold)); border-radius:20px; transition:width 0.25s ease; }
+        .progress-label { display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-top:4px; }
+        .current-file { font-size:0.75rem; color:var(--text-muted); padding:6px 0 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:1.4em; }
+        .current-file strong { color:var(--text); font-weight:500; }
+        .status-log { background:var(--card); border-radius:10px; padding:10px 12px; max-height:100px; overflow-y:auto; font-size:0.75rem; font-family:"SF Mono", "Menlo", monospace; color:var(--text-muted); border:1px solid var(--border); margin-top:8px; line-height:1.6; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+        .status-log::-webkit-scrollbar { width:4px; }
+        .status-log::-webkit-scrollbar-track { background:transparent; }
+        .status-log::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+        .status-log .log-entry { padding:1px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+        .status-log .log-entry:last-child { border-bottom:none; }
+        .status-log .log-ok { color:var(--success); }
+        .status-log .log-fail { color:var(--danger); }
+        .status-log .log-info { color:var(--primary); }
+        .status-log .log-dim { color:var(--text-muted); }
+        .btn-group { display:flex; flex-wrap:wrap; gap:10px; margin:4px 0 2px; }
+        .btn-group .btn { flex:1 1 auto; min-width:80px; }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:12px 18px; border-radius:12px; border:none; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s ease; color:#fff; background:var(--card); border:1px solid var(--border); touch-action:manipulation; user-select:none; text-align:center; min-height:50px; line-height:1.2; position:relative; }
+        .btn:active { transform:scale(0.96); }
+        .btn-primary { background:linear-gradient(145deg, #4d2b7a, #2d1550); border-color:var(--primary); color:#fff; }
+        .btn-primary:active { background:#3d1f6a; }
+        .btn-gold { background:linear-gradient(145deg, #b8943a, #8a6d2a); border-color:var(--gold); color:#fff; }
+        .btn-gold:active { background:#a07d30; }
+        .btn-success { background:linear-gradient(145deg, #2a7a4a, #1a5a3a); border-color:var(--success); color:#fff; }
+        .btn-success:active { background:#206a3a; }
+        .btn-outline { background:transparent; border-color:var(--border); color:var(--text-muted); }
+        .btn-outline:active { background:var(--card); }
+        .btn:disabled { opacity:0.4; transform:none !important; pointer-events:none; filter:grayscale(0.3); }
+        .btn .icon { font-size:1.1rem; }
+        #folderInput, #fileInput { display:none; }
+        .file-list-wrap { max-height:180px; overflow-y:auto; margin-top:6px; border-radius:10px; background:var(--card); padding:4px 2px; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+        .file-list-wrap::-webkit-scrollbar { width:4px; }
+        .file-list-wrap::-webkit-scrollbar-track { background:transparent; }
+        .file-list-wrap::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+        .file-item { display:flex; align-items:center; justify-content:space-between; padding:4px 8px; font-size:0.7rem; color:var(--text-muted); border-bottom:1px solid rgba(255,255,255,0.04); gap:6px; }
+        .file-item:last-child { border-bottom:none; }
+        .file-item .name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .file-item .status-icon { font-size:0.7rem; width:18px; text-align:center; flex-shrink:0; }
+        .file-item .status-icon.ok { color:var(--success); }
+        .file-item .status-icon.fail { color:var(--danger); }
+        .file-item .status-icon.wait { color:var(--text-muted); }
+        @media (max-width:420px) { .stats { grid-template-columns:1fr 1fr; gap:6px; } .stat-item .num { font-size:1.2rem; } .header h1 { font-size:1.3rem; } .btn { font-size:0.75rem; padding:10px 12px; min-height:44px; } .btn-group { gap:6px; } .btn-group .btn { min-width:60px; } }
+        @media (max-width:360px) { .stat-item .num { font-size:1rem; } .stat-item .label { font-size:0.5rem; } .header h1 { font-size:1.1rem; } }
+        .mt-1 { margin-top:6px; }
+        .mt-2 { margin-top:12px; }
+        .mb-1 { margin-bottom:6px; }
+        .flex { display:flex; align-items:center; gap:8px; }
+        .text-muted { color:var(--text-muted); }
+        .text-sm { font-size:0.75rem; }
+        .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--card); border:1px solid var(--border); padding:12px 24px; border-radius:14px; font-size:0.85rem; color:var(--text); box-shadow:var(--shadow); opacity:0; transition:all 0.4s ease; max-width:90%; text-align:center; pointer-events:none; z-index:999; backdrop-filter:blur(8px); }
+        .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+        .toast.success { border-color:var(--success); }
+        .toast.error { border-color:var(--danger); }
+        .spinner { display:inline-block; width:18px; height:18px; border:2px solid rgba(255,255,255,0.1); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .btn .spinner { width:16px; height:16px; border-width:2px; }
+        .pill { display:inline-block; padding:2px 10px; border-radius:20px; font-size:0.6rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; background:var(--card); border:1px solid var(--border); color:var(--text-muted); }
+        .pill.gold { border-color:var(--gold); color:var(--gold); background:rgba(240,192,96,0.08); }
     </style>
 </head>
 <body>
 
     <div class="app" id="app">
-        <!-- Header -->
         <div class="header">
             <div class="sub">✦ Jinendra Vani</div>
             <h1>Content Encryption</h1>
@@ -563,90 +98,59 @@
             <div class="badge">🔒 assets/p/ · .dat</div>
         </div>
 
-        <!-- Stats -->
         <div class="card">
             <div class="card-title">📊 Summary</div>
             <div class="stats">
-                <div class="stat-item">
-                    <div class="num" id="statFound">0</div>
-                    <div class="label">Found</div>
-                </div>
-                <div class="stat-item">
-                    <div class="num gold" id="statEncrypted">0</div>
-                    <div class="label">Encrypted</div>
-                </div>
-                <div class="stat-item">
-                    <div class="num red" id="statFailed">0</div>
-                    <div class="label">Failed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="num" id="statSize">0</div>
-                    <div class="label">MB</div>
-                </div>
+                <div class="stat-item"><div class="num" id="statFound">0</div><div class="label">Found</div></div>
+                <div class="stat-item"><div class="num gold" id="statEncrypted">0</div><div class="label">Encrypted</div></div>
+                <div class="stat-item"><div class="num red" id="statFailed">0</div><div class="label">Failed</div></div>
+                <div class="stat-item"><div class="num" id="statSize">0</div><div class="label">MB</div></div>
             </div>
         </div>
 
-        <!-- Progress -->
         <div class="card">
             <div class="card-title">⏳ Progress</div>
             <div class="progress-wrap">
-                <div class="progress-bar">
-                    <div class="fill" id="progressFill" style="width:0%;"></div>
-                </div>
-                <div class="progress-label">
-                    <span id="progressText">0 / 0</span>
-                    <span id="progressPct">0%</span>
-                </div>
+                <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%;"></div></div>
+                <div class="progress-label"><span id="progressText">0 / 0</span><span id="progressPct">0%</span></div>
             </div>
             <div class="current-file" id="currentFile">📄 <strong>Ready</strong></div>
             <div class="status-log" id="statusLog"></div>
         </div>
 
-        <!-- Actions -->
         <div class="card">
             <div class="card-title">⚡ Actions</div>
             <div class="btn-group">
-                <button class="btn btn-primary" id="btnSelect">
-                    <span class="icon">📂</span> Select Folder
-                </button>
-                <button class="btn btn-gold" id="btnEncrypt" disabled>
-                    <span class="icon">🔐</span> Encrypt
-                </button>
+                <button class="btn btn-primary" id="btnSelectFolder"><span class="icon">📂</span> Select Folder</button>
+                <button class="btn btn-primary" id="btnSelectFiles"><span class="icon">📄</span> Select Files</button>
             </div>
             <div class="btn-group mt-1">
-                <button class="btn btn-success" id="btnDownload" disabled>
-                    <span class="icon">📦</span> Download ZIP
-                </button>
-                <button class="btn btn-outline" id="btnClear">
-                    <span class="icon">✕</span> Clear
-                </button>
+                <button class="btn btn-gold" id="btnEncrypt" disabled><span class="icon">🔐</span> Encrypt</button>
+                <button class="btn btn-success" id="btnDownload" disabled><span class="icon">📦</span> Download ZIP</button>
             </div>
             <div class="btn-group mt-1">
-                <button class="btn btn-outline" id="btnVerify" disabled>
-                    <span class="icon">✓</span> Verify All
-                </button>
+                <button class="btn btn-outline" id="btnVerify" disabled><span class="icon">✓</span> Verify All</button>
+                <button class="btn btn-outline" id="btnClear"><span class="icon">✕</span> Clear</button>
             </div>
             <div class="text-muted text-sm mt-1" style="text-align:center;font-size:0.65rem;">
-                <span id="fileCountLabel">No folder selected</span>
+                <span id="fileCountLabel">No files selected</span>
             </div>
         </div>
 
-        <!-- File list -->
         <div class="card" id="fileListCard" style="display:none;">
             <div class="card-title">📁 Files <span class="pill" id="fileListPill">0</span></div>
             <div class="file-list-wrap" id="fileListWrap"></div>
         </div>
 
-        <!-- Footer -->
         <div style="text-align:center;font-size:0.6rem;color:var(--text-muted);padding:20px 0 8px;opacity:0.5;letter-spacing:0.5px;">
             Jinendra Vani · Offline Encryption Tool · AES-256-GCM
         </div>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <input type="file" id="folderInput" webkitdirectory multiple />
+    <input type="file" id="fileInput" multiple accept=".txt,.json" />
 
     <script>
         (function() {
@@ -655,7 +159,6 @@
             // ─── CONSTANTS ──────────────────────────────────────────────
             const SECRET = '32JHi3Juwpih9Fdq72tNsfaFYlLtUsi5IwlAqf8VmfNXgbr8E5A2AsqcJJEqQchWdtGTGAf2ENRWqTl+';
             const IV_LEN = 12;
-            const TAG_LEN = 16;
             const ALGO = 'AES-GCM';
 
             // ─── DOM REFS ──────────────────────────────────────────────
@@ -669,12 +172,14 @@
             const progressPct = $('progressPct');
             const currentFile = $('currentFile');
             const statusLog = $('statusLog');
-            const btnSelect = $('btnSelect');
+            const btnSelectFolder = $('btnSelectFolder');
+            const btnSelectFiles = $('btnSelectFiles');
             const btnEncrypt = $('btnEncrypt');
             const btnDownload = $('btnDownload');
             const btnClear = $('btnClear');
             const btnVerify = $('btnVerify');
             const folderInput = $('folderInput');
+            const fileInput = $('fileInput');
             const fileListWrap = $('fileListWrap');
             const fileListCard = $('fileListCard');
             const fileListPill = $('fileListPill');
@@ -684,16 +189,14 @@
             // ─── STATE ──────────────────────────────────────────────────
             let state = {
                 files: [], // { file: File, relPath: string, size: number, encrypted: null|Uint8Array, status: 'wait'|'ok'|'fail' }
-                key: null, // CryptoKey
-                keyRaw: null, // ArrayBuffer
+                key: null,
+                keyRaw: null,
                 isEncrypting: false,
-                isVerified: false,
-                totalBytes: 0,
                 encryptedCount: 0,
                 failedCount: 0,
             };
 
-            // ─── TOAST ──────────────────────────────────────────────────
+            // ─── TOAST & LOG ──────────────────────────────────────────
             let toastTimer = null;
 
             function showToast(msg, type) {
@@ -709,19 +212,16 @@
                 }, 2800);
             }
 
-            // ─── LOG ────────────────────────────────────────────────────
             function log(msg, cls) {
                 const entry = document.createElement('div');
                 entry.className = 'log-entry' + (cls ? ' ' + cls : '');
                 entry.textContent = msg;
                 statusLog.appendChild(entry);
                 statusLog.scrollTop = statusLog.scrollHeight;
-                while (statusLog.children.length > 200) {
-                    statusLog.removeChild(statusLog.firstChild);
-                }
+                while (statusLog.children.length > 200) statusLog.removeChild(statusLog.firstChild);
             }
 
-            // ─── CRC32 (for ZIP) ──────────────────────────────────────
+            // ─── ZIP GENERATION ──────────────────────────────────────
             function crc32(data) {
                 let crc = 0xFFFFFFFF;
                 const view = data instanceof Uint8Array ? data : new Uint8Array(data);
@@ -735,7 +235,6 @@
                 return (crc ^ 0xFFFFFFFF) >>> 0;
             }
 
-            // ─── DOS DATE / TIME ──────────────────────────────────────
             function dosDateTime(ts) {
                 const d = ts ? new Date(ts) : new Date();
                 const year = d.getFullYear();
@@ -749,12 +248,9 @@
                 return [dt & 0xFFFF, tm & 0xFFFF];
             }
 
-            // ─── ZIP GENERATOR (rewritten for reliability) ──────────
             function generateZip(files) {
-                // files: array of { path: string, data: Uint8Array }
                 const entries = [];
                 let offset = 0;
-
                 for (const f of files) {
                     const name = f.path.replace(/\\/g, '/');
                     const nameBytes = new TextEncoder().encode(name);
@@ -763,8 +259,6 @@
                     const [modDate, modTime] = dosDateTime(Date.now());
                     const compSize = data.length;
                     const uncompSize = data.length;
-
-                    // Local file header (30 + name length)
                     const lfh = new Uint8Array(30 + nameBytes.length);
                     let pos = 0;
                     const w32 = (v) => { lfh[pos++] = v & 0xFF;
@@ -773,41 +267,25 @@
                         lfh[pos++] = (v >> 24) & 0xFF; };
                     const w16 = (v) => { lfh[pos++] = v & 0xFF;
                         lfh[pos++] = (v >> 8) & 0xFF; };
-
-                    w32(0x04034b50); // signature
-                    w16(0x0314); // version needed (UTF-8)
-                    w16(0x0800); // general purpose bit flag (UTF-8 filename)
-                    w16(0x0000); // compression method (store)
+                    w32(0x04034b50);
+                    w16(0x0314);
+                    w16(0x0800);
+                    w16(0x0000);
                     w16(modTime);
                     w16(modDate);
                     w32(crc);
                     w32(compSize);
                     w32(uncompSize);
                     w16(nameBytes.length);
-                    w16(0x0000); // extra field length
+                    w16(0x0000);
                     lfh.set(nameBytes, pos);
-
                     const lfhSize = 30 + nameBytes.length;
-
-                    entries.push({
-                        lfh: lfh,
-                        data: data,
-                        lfhSize: lfhSize,
-                        dataSize: data.length,
-                        nameBytes: nameBytes,
-                        crc: crc,
-                        modTime: modTime,
-                        modDate: modDate,
-                    });
+                    entries.push({ lfh, data, lfhSize, dataSize: data.length, nameBytes, crc, modTime, modDate });
                     offset += lfhSize + data.length;
                 }
-
-                // Central directory
                 const cdEntries = [];
                 let cdSize = 0;
                 let dataOffset = 0;
-                let currentOffset = 0;
-
                 for (const e of entries) {
                     const nameLen = e.nameBytes.length;
                     const cen = new Uint8Array(46 + nameLen);
@@ -818,51 +296,41 @@
                         cen[pos++] = (v >> 24) & 0xFF; };
                     const w16 = (v) => { cen[pos++] = v & 0xFF;
                         cen[pos++] = (v >> 8) & 0xFF; };
-
-                    w32(0x02014b50); // signature
-                    w16(0x0314); // version made by
-                    w16(0x0314); // version needed
-                    w16(0x0800); // flags
-                    w16(0x0000); // compression method
+                    w32(0x02014b50);
+                    w16(0x0314);
+                    w16(0x0314);
+                    w16(0x0800);
+                    w16(0x0000);
                     w16(e.modTime);
                     w16(e.modDate);
                     w32(e.crc);
                     w32(e.dataSize);
                     w32(e.dataSize);
                     w16(nameLen);
-                    w16(0x0000); // extra
-                    w16(0x0000); // comment
-                    w16(0x0000); // disk number
-                    w16(0x0000); // internal attr
-                    w32(0x00000000); // external attr
-                    w32(dataOffset); // relative offset of local header
-
+                    w16(0x0000);
+                    w16(0x0000);
+                    w16(0x0000);
+                    w16(0x0000);
+                    w32(0x00000000);
+                    w32(dataOffset);
                     cen.set(e.nameBytes, pos);
-
                     cdEntries.push(cen);
                     cdSize += cen.length;
                     dataOffset += e.lfhSize + e.dataSize;
                 }
-
                 const totalSize = offset + cdSize + 22;
                 const result = new Uint8Array(totalSize);
                 let writePos = 0;
-
-                // Write local file headers + data
                 for (const e of entries) {
                     result.set(e.lfh, writePos);
                     writePos += e.lfhSize;
                     result.set(e.data, writePos);
                     writePos += e.dataSize;
                 }
-
-                // Write central directory
                 for (const cd of cdEntries) {
                     result.set(cd, writePos);
                     writePos += cd.length;
                 }
-
-                // End of central directory
                 const eocd = new Uint8Array(22);
                 let ep = 0;
                 const ew32 = (v) => { eocd[ep++] = v & 0xFF;
@@ -872,14 +340,13 @@
                 const ew16 = (v) => { eocd[ep++] = v & 0xFF;
                     eocd[ep++] = (v >> 8) & 0xFF; };
                 ew32(0x06054b50);
-                ew16(0x0000); // disk number
-                ew16(0x0000); // disk with CD
+                ew16(0x0000);
+                ew16(0x0000);
                 ew16(entries.length);
                 ew16(entries.length);
                 ew32(cdSize);
-                ew32(offset); // offset of CD
-                ew16(0x0000); // comment length
-
+                ew32(offset);
+                ew16(0x0000);
                 result.set(eocd, writePos);
                 return result;
             }
@@ -887,8 +354,7 @@
             // ─── KEY DERIVATION ──────────────────────────────────────
             async function deriveKey() {
                 const encoder = new TextEncoder();
-                const data = encoder.encode(SECRET);
-                const hash = await crypto.subtle.digest('SHA-256', data);
+                const hash = await crypto.subtle.digest('SHA-256', encoder.encode(SECRET));
                 return hash;
             }
 
@@ -896,52 +362,103 @@
                 if (state.key) return state.key;
                 const raw = await deriveKey();
                 state.keyRaw = raw;
-                const key = await crypto.subtle.importKey(
-                    'raw', raw, { name: ALGO }, false, ['encrypt', 'decrypt']
-                );
+                const key = await crypto.subtle.importKey('raw', raw, { name: ALGO }, false, ['encrypt', 'decrypt']);
                 state.key = key;
                 return key;
             }
 
-            // ─── ENCRYPT ──────────────────────────────────────────────
+            // ─── ENCRYPT / DECRYPT ──────────────────────────────────
             async function encryptFile(key, data) {
                 const iv = crypto.getRandomValues(new Uint8Array(IV_LEN));
-                const encrypted = await crypto.subtle.encrypt({
-                    name: ALGO,
-                    iv: iv,
-                    tagLength: 128,
-                }, key, data);
+                const encrypted = await crypto.subtle.encrypt({ name: ALGO, iv, tagLength: 128 }, key, data);
                 const result = new Uint8Array(IV_LEN + encrypted.byteLength);
                 result.set(iv, 0);
                 result.set(new Uint8Array(encrypted), IV_LEN);
                 return result;
             }
 
-            // ─── DECRYPT ──────────────────────────────────────────────
             async function decryptFile(key, data) {
                 if (data.length < IV_LEN) throw new Error('Data too short');
                 const iv = data.slice(0, IV_LEN);
                 const ciphertext = data.slice(IV_LEN);
-                const decrypted = await crypto.subtle.decrypt({
-                    name: ALGO,
-                    iv: iv,
-                    tagLength: 128,
-                }, key, ciphertext);
+                const decrypted = await crypto.subtle.decrypt({ name: ALGO, iv, tagLength: 128 }, key, ciphertext);
                 return new Uint8Array(decrypted);
             }
 
-            // ─── FILE PROCESSING ──────────────────────────────────────
+            // ─── ADD FILES TO STATE ──────────────────────────────────
+            function addFiles(fileList) {
+                const newFiles = [];
+                for (let i = 0; i < fileList.length; i++) {
+                    const file = fileList[i];
+                    let relPath = file.webkitRelativePath || file.name;
+                    if (!relPath) continue;
+                    relPath = relPath.replace(/\\/g, '/');
+                    // Filter: only .txt or .json
+                    const ext = relPath.split('.').pop().toLowerCase();
+                    if (ext !== 'txt' && ext !== 'json') continue;
+                    // Skip Banner folder (case-insensitive)
+                    if (relPath.toLowerCase().includes('/banner/') || relPath.toLowerCase().startsWith('banner/')) continue;
+                    // Skip if size zero? allow
+                    newFiles.push({
+                        file: file,
+                        relPath: relPath,
+                        size: file.size,
+                        encrypted: null,
+                        status: 'wait',
+                    });
+                }
+                if (newFiles.length === 0) {
+                    showToast('No valid .txt/.json files found (Banner skipped).', 'error');
+                    return;
+                }
+
+                // Merge or replace duplicates by relPath
+                const existingPaths = new Set(state.files.map(f => f.relPath));
+                for (const nf of newFiles) {
+                    if (existingPaths.has(nf.relPath)) {
+                        // replace existing entry (keep same position)
+                        const idx = state.files.findIndex(f => f.relPath === nf.relPath);
+                        if (idx !== -1) {
+                            state.files[idx] = nf;
+                        } else {
+                            state.files.push(nf);
+                        }
+                    } else {
+                        state.files.push(nf);
+                    }
+                }
+
+                // Recalculate totals
+                state.totalBytes = state.files.reduce((sum, f) => sum + f.size, 0);
+                state.encryptedCount = state.files.filter(f => f.status === 'ok').length;
+                state.failedCount = state.files.filter(f => f.status === 'fail').length;
+
+                updateStatsAndUI();
+                updateProgress(0, state.files.length);
+                progressFill.style.width = '0%';
+                progressText.textContent = '0 / ' + state.files.length;
+                progressPct.textContent = '0%';
+                currentFile.innerHTML = '📄 <strong>' + state.files.length + ' files loaded</strong>';
+                log('📂 Added ' + newFiles.length + ' file(s). Total: ' + state.files.length, 'log-info');
+                showToast('✅ Added ' + newFiles.length + ' file(s)', 'success');
+                btnEncrypt.disabled = false;
+                btnDownload.disabled = true;
+                btnVerify.disabled = true;
+            }
+
+            // ─── PROCESS FILES (ENCRYPT) ─────────────────────────────
             async function processFiles() {
                 if (state.isEncrypting) return;
-                const filesToProcess = state.files.filter(f => f.status !== 'ok');
-                if (filesToProcess.length === 0) {
+                const toProcess = state.files.filter(f => f.status !== 'ok');
+                if (toProcess.length === 0) {
                     showToast('All files already encrypted.', 'success');
                     return;
                 }
 
                 state.isEncrypting = true;
                 btnEncrypt.disabled = true;
-                btnSelect.disabled = true;
+                btnSelectFolder.disabled = true;
+                btnSelectFiles.disabled = true;
                 btnDownload.disabled = true;
                 btnVerify.disabled = true;
                 btnEncrypt.innerHTML = '<span class="spinner"></span> Encrypting...';
@@ -955,7 +472,8 @@
                     state.isEncrypting = false;
                     btnEncrypt.innerHTML = '<span class="icon">🔐</span> Encrypt';
                     btnEncrypt.disabled = false;
-                    btnSelect.disabled = false;
+                    btnSelectFolder.disabled = false;
+                    btnSelectFiles.disabled = false;
                     return;
                 }
 
@@ -964,37 +482,31 @@
                 let failed = 0;
                 const total = state.files.length;
 
-                // Reset status for files not already ok
+                // Reset status for files not ok
                 for (const f of state.files) {
                     if (f.status !== 'ok') {
                         f.status = 'wait';
                         f.encrypted = null;
                     } else {
-                        success++; // count already ok
+                        success++;
                     }
                 }
 
-                // Process each file that is not ok
                 for (const f of state.files) {
                     if (f.status === 'ok') continue;
                     processed++;
                     try {
                         currentFile.innerHTML = '📄 <strong>' + escapeHtml(f.relPath) + '</strong>';
                         log('🔐 Encrypting: ' + f.relPath, 'log-info');
-
                         const fileData = await f.file.arrayBuffer();
                         const encrypted = await encryptFile(key, new Uint8Array(fileData));
 
                         // Verification
                         const decrypted = await decryptFile(key, encrypted);
                         const original = new Uint8Array(fileData);
-                        if (decrypted.length !== original.length) {
-                            throw new Error('Verification failed: length mismatch');
-                        }
+                        if (decrypted.length !== original.length) throw new Error('Length mismatch');
                         for (let i = 0; i < original.length; i++) {
-                            if (decrypted[i] !== original[i]) {
-                                throw new Error('Verification failed: byte mismatch at ' + i);
-                            }
+                            if (decrypted[i] !== original[i]) throw new Error('Byte mismatch at ' + i);
                         }
 
                         f.encrypted = encrypted;
@@ -1027,7 +539,8 @@
                 state.isEncrypting = false;
                 btnEncrypt.innerHTML = '<span class="icon">🔐</span> Encrypt';
                 btnEncrypt.disabled = false;
-                btnSelect.disabled = false;
+                btnSelectFolder.disabled = false;
+                btnSelectFiles.disabled = false;
 
                 if (failed === 0 && success > 0) {
                     btnDownload.disabled = false;
@@ -1045,7 +558,7 @@
                 currentFile.innerHTML = '📄 <strong>Done</strong>';
             }
 
-            // ─── VERIFY ALL ────────────────────────────────────────────
+            // ─── VERIFY ALL ──────────────────────────────────────────
             async function verifyAll() {
                 if (state.isEncrypting) return;
                 const toVerify = state.files.filter(f => f.encrypted && f.encrypted.length > 0);
@@ -1053,7 +566,6 @@
                     showToast('No encrypted data found. Encrypt first.', 'error');
                     return;
                 }
-
                 let key;
                 try {
                     key = await getCryptoKey();
@@ -1061,12 +573,10 @@
                     showToast('Key derivation failed', 'error');
                     return;
                 }
-
                 let verified = 0,
                     failed = 0;
                 log('🔍 Verifying ' + toVerify.length + ' encrypted files...', 'log-info');
                 currentFile.innerHTML = '📄 <strong>Verifying...</strong>';
-
                 for (const f of toVerify) {
                     try {
                         currentFile.innerHTML = '📄 <strong>' + escapeHtml(f.relPath) + '</strong>';
@@ -1086,7 +596,6 @@
                         log('❌ Verify failed: ' + f.relPath + ' — ' + e.message, 'log-fail');
                     }
                 }
-
                 state.encryptedCount = verified;
                 state.failedCount = failed;
                 updateStatsAndUI();
@@ -1101,7 +610,7 @@
                 currentFile.innerHTML = '📄 <strong>Verify complete</strong>';
             }
 
-            // ─── UI HELPERS ────────────────────────────────────────────
+            // ─── UI HELPERS ──────────────────────────────────────────
             function escapeHtml(str) {
                 const div = document.createElement('div');
                 div.textContent = str;
@@ -1120,23 +629,18 @@
                 const enc = state.encryptedCount || 0;
                 const fail = state.failedCount || 0;
                 const totalBytes = state.files.reduce((sum, f) => sum + f.size, 0);
-
                 statFound.textContent = total;
                 statEncrypted.textContent = enc;
                 statFailed.textContent = fail;
                 statSize.textContent = formatSize(totalBytes);
-
-                fileCountLabel.textContent = total > 0 ?
-                    total + ' file' + (total !== 1 ? 's' : '') + ' selected' :
-                    'No folder selected';
-
+                fileCountLabel.textContent = total > 0 ? total + ' file' + (total !== 1 ? 's' : '') + ' selected' :
+                    'No files selected';
                 if (total > 0) {
                     fileListCard.style.display = 'block';
                     fileListPill.textContent = total;
                 } else {
                     fileListCard.style.display = 'none';
                 }
-
                 btnEncrypt.disabled = (total === 0 || state.isEncrypting);
                 const hasEncrypted = state.files.some(f => f.encrypted && f.encrypted.length > 0);
                 btnDownload.disabled = !hasEncrypted || state.isEncrypting;
@@ -1154,7 +658,8 @@
             function updateFileList() {
                 const wrap = fileListWrap;
                 if (state.files.length === 0) {
-                    wrap.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:0.7rem;">No files loaded</div>';
+                    wrap.innerHTML =
+                        '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:0.7rem;">No files loaded</div>';
                     return;
                 }
                 let html = '';
@@ -1178,86 +683,21 @@
                 wrap.innerHTML = html;
             }
 
-            // ─── FOLDER SELECTION (filter .txt .json, skip Banner) ──
-            function handleFolderSelect(e) {
-                const input = e.target;
-                const files = input.files;
-                if (!files || files.length === 0) return;
-
-                const newFiles = [];
-                let totalSize = 0;
-
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const relPath = file.webkitRelativePath || file.name;
-                    if (!relPath) continue;
-                    if (file.size === 0 && file.type === '') continue;
-                    const normPath = relPath.replace(/\\/g, '/');
-
-                    // Filter: only .txt or .json, skip Banner folder
-                    const ext = normPath.split('.').pop().toLowerCase();
-                    if (ext !== 'txt' && ext !== 'json') continue;
-                    // Skip if path contains "banner" as a directory (case-insensitive)
-                    if (normPath.toLowerCase().includes('/banner/') || normPath.toLowerCase().startsWith('banner/')) continue;
-
-                    newFiles.push({
-                        file: file,
-                        relPath: normPath,
-                        size: file.size,
-                        encrypted: null,
-                        status: 'wait',
-                    });
-                    totalSize += file.size;
-                }
-
-                if (newFiles.length === 0) {
-                    showToast('No .txt or .json files found (Banner excluded).', 'error');
-                    return;
-                }
-
-                state.files = newFiles;
-                state.totalBytes = totalSize;
-                state.encryptedCount = 0;
-                state.failedCount = 0;
-                state.isVerified = false;
-                state.isEncrypting = false;
-
-                updateStatsAndUI();
-                updateProgress(0, state.files.length);
-                progressFill.style.width = '0%';
-                progressText.textContent = '0 / ' + state.files.length;
-                progressPct.textContent = '0%';
-                currentFile.innerHTML = '📄 <strong>' + state.files.length + ' files loaded</strong>';
-                statusLog.innerHTML = '';
-                log('📂 Loaded ' + state.files.length + ' .txt/.json files (Banner skipped).', 'log-info');
-
-                btnEncrypt.disabled = false;
-                btnDownload.disabled = true;
-                btnVerify.disabled = true;
-                showToast('✅ ' + state.files.length + ' files loaded', 'success');
-                input.value = '';
-            }
-
-            // ─── DOWNLOAD ZIP ──────────────────────────────────────────
+            // ─── DOWNLOAD ZIP ─────────────────────────────────────────
             function downloadZip() {
                 const encryptedFiles = state.files.filter(f => f.encrypted && f.encrypted.length > 0);
                 if (encryptedFiles.length === 0) {
                     showToast('No encrypted files to download.', 'error');
                     return;
                 }
-
                 const entries = [];
                 for (const f of encryptedFiles) {
                     let path = f.relPath;
                     const lastDot = path.lastIndexOf('.');
-                    if (lastDot > 0) {
-                        path = path.substring(0, lastDot) + '.dat';
-                    } else {
-                        path = path + '.dat';
-                    }
-                    entries.push({ path: path, data: f.encrypted });
+                    if (lastDot > 0) path = path.substring(0, lastDot) + '.dat';
+                    else path = path + '.dat';
+                    entries.push({ path, data: f.encrypted });
                 }
-
                 try {
                     const zipData = generateZip(entries);
                     const blob = new Blob([zipData], { type: 'application/zip' });
@@ -1277,18 +717,15 @@
                 }
             }
 
-            // ─── CLEAR ──────────────────────────────────────────────────
+            // ─── CLEAR ────────────────────────────────────────────────
             function clearAll() {
                 if (state.isEncrypting) return;
                 state.files = [];
                 state.encryptedCount = 0;
                 state.failedCount = 0;
                 state.totalBytes = 0;
-                state.isVerified = false;
-                state.isEncrypting = false;
                 state.key = null;
                 state.keyRaw = null;
-
                 updateStatsAndUI();
                 updateProgress(0, 0);
                 progressFill.style.width = '0%';
@@ -1316,11 +753,22 @@
                     log('⚠️ Key derivation pre-check failed: ' + e.message, 'log-fail');
                 }
 
-                btnSelect.addEventListener('click', () => {
-                    if (state.isEncrypting) return;
-                    folderInput.click();
+                btnSelectFolder.addEventListener('click', () => { if (!state.isEncrypting) folderInput.click(); });
+                btnSelectFiles.addEventListener('click', () => { if (!state.isEncrypting) fileInput.click(); });
+
+                folderInput.addEventListener('change', (e) => {
+                    if (e.target.files.length) {
+                        addFiles(e.target.files);
+                        e.target.value = '';
+                    }
                 });
-                folderInput.addEventListener('change', handleFolderSelect);
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length) {
+                        addFiles(e.target.files);
+                        e.target.value = '';
+                    }
+                });
+
                 btnEncrypt.addEventListener('click', processFiles);
                 btnDownload.addEventListener('click', downloadZip);
                 btnVerify.addEventListener('click', verifyAll);
@@ -1328,15 +776,11 @@
 
                 updateStatsAndUI();
                 updateProgress(0, 0);
-                log('🟢 Ready. Select a folder to begin.', 'log-info');
+                log('🟢 Ready. Select a folder or individual files.', 'log-info');
 
                 if (!window.crypto || !window.crypto.subtle) {
                     log('❌ Web Crypto API not available.', 'log-fail');
                     showToast('Web Crypto API not available', 'error');
-                }
-                if (!('webkitdirectory' in folderInput)) {
-                    log('⚠️ Your browser does not support folder selection. Use Chrome.', 'log-fail');
-                    showToast('Folder selection not supported', 'error');
                 }
             }
 
