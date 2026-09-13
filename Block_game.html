@@ -5,17 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#090e24" />
 <title>Block Puzzle Royal Deluxe</title>
-<!-- Real Ads: Google AdMob H5 Games Ads. Replace ca-pub-XXXXXXXXXXXXXXXX with your ID -->
-<!-- HighRevenueFormat banner ad -->
-<script>
-  atOptions = {
-    'key' : '673f08aee658eee23456a9d90f5b0608',
-    'format' : 'iframe',
-    'height' : 60,
-    'width' : 468,
-    'params' : {}
-  };
-</script>
 <script src="https://www.highrevenueformat.com/673f08aee658eee23456a9d90f5b0608/invoke.js"></script>
 
 <script async data-adbreak-test="on" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
@@ -1371,6 +1360,68 @@ input:checked + .slider:before{transform:translateX(20px)}
 }
 </style>
 
+
+<style id="third-party-reward-ad-css">
+#third-party-reward-ad{
+  position:absolute;
+  inset:0;
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:rgba(2,5,18,.88);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+#third-party-reward-ad.hidden{display:none}
+#third-party-reward-ad .reward-ad-card{
+  width:min(340px,94vw);
+  border-radius:18px;
+  background:linear-gradient(180deg,#263b83,#111a45);
+  border:2px solid rgba(255,255,255,.28);
+  box-shadow:0 18px 50px rgba(0,0,0,.65);
+  padding:12px;
+  text-align:center;
+}
+#third-party-reward-ad .reward-ad-title{
+  font-size:15px;
+  font-weight:1000;
+  margin-bottom:8px;
+}
+#third-party-reward-ad .reward-ad-slot{
+  width:300px;
+  height:250px;
+  max-width:100%;
+  margin:0 auto;
+  background:#fff;
+  overflow:hidden;
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#third-party-reward-ad .reward-ad-slot iframe{
+  width:300px;
+  height:250px;
+  border:0;
+}
+#third-party-reward-ad .reward-ad-status{
+  margin-top:9px;
+  font-size:12px;
+  font-weight:900;
+  color:#ffd54a;
+}
+#third-party-reward-ad .reward-ad-status.ready{
+  color:#42df36;
+}
+#third-party-reward-ad .reward-ad-note{
+  margin-top:5px;
+  font-size:9px;
+  opacity:.65;
+}
+</style>
+
 </head>
 <body>
 
@@ -1796,11 +1847,21 @@ input:checked + .slider:before{transform:translateX(20px)}
   </div></div>
 </div>
 
+
+<div id="third-party-reward-ad" class="hidden" aria-hidden="true">
+  <div class="reward-ad-card">
+    <div class="reward-ad-title">WATCH AD TO CONTINUE</div>
+    <div class="reward-ad-slot" id="third-party-reward-ad-slot"></div>
+    <div class="reward-ad-status" id="third-party-reward-ad-status">Reward unlocks in 10s</div>
+    <div class="reward-ad-note">Please wait while the ad is displayed.</div>
+  </div>
+</div>
+
 <script>
 /* ====================================================================
    BLOCK PUZZLE ROYAL DELUXE — Easy Long-Play Edition
    • Extra cartoon / animal / human icons    • Extra animated frames
-   • Local ranking leaderboard               • Real AdMob rewarded ads
+   • Local ranking leaderboard               • 10-second rewarded banner ads
    • Perfectly synced spin wheel             • 2x daily reward via ad
    • Fixed tray (equal slots + auto-scaled pieces, board remains 1:1)
    • Higher drag sensitivity (pointerrawupdate + direct transform write)
@@ -1932,54 +1993,88 @@ class ParticleEngine {
    =================================================== */
 class RewardedAdManager {
   constructor() {
-    this.isReady = false;
-    this.hasAdMob = typeof adConfig === 'function';
-    if (this.hasAdMob) {
-      try {
-        adConfig({
-          sound: 'on',
-          preloadAdBreaks: 'on',
-          onReady: () => { this.isReady = true; }
-        });
-      } catch (e) { this.hasAdMob = false; }
-    }
+    this.active = false;
+    this.timer = null;
+    this.remaining = 0;
   }
+
   show(onReward, onFail) {
-    const game = window.GameInstance;
-    if (this.hasAdMob && this.isReady) {
-      let rewarded = false;
-      try {
-        adBreak({
-          type: 'reward',
-          name: 'block_puzzle_reward',
-          beforeAd: () => { if (game) game.audio.suspend(); },
-          afterAd: () => { if (game) game.audio.resume(); },
-          beforeReward: (showAdFn) => { showAdFn(); },
-          adViewed: () => { rewarded = true; if (onReward) onReward(); },
-          adDismissed: () => { if (!rewarded && onFail) onFail(); }
-        });
-      } catch (e) { this._fallback(onReward, onFail); }
-    } else {
-      this._fallback(onReward, onFail);
+    if (this.active) return;
+
+    const overlay = document.getElementById('third-party-reward-ad');
+    const slot = document.getElementById('third-party-reward-ad-slot');
+    const status = document.getElementById('third-party-reward-ad-status');
+
+    if (!overlay || !slot || !status) {
+      if (onFail) onFail();
+      return;
     }
-  }
-  _fallback(onReward, onFail) {
-    const overlay = document.getElementById('ad-overlay') || this._createFallbackOverlay();
+
+    this.active = true;
+    this.remaining = 10;
+    status.classList.remove('ready');
+    status.textContent = 'Reward unlocks in 10s';
     overlay.classList.remove('hidden');
-    let t = 3;
-    document.getElementById('ad-timer-countdown').textContent = t + 's';
-    const timer = setInterval(() => {
-      t--;
-      if (t > 0) document.getElementById('ad-timer-countdown').textContent = t + 's';
-      else { clearInterval(timer); overlay.classList.add('hidden'); if (onReward) onReward(); }
-    }, 1000);
+    overlay.setAttribute('aria-hidden', 'false');
+
+    // Load the supplied third-party 300x250 banner.
+    slot.innerHTML = '';
+    const adScript = document.createElement('script');
+    adScript.text = `
+      atOptions = {
+        'key' : 'f5df9641bd98f669aeb8a9e034eecd58',
+        'format' : 'iframe',
+        'height' : 250,
+        'width' : 300,
+        'params' : {}
+      };
+    `;
+    slot.appendChild(adScript);
+
+    const invoke = document.createElement('script');
+    invoke.src = 'https://www.highrevenueformat.com/f5df9641bd98f669aeb8a9e034eecd58/invoke.js';
+    invoke.async = true;
+    slot.appendChild(invoke);
+
+    // Real 10-second gate. Reward is granted only after the full 10 seconds.
+    const startedAt = Date.now();
+    this.timer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      this.remaining = Math.max(0, 10 - elapsed);
+
+      if (this.remaining > 0) {
+        status.textContent = 'Reward unlocks in ' + this.remaining + 's';
+      } else {
+        clearInterval(this.timer);
+        this.timer = null;
+        status.classList.add('ready');
+        status.textContent = '✓ Reward unlocked';
+
+        setTimeout(() => {
+          this.close();
+          if (onReward) onReward();
+        }, 250);
+      }
+    }, 100);
   }
-  _createFallbackOverlay() {
-    const div = document.createElement('div');
-    div.id = 'ad-overlay'; div.className = 'modal-overlay hidden';
-    div.innerHTML = '<div class="card-modal"><h3 class="card-modal-title">' + ic('video') + ' Loading ad...</h3><p style="font-size:34px;margin:14px 0">' + ic('spinner', 'spin-anim') + '</p><p style="font-size:11px;opacity:.7">Reward in <span id="ad-timer-countdown">3s</span></p></div>';
-    document.getElementById('app-container').appendChild(div);
-    return div;
+
+  close() {
+    const overlay = document.getElementById('third-party-reward-ad');
+    const slot = document.getElementById('third-party-reward-ad-slot');
+
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+
+    if (overlay) {
+      overlay.classList.add('hidden');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+    if (slot) slot.innerHTML = '';
+
+    this.active = false;
+    this.remaining = 0;
   }
 }
 
@@ -2333,7 +2428,7 @@ class BlockPuzzleGame {
     }
     const b = this.dom.spinActionBtn;
     if (used === 0) { b.disabled = false; b.className = 'btn-cta btn-spin-action'; this.dom.spinBtnIcon.innerHTML = ic('play'); this.dom.spinBtnText.textContent = 'SPIN FREE (1/5)'; this.dom.spinResetTimerDesc.textContent = 'First spin today is 100% Free!'; }
-    else if (used < 5) { b.disabled = false; b.className = 'btn-cta btn-spin-action btn-ad-spin'; this.dom.spinBtnIcon.innerHTML = ic('video'); this.dom.spinBtnText.textContent = 'WATCH AD (' + (used + 1) + '/5)'; this.dom.spinResetTimerDesc.textContent = 'Watch short ad to unlock spin'; }
+    else if (used < 5) { b.disabled = false; b.className = 'btn-cta btn-spin-action btn-ad-spin'; this.dom.spinBtnIcon.innerHTML = ic('video'); this.dom.spinBtnText.textContent = 'WATCH AD (' + (used + 1) + '/5)'; this.dom.spinResetTimerDesc.textContent = 'Watch 10-second ad to unlock spin'; }
     else { b.disabled = true; b.className = 'btn-cta btn-spin-action'; this.dom.spinBtnIcon.innerHTML = ic('lock'); this.dom.spinBtnText.textContent = 'DAILY LIMIT (0/5)'; this.dom.spinResetTimerDesc.textContent = '5 spins will refresh tomorrow!'; }
   }
 
@@ -3076,7 +3171,12 @@ class BlockPuzzleGame {
     document.getElementById('btn-go-home').onclick = () => { this.dom.modalGameOver.classList.add('hidden'); this.resetGameBoard(); this.switchScreen('home'); };
     document.getElementById('btn-close-continue').onclick = () => { this.continueUsed = true; this.dom.continueModal.classList.add('hidden'); this.showBestResult(); };
     document.getElementById('btn-continue-coins').onclick = () => { if (this.coins < 200) { this.showToast('Need 200 coins'); return; } this.coins -= 200; this.continueWithSingles(); };
-    document.getElementById('btn-continue-free').onclick = () => this.continueWithSingles();
+    document.getElementById('btn-continue-free').onclick = () => {
+      this.ads.show(
+        () => this.continueWithSingles(),
+        () => this.showToast('Ad could not be loaded. Please try again.')
+      );
+    };
     document.getElementById('btn-result-play').onclick = () => {
       this.dom.bestResult.classList.add('hidden');
       this.resetGameBoard();
