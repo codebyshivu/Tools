@@ -840,6 +840,10 @@ input:checked + .slider:before{transform:translateX(20px)}
 .task-win-burst b{display:block;font-size:32px;line-height:1}.task-win-burst span{display:block;margin-top:6px;font-size:13px;letter-spacing:1px}
 .task-win-burst::before{content:'✦  ✦  ★  ✦  ✦';position:absolute;font-size:46px;letter-spacing:18px;color:#fff;filter:drop-shadow(0 0 10px #ffd52a);animation:taskStars .7s ease-in-out infinite alternate}
 @keyframes taskStars{from{transform:translateY(-82px) scale(.85)}to{transform:translateY(-112px) scale(1.12)}}
+
+/* Reward ad coin button + unlimited-life status */
+.pill-add-btn{position:relative;z-index:3}
+.unlimited-life-active{background:#9b51e0!important;color:#fff!important}
 </style>
 
 <style id="v2-pro-game-polish">
@@ -1591,14 +1595,13 @@ input:checked + .slider:before{transform:translateX(20px)}
       <div class="wheel-pointer"><svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-caret-down"></use></svg></div>
       <div class="wheel-outer-bezel" id="wheel-bezel">
         <div class="wheel-disc" id="wheel-disc">
-          <div class="wheel-seg seg-0"><span class="seg-content">10 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
-          <div class="wheel-seg seg-1"><span class="seg-content">20 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
-          <div class="wheel-seg seg-2"><span class="seg-content">1 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-heart"></use></svg></span></div>
-          <div class="wheel-seg seg-3"><span class="seg-content">100 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
-          <div class="wheel-seg seg-4"><span class="seg-content">50 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
-          <div class="wheel-seg seg-5"><span class="seg-content">2 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-heart"></use></svg></span></div>
-          <div class="wheel-seg seg-6"><span class="seg-content">250 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
-          <div class="wheel-seg seg-7"><span class="seg-content">500 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
+          <div class="wheel-seg seg-0"><span class="seg-content">2 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-heart"></use></svg></span></div>
+          <div class="wheel-seg seg-1"><span class="seg-content">200 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
+          <div class="wheel-seg seg-2"><span class="seg-content">30 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
+          <div class="wheel-seg seg-3"><span class="seg-content">1H ∞ <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-heart"></use></svg></span></div>
+          <div class="wheel-seg seg-4"><span class="seg-content">5 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
+          <div class="wheel-seg seg-5"><span class="seg-content">1 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-heart"></use></svg></span></div>
+          <div class="wheel-seg seg-6"><span class="seg-content">15 <svg class="svg-icon" viewBox="0 0 24 24"><use href="#i-coins"></use></svg></span></div>
         </div>
         <div class="wheel-hub"><svg class="svg-icon hub-star" viewBox="0 0 24 24"><use href="#i-star"></use></svg></div>
       </div>
@@ -1856,7 +1859,7 @@ input:checked + .slider:before{transform:translateX(20px)}
 /* ====================================================================
    BLOCK PUZZLE ROYAL DELUXE — Easy Long-Play Edition
    • Extra cartoon / animal / human icons    • Extra animated frames
-   • Local ranking leaderboard               • 20-second rewarded banner ads
+   • Local ranking leaderboard               • Ad-loaded 20-second rewarded banner ads
    • Perfectly synced spin wheel             • 2x daily reward via ad
    • Fixed tray (equal slots + auto-scaled pieces, board remains 1:1)
    • Higher drag sensitivity (pointerrawupdate + direct transform write)
@@ -1991,6 +1994,9 @@ class RewardedAdManager {
     this.active = false;
     this.timer = null;
     this.remaining = 0;
+    this.loadObserver = null;
+    this.loadTimeout = null;
+    this.adLoaded = false;
   }
 
   show(onReward, onFail) {
@@ -2006,14 +2012,81 @@ class RewardedAdManager {
     }
 
     this.active = true;
+    this.adLoaded = false;
     this.remaining = 20;
     status.classList.remove('ready');
-    status.textContent = 'Reward unlocks in 20s';
+    status.textContent = 'Loading ad…';
     overlay.classList.remove('hidden');
     overlay.setAttribute('aria-hidden', 'false');
 
-    // Load the supplied third-party 300x250 banner.
     slot.innerHTML = '';
+
+    // IMPORTANT: the 20-second reward timer does NOT start when the
+    // overlay opens or when the script is requested. It starts only after
+    // the actual ad iframe reports that it has loaded.
+    let started = false;
+    const startTimerAfterAdLoad = () => {
+      if (started || !this.active) return;
+      started = true;
+      this.adLoaded = true;
+
+      if (this.loadObserver) {
+        this.loadObserver.disconnect();
+        this.loadObserver = null;
+      }
+      if (this.loadTimeout) {
+        clearTimeout(this.loadTimeout);
+        this.loadTimeout = null;
+      }
+
+      status.classList.remove('ready');
+      status.textContent = 'Reward unlocks in 20s';
+
+      const startedAt = Date.now();
+      this.timer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        this.remaining = Math.max(0, 20 - elapsed);
+
+        if (this.remaining > 0) {
+          status.textContent = 'Reward unlocks in ' + this.remaining + 's';
+        } else {
+          clearInterval(this.timer);
+          this.timer = null;
+          status.classList.add('ready');
+          status.textContent = '✓ Reward unlocked';
+
+          setTimeout(() => {
+            this.close();
+            if (onReward) onReward();
+          }, 250);
+        }
+      }, 100);
+    };
+
+    // Watch for the banner iframe created by invoke.js, then wait for the
+    // iframe's own load event before starting the 20-second timer.
+    this.loadObserver = new MutationObserver(() => {
+      if (started) return;
+      const iframe = slot.querySelector('iframe');
+      if (iframe) {
+        iframe.addEventListener('load', startTimerAfterAdLoad, { once: true });
+        // In case the iframe was already loaded before the listener attached,
+        // give the browser a chance to dispatch/settle it.
+        setTimeout(() => {
+          if (!started && iframe.isConnected) {
+            try {
+              if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                startTimerAfterAdLoad();
+              }
+            } catch (e) {
+              // Cross-origin iframe: rely on its normal load event.
+            }
+          }
+        }, 50);
+      }
+    });
+    this.loadObserver.observe(slot, { childList: true, subtree: true });
+
     const adScript = document.createElement('script');
     adScript.text = `
       atOptions = {
@@ -2031,27 +2104,20 @@ class RewardedAdManager {
     invoke.async = true;
     slot.appendChild(invoke);
 
-    // Real 20-second gate. Reward is granted only after the full 20 seconds.
-    // The reward is based on elapsed viewing time, not on ad clicks.
-    const startedAt = Date.now();
-    this.timer = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-      this.remaining = Math.max(0, 20 - elapsed);
-
-      if (this.remaining > 0) {
-        status.textContent = 'Reward unlocks in ' + this.remaining + 's';
-      } else {
-        clearInterval(this.timer);
-        this.timer = null;
-        status.classList.add('ready');
-        status.textContent = '✓ Reward unlocked';
-
-        setTimeout(() => {
-          this.close();
-          if (onReward) onReward();
-        }, 250);
+    // If the ad cannot create/load an iframe, never start the reward timer.
+    // Show a failure message instead of awarding the reward without an ad.
+    this.loadTimeout = setTimeout(() => {
+      if (!started && this.active) {
+        if (this.loadObserver) {
+          this.loadObserver.disconnect();
+          this.loadObserver = null;
+        }
+        this.loadTimeout = null;
+        status.textContent = 'Ad could not be loaded. Please try again.';
+        if (onFail) onFail();
+        this.close();
       }
-    }, 100);
+    }, 15000);
   }
 
   close() {
@@ -2062,6 +2128,14 @@ class RewardedAdManager {
       clearInterval(this.timer);
       this.timer = null;
     }
+    if (this.loadObserver) {
+      this.loadObserver.disconnect();
+      this.loadObserver = null;
+    }
+    if (this.loadTimeout) {
+      clearTimeout(this.loadTimeout);
+      this.loadTimeout = null;
+    }
 
     if (overlay) {
       overlay.classList.add('hidden');
@@ -2070,6 +2144,7 @@ class RewardedAdManager {
     if (slot) slot.innerHTML = '';
 
     this.active = false;
+    this.adLoaded = false;
     this.remaining = 0;
   }
 }
@@ -4527,5 +4602,5 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
-</body>
+\n<script>\n(() => {\n  const P = BlockPuzzleGame.prototype;\n\n  // Slightly tougher game: crowded boards become less forgiving and harder\n  // shapes remain in the pool a little longer. Every generated piece is still\n  // checked to ensure it can actually fit somewhere.\n  const oldAdaptivePieceWeight = P.adaptivePieceWeight;\n  P.adaptivePieceWeight = function(key, bp) {\n    let w = oldAdaptivePieceWeight.call(this, key, bp);\n    const fill = this.getBoardFillRatio();\n    if (fill > 0.30 && bp.tier >= 2) w *= 1.35;\n    if (fill > 0.48 && this.countShapeCells(bp.matrix) >= 5) w *= 1.25;\n    return w;\n  };\n\n  // Unlimited lives for exactly one hour when that wheel segment is won.\n  P.hasUnlimitedLives = function() {\n    return Number(this.unlimitedLivesUntil || 0) > Date.now();\n  };\n  const oldRenderAll = P.renderAll;\n  P.renderAll = function() {\n    oldRenderAll.call(this);\n    const tag = this.dom && this.dom.homeLivesTag;\n    if (tag && this.hasUnlimitedLives()) {\n      const left = Math.max(0, this.unlimitedLivesUntil - Date.now());\n      const m = Math.floor(left / 60000), sec = Math.floor((left % 60000) / 1000);\n      tag.textContent = '∞ ' + m + ':' + String(sec).padStart(2,'0');\n      tag.classList.add('unlimited-life-active');\n    } else if (tag) {\n      tag.classList.remove('unlimited-life-active');\n    }\n  };\n\n  const oldTriggerGameOver = P.triggerGameOver;\n  P.triggerGameOver = function() {\n    if (this.hasUnlimitedLives()) {\n      const oldLives = this.lives;\n      this.lives = Math.max(1, this.lives);\n      oldTriggerGameOver.call(this);\n      this.lives = oldLives || 1;\n      this.renderAll();\n      this.saveStorage();\n      return;\n    }\n    return oldTriggerGameOver.call(this);\n  };\n\n  // Exact 7 wheel segments: arrow-selected segment and applied reward are the\n  // same index. No separate random reward is generated.\n  P.executeWheelDeceleration = function() {\n    if (this.isWheelSpinning) return;\n    this.isWheelSpinning = true;\n    this.audio.init();\n    const prizes = [\n      {text:'+2 LIVES', icon:ic('heart','heart-red'), apply:()=>{this.lives=Math.min(5,this.lives+2);}},\n      {text:'+200 COINS', icon:ic('coins','coin-gold'), apply:()=>{this.coins+=200;}},\n      {text:'+30 COINS', icon:ic('coins','coin-gold'), apply:()=>{this.coins+=30;}},\n      {text:'UNLIMITED LIVES • 1 HOUR', icon:ic('heart','heart-red'), apply:()=>{this.unlimitedLivesUntil=Date.now()+3600000;}},\n      {text:'+5 COINS', icon:ic('coins','coin-gold'), apply:()=>{this.coins+=5;}},\n      {text:'+1 LIFE', icon:ic('heart','heart-red'), apply:()=>{this.lives=Math.min(5,this.lives+1);}},\n      {text:'+15 COINS', icon:ic('coins','coin-gold'), apply:()=>{this.coins+=15;}}\n    ];\n    const idx=(Math.random()*prizes.length)|0;\n    const seg=360/prizes.length;\n    const segCenter=idx*seg+seg/2;\n    const target=((360-segCenter)%360)+360*6;\n    const disc=this.dom.wheelDisc;\n    disc.style.transition='transform 4.1s cubic-bezier(.08,.82,.12,1)';\n    disc.style.transform='rotate('+target+'deg)';\n    let ticks=0;\n    const ti=setInterval(()=>{this.audio.playBlip();if(++ticks>25)clearInterval(ti);},145);\n    setTimeout(()=>{\n      this.isWheelSpinning=false;\n      const finalAngle=(360-segCenter)%360;\n      disc.style.transition='none';\n      disc.style.transform='rotate('+finalAngle+'deg)';\n      requestAnimationFrame(()=>{disc.style.transition='transform 4.1s cubic-bezier(.08,.82,.12,1)';});\n      this.spinState.spinsUsedToday++;\n      this.renderSpinScreen();\n      this.saveStorage();\n      const won=prizes[idx];\n      this.showRewardModal(won.icon,won.text,()=>{won.apply();this.renderAll();this.saveStorage();});\n    },4200);\n  };\n\n  // The + button beside coins opens the same real-ad gate. Reward is a\n  // legitimate view-time reward (up to 200 coins), not a forced click.\n  const bindCoinAd = () => {\n    const plus=document.querySelector('#btn-home-coins .pill-add-btn');\n    if (!plus || plus.dataset.boundCoinAd) return;\n    plus.dataset.boundCoinAd='1';\n    plus.addEventListener('click',(e)=>{\n      e.preventDefault(); e.stopPropagation();\n      const g=window.GameInstance;\n      if(!g || g.ads.active) return;\n      g.ads.show(()=>{\n        const reward=200;\n        g.coins+=reward;\n        g.renderAll();\n        g.saveStorage();\n        g.showToast('🪙 +'+reward+' COINS');\n      },()=>g.showToast('📺 Ad could not be loaded. Please try again.'));\n    });\n  };\n  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bindCoinAd);\n  else bindCoinAd();\n\n  // Persist the 1-hour unlimited-life timestamp if the game's storage methods\n  // are present.\n  const oldSave=P.saveStorage;\n  P.saveStorage=function(){\n    try { localStorage.setItem('bp_unlimited_lives_until',String(this.unlimitedLivesUntil||0)); } catch(e){}\n    return oldSave.apply(this,arguments);\n  };\n  const oldInit=P.init;\n  if(oldInit){\n    P.init=function(){\n      try { this.unlimitedLivesUntil=Number(localStorage.getItem('bp_unlimited_lives_until')||0); } catch(e){ this.unlimitedLivesUntil=0; }\n      return oldInit.apply(this,arguments);\n    };\n  }\n})();\n</script>\n</body>
 </html>
