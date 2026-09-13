@@ -1847,7 +1847,7 @@ input:checked + .slider:before{transform:translateX(20px)}
   <div class="reward-ad-card">
     <div class="reward-ad-title">WATCH AD TO CONTINUE</div>
     <div class="reward-ad-slot" id="third-party-reward-ad-slot"></div>
-    <div class="reward-ad-status" id="third-party-reward-ad-status">Reward unlocks in 10s</div>
+    <div class="reward-ad-status" id="third-party-reward-ad-status">Reward unlocks in 20s</div>
     <div class="reward-ad-note">Please wait while the ad is displayed.</div>
   </div>
 </div>
@@ -1856,7 +1856,7 @@ input:checked + .slider:before{transform:translateX(20px)}
 /* ====================================================================
    BLOCK PUZZLE ROYAL DELUXE — Easy Long-Play Edition
    • Extra cartoon / animal / human icons    • Extra animated frames
-   • Local ranking leaderboard               • 10-second rewarded banner ads
+   • Local ranking leaderboard               • 20-second rewarded banner ads
    • Perfectly synced spin wheel             • 2x daily reward via ad
    • Fixed tray (equal slots + auto-scaled pieces, board remains 1:1)
    • Higher drag sensitivity (pointerrawupdate + direct transform write)
@@ -1984,7 +1984,7 @@ class ParticleEngine {
 }
 
 /* ===================================================
-   AD MANAGER — Real AdMob H5 Games Ads + fallback
+   AD MANAGER — 20-second rewarded banner ads
    =================================================== */
 class RewardedAdManager {
   constructor() {
@@ -2006,9 +2006,9 @@ class RewardedAdManager {
     }
 
     this.active = true;
-    this.remaining = 10;
+    this.remaining = 20;
     status.classList.remove('ready');
-    status.textContent = 'Reward unlocks in 10s';
+    status.textContent = 'Reward unlocks in 20s';
     overlay.classList.remove('hidden');
     overlay.setAttribute('aria-hidden', 'false');
 
@@ -2031,11 +2031,12 @@ class RewardedAdManager {
     invoke.async = true;
     slot.appendChild(invoke);
 
-    // Real 10-second gate. Reward is granted only after the full 10 seconds.
+    // Real 20-second gate. Reward is granted only after the full 20 seconds.
+    // The reward is based on elapsed viewing time, not on ad clicks.
     const startedAt = Date.now();
     this.timer = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-      this.remaining = Math.max(0, 10 - elapsed);
+      this.remaining = Math.max(0, 20 - elapsed);
 
       if (this.remaining > 0) {
         status.textContent = 'Reward unlocks in ' + this.remaining + 's';
