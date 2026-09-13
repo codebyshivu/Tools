@@ -5,13 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#090e24" />
 <title>Block Puzzle Royal Deluxe</title>
-<script src="https://www.highrevenueformat.com/673f08aee658eee23456a9d90f5b0608/invoke.js"></script>
-
-<script async data-adbreak-test="on" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
-<script>
-  window.adsbygoogle = window.adsbygoogle || [];
-  window.adBreak = window.adConfig = function(o) { adsbygoogle.push(o); };
-</script>
 <style>
 :root{--bg-gradient-start:#24398f;--bg-gradient-end:#090e24;--chassis-bg:#030614;--navy-board:#070d24;--navy-cell:#10183b;--accent-gold:#ffbe0b;--accent-green:#00e676;--accent-cyan:#00e5ff;--accent-purple:#9b51e0;--accent-red:#ff3366;--text-light:#fff;--cell-size:38px;--cell-gap:4px}
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;touch-action:none!important}
@@ -1420,6 +1413,8 @@ input:checked + .slider:before{transform:translateX(20px)}
   font-size:9px;
   opacity:.65;
 }
+
+#third-party-reward-ad[aria-hidden="true"]{display:none!important}
 </style>
 
 </head>
@@ -3172,9 +3167,21 @@ class BlockPuzzleGame {
     document.getElementById('btn-close-continue').onclick = () => { this.continueUsed = true; this.dom.continueModal.classList.add('hidden'); this.showBestResult(); };
     document.getElementById('btn-continue-coins').onclick = () => { if (this.coins < 200) { this.showToast('Need 200 coins'); return; } this.coins -= 200; this.continueWithSingles(); };
     document.getElementById('btn-continue-free').onclick = () => {
+      const btn = document.getElementById('btn-continue-free');
+      if (this.continueUsed || !btn) return;
+      btn.disabled = true;
+      btn.textContent = '📺 WATCHING AD...';
       this.ads.show(
-        () => this.continueWithSingles(),
-        () => this.showToast('Ad could not be loaded. Please try again.')
+        () => {
+          btn.disabled = false;
+          btn.innerHTML = '▶ Free';
+          this.continueWithSingles();
+        },
+        () => {
+          btn.disabled = false;
+          btn.innerHTML = '▶ Free';
+          this.showToast('Ad could not be loaded. Please try again.');
+        }
       );
     };
     document.getElementById('btn-result-play').onclick = () => {
@@ -4518,209 +4525,6 @@ window.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
-
-<style id="ads-reward-flow-v1">
-  /* Fixed 468x60 banner, scaled to fit the mobile game width. */
-  #hrf-banner-wrap{
-    position:absolute;
-    left:50%;
-    bottom:0;
-    transform:translateX(-50%);
-    width:min(100%,468px);
-    height:60px;
-    z-index:8800;
-    background:#fff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    box-shadow:0 -3px 12px rgba(0,0,0,.25);
-  }
-  #hrf-banner-wrap > div{width:468px;height:60px;transform-origin:center center;}
-  @media(max-width:468px){#hrf-banner-wrap > div{transform:scale(calc(100vw / 468));}}
-  .reward-ad-status{font-size:12px;font-weight:900;line-height:1.35;}
-</style>
-<script id="ads-reward-flow-v1-js">
-(() => {
-  const P = BlockPuzzleGame.prototype;
-
-  /*
-   * Policy-safe rewarded flow:
-   * - A reward is granted only after the rewarded-ad callback confirms viewing.
-   * - We do NOT require or track an ad click.
-   * - No fake fallback timer: if a real rewarded ad is unavailable, no reward is granted.
-   * - A 10-second minimum is enforced from ad start before the reward is released.
-   */
-  const oldAdShow = RewardedAdManager.prototype.show;
-  RewardedAdManager.prototype.show = function(onReward, onFail) {
-    const game = window.GameInstance;
-    if (!(this.hasAdMob && this.isReady)) {
-      if (onFail) onFail();
-      else if (game) game.showToast('📺 Rewarded ad is unavailable right now. Try again.');
-      return;
-    }
-
-    let rewarded = false;
-    let startedAt = Date.now();
-    let rewardTimer = null;
-    const finish = () => {
-      if (rewarded) return;
-      rewarded = true;
-      const wait = Math.max(0, 10000 - (Date.now() - startedAt));
-      rewardTimer = setTimeout(() => { if (onReward) onReward(); }, wait);
-    };
-
-    try {
-      adBreak({
-        type: 'reward',
-        name: 'block_puzzle_reward',
-        beforeAd: () => {
-          startedAt = Date.now();
-          if (game) game.audio.suspend();
-        },
-        afterAd: () => { if (game) game.audio.resume(); },
-        beforeReward: (showAdFn) => { if (typeof showAdFn === 'function') showAdFn(); },
-        adViewed: finish,
-        adDismissed: () => {
-          if (rewardTimer) clearTimeout(rewardTimer);
-          if (!rewarded && onFail) onFail();
-        }
-      });
-    } catch (e) {
-      if (rewardTimer) clearTimeout(rewardTimer);
-      if (onFail) onFail();
-    }
-  };
-
-  /* ---------- SPIN: first spin free, ad-gated spins pay 2X ---------- */
-  P.handleWheelSpin = function() {
-    if (this.isWheelSpinning) return;
-    this.verifySpinDayReset();
-    const used = this.spinState.spinsUsedToday;
-    if (used >= 5) {
-      this.showToast(ic('ban') + ' Max 5 spins today!');
-      return;
-    }
-
-    if (used === 0) {
-      this._spinRewardMultiplier = 1;
-      this.executeWheelDeceleration();
-      return;
-    }
-
-    this._spinRewardMultiplier = 2;
-    this.ads.show(
-      () => this.executeWheelDeceleration(),
-      () => this.showToast('📺 Watch the rewarded ad completely to unlock the 2X spin.')
-    );
-  };
-
-  P.executeWheelDeceleration = function() {
-    if (this.isWheelSpinning) return;
-    this.isWheelSpinning = true;
-    this.audio.init();
-    const mult = this._spinRewardMultiplier === 2 ? 2 : 1;
-    this._spinRewardMultiplier = 1;
-    const prizes = [
-      {text:'+10 COINS',icon:ic('coins','coin-gold'),apply:()=>this.coins += 10 * mult, display:()=>`+${10*mult} COINS`},
-      {text:'+20 COINS',icon:ic('coins','coin-gold'),apply:()=>this.coins += 20 * mult, display:()=>`+${20*mult} COINS`},
-      {text:'+1 LIFE',icon:ic('heart','heart-red'),apply:()=>this.lives = Math.min(5,this.lives + mult), display:()=>`+${mult} ${mult===1?'LIFE':'LIVES'}`},
-      {text:'+100 COINS',icon:ic('coins','coin-gold'),apply:()=>this.coins += 100 * mult, display:()=>`+${100*mult} COINS`},
-      {text:'+50 COINS',icon:ic('coins','coin-gold'),apply:()=>this.coins += 50 * mult, display:()=>`+${50*mult} COINS`},
-      {text:'+2 LIVES',icon:ic('heart','heart-red'),apply:()=>this.lives = Math.min(5,this.lives + 2 * mult), display:()=>`+${2*mult} LIVES`},
-      {text:'+250 COINS',icon:ic('coins','coin-gold'),apply:()=>this.coins += 250 * mult, display:()=>`+${250*mult} COINS`},
-      {text:'+500 COINS',icon:ic('crown','coin-gold'),apply:()=>this.coins += 500 * mult, display:()=>`+${500*mult} COINS`}
-    ];
-    const idx = (Math.random() * 8) | 0;
-    const disc = this.dom.wheelDisc;
-    const seg = 45;
-    const target = ((360 - (idx * seg + seg / 2)) % 360) + 360 * 6;
-    disc.style.transition = 'transform 4.1s cubic-bezier(.08,.82,.13,1)';
-    disc.style.transform = 'rotate(' + target + 'deg)';
-
-    setTimeout(() => {
-      this.isWheelSpinning = false;
-      this.spinState.spinsUsedToday++;
-      const won = prizes[idx];
-      won.apply();
-      this.saveStorage();
-      this.renderAll();
-      this.renderSpinScreen();
-      this.showRewardModal(won.icon, won.display(), null);
-      disc.style.transition = 'none';
-      disc.style.transform = 'rotate(' + (target % 360) + 'deg)';
-      requestAnimationFrame(() => disc.style.transition = 'transform 4.1s cubic-bezier(.08,.82,.13,1)');
-    }, 4150);
-  };
-
-  /* ---------- DAILY REWARD: normal claim stays normal; 2X button is rewarded-ad gated ---------- */
-  P.handleDailyClaimX2 = function() {
-    if (!this.isDailyClaimAvailable()) {
-      this.showToast(ic('clock') + ' Already claimed!');
-      return;
-    }
-    const cur = this.dailyState.currentDay;
-    const r = this.getDailyReward(cur);
-    this.ads.show(
-      () => {
-        this.dailyState.lastClaimTimestamp = Date.now();
-        this.dailyState.currentDay = cur >= 7 ? 1 : cur + 1;
-        this.showRewardModal(r.icon, '2X ' + r.text, () => { r.action(); r.action(); });
-        this.renderDailyScreen();
-        this.saveStorage();
-      },
-      () => this.showToast('📺 Watch the rewarded ad completely for 2X daily coins/reward.')
-    );
-  };
-
-  /* ---------- GAME OVER: Free continue requires a real rewarded ad ---------- */
-  const originalContinueFree = document.getElementById('btn-continue-free');
-  if (originalContinueFree) {
-    originalContinueFree.dataset.rewardGate = 'true';
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    const g = window.GameInstance;
-    if (!g) return;
-
-    const freeBtn = document.getElementById('btn-continue-free');
-    if (freeBtn) {
-      freeBtn.onclick = () => {
-        if (g.continueUsed) return;
-        freeBtn.disabled = true;
-        freeBtn.textContent = '📺 WATCHING AD...';
-        g.ads.show(
-          () => {
-            freeBtn.disabled = false;
-            freeBtn.innerHTML = '▶ Free';
-            g.continueWithSingles();
-          },
-          () => {
-            freeBtn.disabled = false;
-            freeBtn.innerHTML = '▶ Free';
-            g.showToast('📺 Rewarded ad was not completed. Continue is still locked.');
-          }
-        );
-      };
-    }
-
-    /* Insert the supplied 468x60 banner into the game UI. */
-    if (!document.getElementById('hrf-banner-wrap')) {
-      const wrap = document.createElement('div');
-      wrap.id = 'hrf-banner-wrap';
-      wrap.innerHTML = '<div id="hrf-banner-slot"></div>';
-      document.getElementById('app-container').appendChild(wrap);
-
-      const s = document.createElement('script');
-      s.text = "atOptions = { 'key':'673f08aee658eee23456a9d90f5b0608', 'format':'iframe', 'height':60, 'width':468, 'params':{} };";
-      document.getElementById('hrf-banner-slot').appendChild(s);
-      const js = document.createElement('script');
-      js.src = 'https://www.highrevenueformat.com/673f08aee658eee23456a9d90f5b0608/invoke.js';
-      document.getElementById('hrf-banner-slot').appendChild(js);
-    }
-  });
-})();
-</script>
 
 </body>
 </html>
