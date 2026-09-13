@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Self Improvement • Goal Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Self Improvement • habit tracker</title>
   <!-- Font Awesome 6 & Inter font -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -183,8 +183,8 @@
       flex: 1;
       padding: 6px 0;
       border-radius: 40px;
-      user-select: none;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
     .nav-item i {
       font-size: 1.3rem;
@@ -195,7 +195,8 @@
       background: var(--accent-soft);
       font-weight: 600;
     }
-.section {
+
+    .section {
       display: none;
       animation: fadeSlide 0.25s ease;
     }
@@ -219,9 +220,6 @@
       position: relative;
       touch-action: pan-y;
       cursor: pointer;
-    }
-    .goal-card:active {
-      transform: scale(0.99);
     }
     .goal-header {
       display: flex;
@@ -780,510 +778,27 @@
         font-size: 1.1rem;
       }
     }
-
-    /* ---------- PREMIUM PROFESSIONAL POLISH ---------- */
-    :root {
-      --bg-primary: #f4f7fb;
-      --bg-card: rgba(255,255,255,.88);
-      --bg-card-solid: #ffffff;
-      --text-primary: #0f172a;
-      --text-secondary: #334155;
-      --text-tertiary: #64748b;
-      --accent: #3157d5;
-      --accent-soft: #e9efff;
-      --border-light: rgba(15,23,42,.08);
-      --shadow: 0 24px 60px -28px rgba(15,23,42,.28), 0 8px 24px -14px rgba(15,23,42,.12);
-      --shadow-sm: 0 12px 30px -18px rgba(15,23,42,.24);
-      --progress-bg: #e8edf5;
-      --grid-bg: #f5f7fb;
-      --cell-bg: #ffffff;
-      --cell-completed: #d8f4e4;
-      --cell-today-border: #3157d5;
-      --cell-missed: #fff0f0;
-      --cell-missed-border: #ef6b6b;
-      --nav-bg: rgba(255,255,255,.88);
-      --popup-bg: #111827;
-      --popup-text: #ffffff;
-      --delete-btn: #c24141;
-      --modal-overlay: rgba(15,23,42,.44);
-      --success-color: #12a36a;
-      --error-color: #dc5a5a;
-      --warning-color: #d88a20;
-      --info-color: #4674d8;
-    }
-
-    body {
-      background:
-        radial-gradient(circle at 10% -5%, rgba(49,87,213,.10), transparent 32%),
-        radial-gradient(circle at 100% 20%, rgba(14,165,164,.07), transparent 28%),
-        var(--bg-primary);
-      letter-spacing: -.01em;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background: linear-gradient(180deg, rgba(255,255,255,.28), transparent 30%);
-      z-index: -1;
-    }
-
-    .app-wrapper {
-      max-width: 520px;
-      padding: 22px 18px 104px;
-    }
-
-    .app-header {
-      margin-bottom: 22px;
-      padding: 8px 2px 4px;
-    }
-
-    .app-header h1 {
-      font-size: clamp(1.75rem, 7vw, 2.15rem);
-      font-weight: 780;
-      letter-spacing: -.045em;
-    }
-
-    .app-header h1 i {
-      font-size: 1.55rem;
-      margin-right: 7px;
-    }
-
-    .theme-toggle {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      font-size: 1.15rem;
-      box-shadow: 0 8px 20px -12px rgba(15,23,42,.35);
-    }
-
-    .glass-card {
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,.75);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-
-    .goal-card {
-      border-radius: 24px;
-      padding: 20px 17px 17px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border-light);
-    }
-
-    .goal-card:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow);
-    }
-
-    .goal-header {
-      gap: 11px;
-      margin-bottom: 15px;
-      padding-right: 42px;
-    }
-
-    .goal-index {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      font-size: .92rem;
-    }
-
-    .goal-name {
-      font-size: 1.12rem;
-      font-weight: 720;
-      letter-spacing: -.025em;
-    }
-
-    .delete-goal {
-      top: 16px;
-      right: 16px;
-      width: 34px;
-      height: 34px;
-      border-radius: 11px;
-      background: var(--grid-bg);
-      color: var(--text-tertiary);
-      font-size: .92rem;
-    }
-
-    .delete-goal:hover {
-      color: var(--delete-btn);
-      background: #fff1f1;
-    }
-
-    .goal-stats {
-      margin: 14px 0 12px;
-      padding: 9px 12px;
-      border-radius: 14px;
-      font-size: .78rem;
-      border: 1px solid rgba(15,23,42,.035);
-    }
-
-    .progress-bar {
-      height: 7px;
-      margin: 12px 0 15px;
-      background: var(--progress-bg);
-    }
-
-    .progress-fill {
-      background: linear-gradient(90deg, var(--accent), #6282e6);
-    }
-
-    .goal-grid {
-      gap: 5px;
-      padding: 10px;
-      border-radius: 18px;
-      background: var(--grid-bg);
-      border: 1px solid rgba(15,23,42,.035);
-    }
-
-    .day-cell {
-      border-radius: 9px;
-      font-size: .69rem;
-      box-shadow: none;
-    }
-
-    .day-cell.completed {
-      background: var(--cell-completed);
-      color: #16633f;
-    }
-
-    .day-cell.today {
-      box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-
-    .future-action {
-      border-radius: 14px;
-      padding: 11px 14px;
-      margin-top: 14px;
-      font-size: .86rem;
-    }
-
-    .empty-state {
-      padding: 52px 22px;
-      border-radius: 28px;
-      border: 1px solid var(--border-light);
-      box-shadow: var(--shadow-sm);
-      background: var(--bg-card);
-    }
-
-    .empty-state i {
-      font-size: 3rem;
-      margin-bottom: 14px;
-    }
-
-    .empty-state h3 {
-      font-size: 1.35rem;
-      font-weight: 720;
-    }
-
-    .empty-state p {
-      font-size: .92rem;
-    }
-
-    .empty-state .motivation {
-      font-size: .82rem;
-      padding: 9px 13px;
-      border-radius: 14px;
-      margin: 16px 0;
-    }
-
-    .empty-btn {
-      border-radius: 13px;
-      padding: 11px 18px;
-      font-size: .88rem;
-      box-shadow: 0 10px 22px -14px var(--accent);
-    }
-
-    .add-form {
-      border-radius: 24px;
-      padding: 24px 19px 20px;
-    }
-
-    .form-group {
-      margin-bottom: 17px;
-    }
-
-    .form-group label {
-      font-size: .82rem;
-      font-weight: 680;
-      margin-bottom: 7px;
-    }
-
-    .form-group input, .form-group select {
-      padding: 13px 15px;
-      border-radius: 13px;
-      background: var(--grid-bg);
-      border: 1px solid rgba(15,23,42,.07);
-      font-size: .9rem;
-    }
-
-    .form-group input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px var(--accent-soft);
-    }
-
-    .radio-group {
-      gap: 8px;
-      padding: 6px;
-      border-radius: 14px;
-    }
-
-    .radio-group label {
-      flex: 1;
-      justify-content: center;
-      padding: 8px 7px;
-      border-radius: 10px;
-      background: rgba(255,255,255,.55);
-    }
-
-    .btn-primary {
-      border-radius: 14px;
-      padding: 13px 20px;
-      font-size: .95rem;
-      box-shadow: 0 14px 24px -14px var(--accent);
-    }
-
-    .bottom-nav {
-      bottom: 16px;
-      width: min(470px, calc(100% - 28px));
-      padding: 6px;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.82);
-      box-shadow: 0 18px 45px -22px rgba(15,23,42,.38);
-    }
-
-    .nav-item {
-      gap: 3px;
-      font-size: .64rem;
-      padding: 8px 4px;
-      border-radius: 14px;
-    }
-
-    .nav-item i {
-      font-size: 1.08rem;
-    }
-
-    .nav-item.active {
-      background: var(--accent-soft);
-    }
-
-    .popup-card {
-      border-radius: 28px;
-      padding: 28px 24px;
-    }
-
-    .modal-card {
-      border-radius: 26px;
-      padding: 23px 19px;
-    }
-
-    .comment-input {
-      border-radius: 16px;
-    }
-
-    .detail-day-cell {
-      border-radius: 11px;
-    }
-
-    .reminder-box {
-      border-radius: 16px;
-      padding: 13px;
-    }
-
-    @media (max-width: 400px) {
-      .app-wrapper { padding-left: 14px; padding-right: 14px; }
-      .bottom-nav { width: calc(100% - 20px); }
-      .bottom-nav .nav-item { font-size: .58rem; }
-      .bottom-nav .nav-item i { font-size: 1rem; }
-      .goal-card { padding-left: 14px; padding-right: 14px; }
-    }
-
-    body.dark {
-      --bg-primary: #0b1120;
-      --bg-card: rgba(18,26,42,.86);
-      --bg-card-solid: #111a2b;
-      --text-primary: #f4f7ff;
-      --text-secondary: #c9d4e6;
-      --text-tertiary: #8fa0b7;
-      --accent: #7394f2;
-      --accent-soft: #1b2b50;
-      --border-light: rgba(255,255,255,.07);
-      --shadow: 0 24px 60px -25px rgba(0,0,0,.7), 0 8px 25px -15px rgba(0,0,0,.45);
-      --shadow-sm: 0 14px 32px -18px rgba(0,0,0,.65);
-      --progress-bg: #263248;
-      --grid-bg: #151f32;
-      --cell-bg: #1b2940;
-      --cell-completed: #1a4b3a;
-      --cell-today-border: #7394f2;
-      --cell-missed: #42272d;
-      --cell-missed-border: #ef7b83;
-      --nav-bg: rgba(11,17,32,.88);
-      --modal-overlay: rgba(0,0,0,.64);
-    }
-
-    body.dark .radio-group label {
-      background: rgba(255,255,255,.025);
-    }
-
-    body.dark .delete-goal:hover {
-      background: rgba(220,80,80,.12);
-    }
-
-
-    /* ---------- PRODUCTION TOUCH + RESPONSIVE POLISH ---------- */
-    html, body, button, input, select, textarea, .nav-item, .goal-card, .day-cell,
-    .theme-toggle, .delete-goal, .future-action, .empty-btn, .btn-primary {
-      -webkit-tap-highlight-color: transparent !important;
-      -webkit-touch-callout: none;
-    }
-
-    button, .nav-item, .goal-card, .day-cell, .theme-toggle, .delete-goal,
-    .future-action, .empty-btn, .btn-primary {
-      outline: none;
-    }
-
-    button:focus, input:focus, select:focus, textarea:focus {
-      outline: none;
-    }
-
-    button:focus-visible, .nav-item:focus-visible, .theme-toggle:focus-visible,
-    .delete-goal:focus-visible, .future-action:focus-visible {
-      box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-
-    /* Avoid the "membrane" feeling while retaining useful interaction feedback. */
-    .goal-card:active,
-    .nav-item:active,
-    .day-cell:active,
-    .theme-toggle:active,
-    .delete-goal:active,
-    .future-action:active,
-    .empty-btn:active,
-    .btn-primary:active {
-      transform: none;
-      filter: none;
-      opacity: .96;
-    }
-
-    /* More polished page shell */
-    body {
-      overflow-x: hidden;
-      overscroll-behavior-x: none;
-    }
-
-    .app-wrapper {
-      min-height: 100dvh;
-    }
-
-    .section {
-      min-height: 1px;
-    }
-
-    /* Better responsive type and spacing */
-    @media (min-width: 521px) {
-      body {
-        padding: 20px 0;
-      }
-
-      .app-wrapper {
-        min-height: calc(100dvh - 40px);
-        background: rgba(255,255,255,.18);
-        border: 1px solid rgba(255,255,255,.5);
-        border-radius: 34px;
-        box-shadow: 0 30px 80px -40px rgba(15,23,42,.32);
-      }
-
-      body.dark .app-wrapper {
-        background: rgba(255,255,255,.018);
-        border-color: rgba(255,255,255,.045);
-      }
-    }
-
-    @media (max-width: 520px) {
-      .app-wrapper {
-        width: 100%;
-        padding-top: max(16px, env(safe-area-inset-top));
-        padding-bottom: calc(98px + env(safe-area-inset-bottom));
-      }
-
-      .app-header {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        padding-top: 8px;
-        padding-bottom: 12px;
-        background: linear-gradient(
-          180deg,
-          var(--bg-primary) 0%,
-          color-mix(in srgb, var(--bg-primary) 82%, transparent) 72%,
-          transparent 100%
-        );
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-      }
-
-      .bottom-nav {
-        bottom: max(10px, env(safe-area-inset-bottom));
-      }
-    }
-
-    @media (max-width: 360px) {
-      .app-wrapper {
-        padding-left: 11px;
-        padding-right: 11px;
-      }
-
-      .app-header h1 {
-        font-size: 1.55rem;
-      }
-
-      .theme-toggle {
-        width: 40px;
-        height: 40px;
-      }
-
-      .goal-card {
-        border-radius: 20px;
-        padding: 16px 12px 14px;
-      }
-
-      .goal-grid {
-        padding: 8px;
-        gap: 4px;
-      }
-
-      .day-cell {
-        border-radius: 8px;
-        font-size: .64rem;
-      }
-
-      .bottom-nav {
-        width: calc(100% - 14px);
-      }
-    }
-
-    /* Respect users who prefer reduced motion. */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        scroll-behavior: auto !important;
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: .01ms !important;
-      }
-    }
-
-    /* Cleaner scrollbar on supported browsers */
+  
+    /* No touch membrane / tap flash */
     * {
-      scrollbar-width: thin;
+      -webkit-tap-highlight-color: transparent !important;
     }
 
-    ::selection {
-      background: var(--accent-soft);
-      color: var(--text-primary);
+    button, a, input, select, textarea, .goal-card, .day-cell, .nav-item,
+    .theme-toggle, .delete-goal, .future-action, .empty-btn, .modal-btn {
+      -webkit-tap-highlight-color: transparent !important;
+    }
+
+    button:focus, button:active,
+    .goal-card:focus, .goal-card:active,
+    .day-cell:focus, .day-cell:active,
+    .nav-item:focus, .nav-item:active,
+    .theme-toggle:focus, .theme-toggle:active,
+    .delete-goal:focus, .delete-goal:active,
+    .future-action:focus, .future-action:active,
+    .empty-btn:focus, .empty-btn:active {
+      -webkit-tap-highlight-color: transparent !important;
+      outline: none;
     }
 
   </style>
@@ -1292,7 +807,7 @@
   <div class="app-wrapper">
     <header class="app-header">
       <h1><i class="fas fa-arrow-up"></i> Self Improvement</h1>
-      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></div>
+      <div class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></div>
     </header>
 
     <div id="currentSection" class="section active-section"></div>
@@ -1328,7 +843,7 @@
       <div class="nav-item" data-tab="future"><i class="fas fa-calendar-plus"></i><span>Future</span></div>
       <div class="nav-item" data-tab="history"><i class="fas fa-clock-rotate-left"></i><span>History</span></div>
       <div class="nav-item" data-tab="add"><i class="fas fa-plus-circle"></i><span>Add</span></div>
-</div>
+    </div>
   </div>
 
   <!-- Popup overlay (dim) -->
@@ -2090,8 +1605,7 @@ const navItems = document.querySelectorAll('.nav-item');
 
       // Init
       loadFromStorage();
-      renderCurrent(); renderFuture(); renderHistory();
-})();
+      renderCurrent(); renderFuture(); renderHistory();})();
   </script>
 </body>
 </html>
