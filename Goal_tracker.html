@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Self Improvement • habit tracker</title>
+  <title>Self Improvement • Goal Tracker</title>
   <!-- Font Awesome 6 & Inter font -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -195,17 +195,7 @@
       background: var(--accent-soft);
       font-weight: 600;
     }
-    .nav-item.encrypt-btn {
-      color: var(--text-tertiary);
-    }
-    .nav-item.encrypt-btn i {
-      color: #e67e22;
-    }
-    body.dark .nav-item.encrypt-btn i {
-      color: #f39c12;
-    }
-
-    .section {
+.section {
       display: none;
       animation: fadeSlide 0.25s ease;
     }
@@ -774,7 +764,7 @@
       font-weight: 500;
     }
 
-    /* small tweaks for 5 nav items */
+    /* compact bottom navigation */
     .bottom-nav .nav-item {
       font-size: 0.6rem;
     }
@@ -790,6 +780,359 @@
         font-size: 1.1rem;
       }
     }
+
+    /* ---------- PREMIUM PROFESSIONAL POLISH ---------- */
+    :root {
+      --bg-primary: #f4f7fb;
+      --bg-card: rgba(255,255,255,.88);
+      --bg-card-solid: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-tertiary: #64748b;
+      --accent: #3157d5;
+      --accent-soft: #e9efff;
+      --border-light: rgba(15,23,42,.08);
+      --shadow: 0 24px 60px -28px rgba(15,23,42,.28), 0 8px 24px -14px rgba(15,23,42,.12);
+      --shadow-sm: 0 12px 30px -18px rgba(15,23,42,.24);
+      --progress-bg: #e8edf5;
+      --grid-bg: #f5f7fb;
+      --cell-bg: #ffffff;
+      --cell-completed: #d8f4e4;
+      --cell-today-border: #3157d5;
+      --cell-missed: #fff0f0;
+      --cell-missed-border: #ef6b6b;
+      --nav-bg: rgba(255,255,255,.88);
+      --popup-bg: #111827;
+      --popup-text: #ffffff;
+      --delete-btn: #c24141;
+      --modal-overlay: rgba(15,23,42,.44);
+      --success-color: #12a36a;
+      --error-color: #dc5a5a;
+      --warning-color: #d88a20;
+      --info-color: #4674d8;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 10% -5%, rgba(49,87,213,.10), transparent 32%),
+        radial-gradient(circle at 100% 20%, rgba(14,165,164,.07), transparent 28%),
+        var(--bg-primary);
+      letter-spacing: -.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,.28), transparent 30%);
+      z-index: -1;
+    }
+
+    .app-wrapper {
+      max-width: 520px;
+      padding: 22px 18px 104px;
+    }
+
+    .app-header {
+      margin-bottom: 22px;
+      padding: 8px 2px 4px;
+    }
+
+    .app-header h1 {
+      font-size: clamp(1.75rem, 7vw, 2.15rem);
+      font-weight: 780;
+      letter-spacing: -.045em;
+    }
+
+    .app-header h1 i {
+      font-size: 1.55rem;
+      margin-right: 7px;
+    }
+
+    .theme-toggle {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      font-size: 1.15rem;
+      box-shadow: 0 8px 20px -12px rgba(15,23,42,.35);
+    }
+
+    .glass-card {
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.75);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .goal-card {
+      border-radius: 24px;
+      padding: 20px 17px 17px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+    }
+
+    .goal-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .goal-header {
+      gap: 11px;
+      margin-bottom: 15px;
+      padding-right: 42px;
+    }
+
+    .goal-index {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      font-size: .92rem;
+    }
+
+    .goal-name {
+      font-size: 1.12rem;
+      font-weight: 720;
+      letter-spacing: -.025em;
+    }
+
+    .delete-goal {
+      top: 16px;
+      right: 16px;
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: var(--grid-bg);
+      color: var(--text-tertiary);
+      font-size: .92rem;
+    }
+
+    .delete-goal:hover {
+      color: var(--delete-btn);
+      background: #fff1f1;
+    }
+
+    .goal-stats {
+      margin: 14px 0 12px;
+      padding: 9px 12px;
+      border-radius: 14px;
+      font-size: .78rem;
+      border: 1px solid rgba(15,23,42,.035);
+    }
+
+    .progress-bar {
+      height: 7px;
+      margin: 12px 0 15px;
+      background: var(--progress-bg);
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, var(--accent), #6282e6);
+    }
+
+    .goal-grid {
+      gap: 5px;
+      padding: 10px;
+      border-radius: 18px;
+      background: var(--grid-bg);
+      border: 1px solid rgba(15,23,42,.035);
+    }
+
+    .day-cell {
+      border-radius: 9px;
+      font-size: .69rem;
+      box-shadow: none;
+    }
+
+    .day-cell.completed {
+      background: var(--cell-completed);
+      color: #16633f;
+    }
+
+    .day-cell.today {
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .future-action {
+      border-radius: 14px;
+      padding: 11px 14px;
+      margin-top: 14px;
+      font-size: .86rem;
+    }
+
+    .empty-state {
+      padding: 52px 22px;
+      border-radius: 28px;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      background: var(--bg-card);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 14px;
+    }
+
+    .empty-state h3 {
+      font-size: 1.35rem;
+      font-weight: 720;
+    }
+
+    .empty-state p {
+      font-size: .92rem;
+    }
+
+    .empty-state .motivation {
+      font-size: .82rem;
+      padding: 9px 13px;
+      border-radius: 14px;
+      margin: 16px 0;
+    }
+
+    .empty-btn {
+      border-radius: 13px;
+      padding: 11px 18px;
+      font-size: .88rem;
+      box-shadow: 0 10px 22px -14px var(--accent);
+    }
+
+    .add-form {
+      border-radius: 24px;
+      padding: 24px 19px 20px;
+    }
+
+    .form-group {
+      margin-bottom: 17px;
+    }
+
+    .form-group label {
+      font-size: .82rem;
+      font-weight: 680;
+      margin-bottom: 7px;
+    }
+
+    .form-group input, .form-group select {
+      padding: 13px 15px;
+      border-radius: 13px;
+      background: var(--grid-bg);
+      border: 1px solid rgba(15,23,42,.07);
+      font-size: .9rem;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .radio-group {
+      gap: 8px;
+      padding: 6px;
+      border-radius: 14px;
+    }
+
+    .radio-group label {
+      flex: 1;
+      justify-content: center;
+      padding: 8px 7px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.55);
+    }
+
+    .btn-primary {
+      border-radius: 14px;
+      padding: 13px 20px;
+      font-size: .95rem;
+      box-shadow: 0 14px 24px -14px var(--accent);
+    }
+
+    .bottom-nav {
+      bottom: 16px;
+      width: min(470px, calc(100% - 28px));
+      padding: 6px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.82);
+      box-shadow: 0 18px 45px -22px rgba(15,23,42,.38);
+    }
+
+    .nav-item {
+      gap: 3px;
+      font-size: .64rem;
+      padding: 8px 4px;
+      border-radius: 14px;
+    }
+
+    .nav-item i {
+      font-size: 1.08rem;
+    }
+
+    .nav-item.active {
+      background: var(--accent-soft);
+    }
+
+    .popup-card {
+      border-radius: 28px;
+      padding: 28px 24px;
+    }
+
+    .modal-card {
+      border-radius: 26px;
+      padding: 23px 19px;
+    }
+
+    .comment-input {
+      border-radius: 16px;
+    }
+
+    .detail-day-cell {
+      border-radius: 11px;
+    }
+
+    .reminder-box {
+      border-radius: 16px;
+      padding: 13px;
+    }
+
+    @media (max-width: 400px) {
+      .app-wrapper { padding-left: 14px; padding-right: 14px; }
+      .bottom-nav { width: calc(100% - 20px); }
+      .bottom-nav .nav-item { font-size: .58rem; }
+      .bottom-nav .nav-item i { font-size: 1rem; }
+      .goal-card { padding-left: 14px; padding-right: 14px; }
+    }
+
+    body.dark {
+      --bg-primary: #0b1120;
+      --bg-card: rgba(18,26,42,.86);
+      --bg-card-solid: #111a2b;
+      --text-primary: #f4f7ff;
+      --text-secondary: #c9d4e6;
+      --text-tertiary: #8fa0b7;
+      --accent: #7394f2;
+      --accent-soft: #1b2b50;
+      --border-light: rgba(255,255,255,.07);
+      --shadow: 0 24px 60px -25px rgba(0,0,0,.7), 0 8px 25px -15px rgba(0,0,0,.45);
+      --shadow-sm: 0 14px 32px -18px rgba(0,0,0,.65);
+      --progress-bg: #263248;
+      --grid-bg: #151f32;
+      --cell-bg: #1b2940;
+      --cell-completed: #1a4b3a;
+      --cell-today-border: #7394f2;
+      --cell-missed: #42272d;
+      --cell-missed-border: #ef7b83;
+      --nav-bg: rgba(11,17,32,.88);
+      --modal-overlay: rgba(0,0,0,.64);
+    }
+
+    body.dark .radio-group label {
+      background: rgba(255,255,255,.025);
+    }
+
+    body.dark .delete-goal:hover {
+      background: rgba(220,80,80,.12);
+    }
+
   </style>
 </head>
 <body>
@@ -832,10 +1175,7 @@
       <div class="nav-item" data-tab="future"><i class="fas fa-calendar-plus"></i><span>Future</span></div>
       <div class="nav-item" data-tab="history"><i class="fas fa-clock-rotate-left"></i><span>History</span></div>
       <div class="nav-item" data-tab="add"><i class="fas fa-plus-circle"></i><span>Add</span></div>
-      <div class="nav-item encrypt-btn" data-tab="encrypt" id="encryptNavBtn">
-        <i class="fas fa-lock"></i><span>Encrypt</span>
-      </div>
-    </div>
+</div>
   </div>
 
   <!-- Popup overlay (dim) -->
@@ -1569,31 +1909,13 @@
         document.querySelector('input[value="startNow"]').checked = true;
         renderCurrent(); renderFuture(); renderHistory();
       });
-
-      // ----- ENCRYPT NAV -----
-      // Open encryption.html in a new tab when the "Encrypt" nav item is clicked
-      const encryptNavBtn = document.getElementById('encryptNavBtn');
-      encryptNavBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        // Open encryption.html in a new tab/window
-        window.open('encryption.html', '_blank');
-        // Also remove active state from all nav items and set this as active (optional)
-        navItems.forEach(i => i.classList.remove('active'));
-        this.classList.add('active');
-        // Show a small popup feedback
-        showPopup('Opening encryption tool...', 'info');
-      });
-
       // Bottom nav
-      const navItems = document.querySelectorAll('.nav-item:not(#encryptNavBtn)');
+const navItems = document.querySelectorAll('.nav-item');
       function switchTab(tabId) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
         document.getElementById(tabId + 'Section').classList.add('active-section');
         navItems.forEach(i => i.classList.remove('active'));
         document.querySelector(`.nav-item[data-tab="${tabId}"]`)?.classList.add('active');
-        // Remove active from encrypt btn if it was active
-        encryptNavBtn.classList.remove('active');
         if (tabId === 'current') renderCurrent();
         if (tabId === 'future') renderFuture();
         if (tabId === 'history') renderHistory();
@@ -1616,12 +1938,7 @@
       // Init
       loadFromStorage();
       renderCurrent(); renderFuture(); renderHistory();
-
-      // If encryption.html is missing, show a helpful error
-      // (we can't pre-check, but the user will see a blank tab if not found)
-      // We'll catch any error silently via the popup feedback.
-
-    })();
+})();
   </script>
 </body>
 </html>
