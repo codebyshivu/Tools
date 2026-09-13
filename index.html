@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Tools | CodeByShivu</title>
+    <meta name="description" content="A collection of useful tools and mini projects by CodeByShivu">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            color: #ffffff;
+            background:
+                radial-gradient(circle at top left, rgba(99, 102, 241, 0.25), transparent 35%),
+                radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.25), transparent 35%),
+                #080b14;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: min(1150px, 92%);
+            margin: auto;
+        }
+
+        header {
+            padding: 70px 0 45px;
+            text-align: center;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            margin-bottom: 22px;
+            border-radius: 20px;
+            font-size: 30px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.30);
+        }
+
+        h1 {
+            font-size: clamp(2.3rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 18px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #818cf8, #c084fc, #f0abfc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            max-width: 700px;
+            margin: auto;
+            color: #a9b0c2;
+            font-size: 1.08rem;
+            line-height: 1.7;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+            padding: 20px 0 65px;
+        }
+
+        .tool-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 270px;
+            padding: 28px;
+            text-decoration: none;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.055);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            overflow: hidden;
+            transition: transform 0.3s ease, border-color 0.3s ease,
+                        box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .tool-card::before {
+            content: "";
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            right: -45px;
+            top: -45px;
+            border-radius: 50%;
+            background: rgba(129, 140, 248, 0.12);
+            transition: transform 0.35s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(129, 140, 248, 0.45);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.30);
+        }
+
+        .tool-card:hover::before {
+            transform: scale(2.2);
+        }
+
+        .icon {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            font-size: 29px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.22);
+        }
+
+        .tool-card:nth-child(2) .icon {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+        }
+
+        .tool-card:nth-child(3) .icon {
+            background: linear-gradient(135deg, #f97316, #ef4444);
+        }
+
+        .tool-card:nth-child(4) .icon {
+            background: linear-gradient(135deg, #10b981, #14b8a6);
+        }
+
+        .tool-card:nth-child(5) .icon {
+            background: linear-gradient(135deg, #f59e0b, #eab308);
+        }
+
+        .tool-card:nth-child(6) .icon {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+        }
+
+        .tool-card h2 {
+            position: relative;
+            z-index: 1;
+            font-size: 1.45rem;
+            margin-bottom: 10px;
+        }
+
+        .tool-card p {
+            position: relative;
+            z-index: 1;
+            color: #a8afc0;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            flex: 1;
+        }
+
+        .open-tool {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+            font-weight: 700;
+            color: #a5b4fc;
+        }
+
+        .arrow {
+            transition: transform 0.25s ease;
+        }
+
+        .tool-card:hover .arrow {
+            transform: translateX(5px);
+        }
+
+        footer {
+            padding: 25px 0 35px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            color: #737b8e;
+        }
+
+        footer a {
+            color: #a5b4fc;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 50px 0 30px;
+            }
+
+            h1 {
+                letter-spacing: -1px;
+            }
+
+            .subtitle {
+                font-size: 0.98rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                padding-bottom: 45px;
+            }
+
+            .tool-card {
+                min-height: 240px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <div class="logo">🛠️</div>
+
+            <h1>
+                My <span class="gradient-text">Tools</span>
+            </h1>
+
+            <p class="subtitle">
+                Welcome to my collection of useful tools, trackers, games
+                and mini projects. Choose any tool below to get started.
+            </p>
+        </header>
+
+        <main class="tools-grid">
+
+            <!-- Encryption -->
+            <a class="tool-card" href="encryption.html">
+                <div class="icon">🔐</div>
+
+                <h2>Encryption Tool</h2>
+
+                <p>
+                    Encrypt and decrypt your text with a simple and easy-to-use
+                    interface.
+                </p>
+
+                <div class="open-tool">
+                    Open Tool
+                    <span class="arrow">→</span>
+                </div>
+            </a>
+
+            <!-- Tracker -->
+            <a class="tool-card" href="Tracker.html">
+                <div class="icon">📊</div>
+
+                <h2>Tracker</h2>
+
+                <p>
+                    Track your important activities, progress and daily
+                    information in one place.
+                </p>
+
+                <div class="open-tool">
+                    Open Tool
+                    <span class="arrow">→</span>
+                </div>
+            </a>
+
+            <!-- Block Game -->
+            <a class="tool-card" href="Block_game.html">
+                <div class="icon">🎮</div>
+
+                <h2>Block Game</h2>
+
+                <p>
+                    Take a break and enjoy this fun block-based mini game.
+                </p>
+
+                <div class="open-tool">
+                    Play Game
+                    <span class="arrow">→</span>
+                </div>
+            </a>
+
+            <!-- Goal Tracker -->
+            <a class="tool-card" href="Goal_tracker.html">
+                <div class="icon">🎯</div>
+
+                <h2>Goal Tracker</h2>
+
+                <p>
+                    Set your goals, monitor your progress and stay focused
+                    on what matters.
+                </p>
+
+                <div class="open-tool">
+                    Open Tool
+                    <span class="arrow">→</span>
+                </div>
+            </a>
+
+            <!-- India -->
+            <a class="tool-card" href="India.html">
+                <div class="icon">🇮🇳</div>
+
+                <h2>India Tool</h2>
+
+                <p>
+                    Explore this India-focused tool and useful information
+                    in a simple interface.
+                </p>
+
+                <div class="open-tool">
+                    Open Tool
+                    <span class="arrow">→</span>
+                </div>
+            </a>
+
+            <!-- Snake -->
+            <a class="tool-card" href="snake.html">
+                <div class="icon">🐍</div>
+
+                <h2>Snake Game</h2>
+
+                <p>
+                    Play the classic snake game and try to beat your
+                    highest score.
+                </p>
+
+                <div class="open-tool">
+                    Play Game
+                    <span class="arrow">→</span>
+                </div>
+            </a>
+
+        </main>
+
+        <footer>
+            © 2026
+            <a href="https://github.com/codebyshivu/Tools" target="_blank" rel="noopener">
+                CodeByShivu
+            </a>
+            · All Tools
+        </footer>
+
+    </div>
+
+</body>
+</html>
