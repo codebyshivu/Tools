@@ -716,10 +716,19 @@
         </div>
         <div id="generalTab" class="tab-content active">
             <div class="setting-group">
-                <div style="padding:0.8rem 1rem; border:1px solid rgba(59,130,246,0.3); border-radius:1rem; background:rgba(30,41,59,0.35); color:#cbd5e6; font-size:0.82rem; line-height:1.5;">
-                    🔐 <strong>Secure API connection</strong><br>
-                    API requests are sent through the server. Your API key is never stored in this browser and is not included in the page source.
+                <label>🔐 AI Connection</label>
+                <div style="font-size:0.75rem; color:#86efac; padding:8px 10px; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); border-radius:1rem;">
+                    ● Secure backend connection
                 </div>
+                <div style="font-size:0.65rem; margin-top:4px; color:#6c86a3;">
+                    API credentials are managed securely by the backend and are never stored in this browser.
+                </div>
+            </div>
+            <div class="setting-group">
+                <label>🌐 API Endpoint</label>
+                <select id="endpointSelect">
+                    <option value="https://still-sound-1258.earnmoney100a.workers.dev/">BharatAI Secure Backend</option>
+                </select>
             </div>
             <div class="setting-group">
                 <label>🤖 Model</label>
@@ -854,6 +863,10 @@
     let currentAbortController = null;
 
     // API & Language
+    // The OpenRouter API key is NEVER stored in this HTML, localStorage, or the browser.
+    // All AI requests go through the Cloudflare Worker.
+    const WORKER_URL = "https://still-sound-1258.earnmoney100a.workers.dev/";
+    let endpoint = WORKER_URL;
     let model = "deepseek/deepseek-chat";
     let systemPrompt = "";
     let responseLanguage = "hinglish";
@@ -873,6 +886,7 @@
     const settingsModal = document.getElementById('settingsModal');
     const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
     const saveSettingsModalBtn = document.getElementById('saveSettingsModalBtn');
+    const endpointSelect = document.getElementById('endpointSelect');
     const modelSelect = document.getElementById('modelSelect');
     const languageSelect = document.getElementById('languageSelect');
     const systemPromptTextarea = document.getElementById('systemPrompt');
@@ -1001,6 +1015,9 @@
         } else {
             conversations = [];
         }
+        // API key is intentionally NOT loaded from localStorage.
+        // The only endpoint is the Cloudflare Worker.
+        endpoint = WORKER_URL;
         const savedModel = localStorage.getItem('model');
         if (savedModel) model = savedModel;
         const savedSys = localStorage.getItem('system_prompt');
@@ -1017,6 +1034,8 @@
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) themeSelect.value = savedTheme;
 
+        endpoint = WORKER_URL;
+        endpointSelect.value = WORKER_URL;
         modelSelect.value = model;
         languageSelect.value = responseLanguage;
         systemPromptTextarea.value = systemPrompt;
@@ -1044,6 +1063,9 @@
 
     function saveAll() {
         localStorage.setItem('bharatai_conversations', JSON.stringify(conversations));
+        // Never persist API credentials or arbitrary API endpoints in browser storage.
+        localStorage.removeItem('api_key');
+        localStorage.removeItem('api_endpoint');
         localStorage.setItem('model', model);
         localStorage.setItem('system_prompt', systemPrompt);
         localStorage.setItem('response_language', responseLanguage);
@@ -1384,8 +1406,6 @@
     }
 
     // ---------- API call ----------
-    // API keys are NEVER kept in this HTML. All AI requests go to the same-origin /api/chat server endpoint.
-
     function getLanguageInstruction() {
         let toneInstruction = "Respond in a natural, human-like conversational tone. Avoid robotic or overly formal language. Be friendly, warm, and helpful. Use casual expressions when appropriate.";
         if (responseLanguage === 'auto') {
@@ -1440,7 +1460,7 @@
         let accumulated = "";
 
         try {
-            const response = await fetch('/api/chat', {
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ model, messages, stream: true, temperature: 0.8, max_tokens: 2048 }),
@@ -1488,7 +1508,7 @@
         } catch (err) {
             if (err.name !== 'AbortError') {
                 updateAssistantBubble(bubble, `⚠️ Error: ${err.message}`);
-                statusSpan.innerHTML = '❌ Server/API error';
+                statusSpan.innerHTML = '❌ API error';
             } else {
                 statusSpan.innerHTML = '⏹️ Cancelled';
             }
@@ -1592,6 +1612,9 @@
     function openSettings() { settingsModal.classList.add('active'); }
     function closeSettings() { settingsModal.classList.remove('active'); }
     function saveSettings() {
+        apiKey = apiKeyInput.value;
+        endpoint = WORKER_URL;
+        endpointSelect.value = WORKER_URL;
         model = modelSelect.value;
         systemPrompt = systemPromptTextarea.value;
         responseLanguage = languageSelect.value;
@@ -1605,7 +1628,9 @@
     }
 
     function resetSettings() {
-        if (confirm("Reset all settings to defaults? This will clear your preferences.")) {
+        if (confirm("Reset all settings to defaults? This will clear your API key and preferences.")) {
+            localStorage.removeItem('api_key');
+            localStorage.removeItem('api_endpoint');
             localStorage.removeItem('model');
             localStorage.removeItem('system_prompt');
             localStorage.removeItem('response_language');
@@ -1613,6 +1638,7 @@
             localStorage.removeItem('display_name');
             localStorage.removeItem('user_email');
             localStorage.removeItem('theme');
+                endpoint = "https://openrouter.ai/api/v1/chat/completions";
             model = "deepseek/deepseek-chat";
             systemPrompt = "";
             responseLanguage = "hinglish";
@@ -1620,6 +1646,8 @@
             displayNameInput.value = "User";
             userEmailInput.value = "";
             themeSelect.value = "dark";
+            apiKeyInput.value = "";
+            endpointSelect.value = endpoint;
             modelSelect.value = model;
             languageSelect.value = responseLanguage;
             systemPromptTextarea.value = "";
@@ -1680,6 +1708,10 @@
         btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
     });
 
+    // Security migration: remove any API key that may have been saved by older versions.
+    localStorage.removeItem('api_key');
+    localStorage.removeItem('api_endpoint');
+    endpoint = WORKER_URL;
     loadData();
 </script>
 </body>
