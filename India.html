@@ -716,16 +716,10 @@
         </div>
         <div id="generalTab" class="tab-content active">
             <div class="setting-group">
-                <label>🔑 API Key (OpenRouter / DeepSeek)</label>
-                <input type="password" id="apiKeyInput" placeholder="Enter your API key here">
-                <div style="font-size:0.65rem; margin-top:4px; color:#6c86a3;">Stored only in your browser (localStorage)</div>
-            </div>
-            <div class="setting-group">
-                <label>🌐 API Endpoint</label>
-                <select id="endpointSelect">
-                    <option value="https://openrouter.ai/api/v1/chat/completions">OpenRouter</option>
-                    <option value="https://api.deepseek.com/v1/chat/completions">DeepSeek Official</option>
-                </select>
+                <div style="padding:0.8rem 1rem; border:1px solid rgba(59,130,246,0.3); border-radius:1rem; background:rgba(30,41,59,0.35); color:#cbd5e6; font-size:0.82rem; line-height:1.5;">
+                    🔐 <strong>Secure API connection</strong><br>
+                    API requests are sent through the server. Your API key is never stored in this browser and is not included in the page source.
+                </div>
             </div>
             <div class="setting-group">
                 <label>🤖 Model</label>
@@ -860,8 +854,6 @@
     let currentAbortController = null;
 
     // API & Language
-    let apiKey = "";
-    let endpoint = "https://openrouter.ai/api/v1/chat/completions";
     let model = "deepseek/deepseek-chat";
     let systemPrompt = "";
     let responseLanguage = "hinglish";
@@ -881,8 +873,6 @@
     const settingsModal = document.getElementById('settingsModal');
     const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
     const saveSettingsModalBtn = document.getElementById('saveSettingsModalBtn');
-    const apiKeyInput = document.getElementById('apiKeyInput');
-    const endpointSelect = document.getElementById('endpointSelect');
     const modelSelect = document.getElementById('modelSelect');
     const languageSelect = document.getElementById('languageSelect');
     const systemPromptTextarea = document.getElementById('systemPrompt');
@@ -1011,10 +1001,6 @@
         } else {
             conversations = [];
         }
-        const savedKey = localStorage.getItem('api_key');
-        if (savedKey) apiKey = savedKey;
-        const savedEndpoint = localStorage.getItem('api_endpoint');
-        if (savedEndpoint) endpoint = savedEndpoint;
         const savedModel = localStorage.getItem('model');
         if (savedModel) model = savedModel;
         const savedSys = localStorage.getItem('system_prompt');
@@ -1031,8 +1017,6 @@
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) themeSelect.value = savedTheme;
 
-        apiKeyInput.value = apiKey;
-        endpointSelect.value = endpoint;
         modelSelect.value = model;
         languageSelect.value = responseLanguage;
         systemPromptTextarea.value = systemPrompt;
@@ -1060,8 +1044,6 @@
 
     function saveAll() {
         localStorage.setItem('bharatai_conversations', JSON.stringify(conversations));
-        localStorage.setItem('api_key', apiKey);
-        localStorage.setItem('api_endpoint', endpoint);
         localStorage.setItem('model', model);
         localStorage.setItem('system_prompt', systemPrompt);
         localStorage.setItem('response_language', responseLanguage);
@@ -1402,6 +1384,8 @@
     }
 
     // ---------- API call ----------
+    // API keys are NEVER kept in this HTML. All AI requests go to the same-origin /api/chat server endpoint.
+
     function getLanguageInstruction() {
         let toneInstruction = "Respond in a natural, human-like conversational tone. Avoid robotic or overly formal language. Be friendly, warm, and helpful. Use casual expressions when appropriate.";
         if (responseLanguage === 'auto') {
@@ -1435,19 +1419,6 @@
             return;
         }
 
-        if (!apiKey) {
-            statusSpan.innerHTML = '⚠️ Missing API key. Please add it in Settings → General.';
-            if (!skipAddToUI) {
-                addUserMessageToUI(userText);
-                const conv = conversations.find(c => c.id === currentConvId);
-                conv.messages.push({ role: 'assistant', content: '🔑 Please set your API key in the settings (gear icon) before chatting. Your key is stored only in your browser.', timestamp: new Date().toISOString() });
-                conv.updatedAt = new Date().toISOString();
-                saveAll();
-                renderCurrentChat();
-            }
-            return;
-        }
-
         if (!skipAddToUI) addUserMessageToUI(userText);
 
         const conv = conversations.find(c => c.id === currentConvId);
@@ -1469,9 +1440,9 @@
         let accumulated = "";
 
         try {
-            const response = await fetch(endpoint, {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ model, messages, stream: true, temperature: 0.8, max_tokens: 2048 }),
                 signal: controller.signal
             });
@@ -1517,7 +1488,7 @@
         } catch (err) {
             if (err.name !== 'AbortError') {
                 updateAssistantBubble(bubble, `⚠️ Error: ${err.message}`);
-                statusSpan.innerHTML = '❌ API error';
+                statusSpan.innerHTML = '❌ Server/API error';
             } else {
                 statusSpan.innerHTML = '⏹️ Cancelled';
             }
@@ -1621,8 +1592,6 @@
     function openSettings() { settingsModal.classList.add('active'); }
     function closeSettings() { settingsModal.classList.remove('active'); }
     function saveSettings() {
-        apiKey = apiKeyInput.value;
-        endpoint = endpointSelect.value;
         model = modelSelect.value;
         systemPrompt = systemPromptTextarea.value;
         responseLanguage = languageSelect.value;
@@ -1636,9 +1605,7 @@
     }
 
     function resetSettings() {
-        if (confirm("Reset all settings to defaults? This will clear your API key and preferences.")) {
-            localStorage.removeItem('api_key');
-            localStorage.removeItem('api_endpoint');
+        if (confirm("Reset all settings to defaults? This will clear your preferences.")) {
             localStorage.removeItem('model');
             localStorage.removeItem('system_prompt');
             localStorage.removeItem('response_language');
@@ -1646,8 +1613,6 @@
             localStorage.removeItem('display_name');
             localStorage.removeItem('user_email');
             localStorage.removeItem('theme');
-            apiKey = "";
-            endpoint = "https://openrouter.ai/api/v1/chat/completions";
             model = "deepseek/deepseek-chat";
             systemPrompt = "";
             responseLanguage = "hinglish";
@@ -1655,8 +1620,6 @@
             displayNameInput.value = "User";
             userEmailInput.value = "";
             themeSelect.value = "dark";
-            apiKeyInput.value = "";
-            endpointSelect.value = endpoint;
             modelSelect.value = model;
             languageSelect.value = responseLanguage;
             systemPromptTextarea.value = "";
