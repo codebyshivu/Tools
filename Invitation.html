@@ -4,1461 +4,1165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#ffe5ee">
-<title>For Himani ❤️ A Special Birthday Invitation</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Happy Birthday, Cookie ❤️</title>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --pink: #ff4383;
-    --light: #fff0f5;
-    --dark: #301c2b;
-    --muted: #927582;
+  --pink: #ff6fae;
+  --light-pink: #ffe0ef;
+  --dark-pink: #e84393;
+  --purple: #b58cff;
+  --cream: #fff7fb;
+  --text: #763d5b;
 }
 
-html {
-    scroll-behavior: smooth;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background: #fff7fa;
-    color: var(--dark);
-    overflow-x: hidden;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #fff0f7, #fce5ff, #ffe9ef);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button, input {
+  font-family: inherit;
 }
 
 button {
-    font-family: inherit;
-    cursor: pointer;
-    border: none;
-    -webkit-tap-highlight-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: .25s;
 }
 
-button:active {
-    transform: scale(.95);
+button:hover {
+  transform: scale(1.05);
 }
 
-section {
-    padding: 75px 18px;
+.screen {
+  min-height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 25px 16px;
+  text-align: center;
+  position: relative;
 }
 
-.script {
-    font-family: 'Great Vibes', cursive;
-    color: var(--pink);
+.screen.active {
+  display: flex;
+  animation: fadeIn .7s ease;
 }
 
-.heading {
-    text-align: center;
-    font-size: clamp(26px, 7vw, 36px);
-    margin-bottom: 12px;
+.container {
+  width: 100%;
+  max-width: 650px;
+  padding: 35px 25px;
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 30px;
+  box-shadow: 0 15px 50px rgba(228, 120, 172, .17);
+  position: relative;
+  z-index: 2;
 }
 
-.subheading {
-    text-align: center;
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.9;
-    margin-bottom: 35px;
+h1, h2 {
+  font-family: 'Pacifico', cursive;
+  color: var(--dark-pink);
+  font-weight: 400;
 }
 
-.pink-btn {
-    display: inline-block;
-    background: linear-gradient(135deg,#ff5791,#df286d);
-    color: white;
-    padding: 15px 28px;
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: 0 9px 25px #e936792e;
-    transition: .3s;
+h1 {
+  font-size: clamp(2.1rem, 8vw, 3.5rem);
+  line-height: 1.4;
 }
 
-/* FLOATING ANIMATIONS */
-
-.float-item {
-    position: fixed;
-    bottom: -40px;
-    pointer-events: none;
-    z-index: 100;
-    animation: floatUp linear forwards;
+h2 {
+  font-size: clamp(1.7rem, 6vw, 2.5rem);
+  margin-bottom: 15px;
 }
 
-@keyframes floatUp {
-    to {
-        transform: translateY(-115vh) rotate(360deg);
-        opacity: 0;
-    }
+p {
+  line-height: 1.8;
+  margin: 12px 0;
+}
+
+.big-heart {
+  font-size: 85px;
+  display: inline-block;
+  animation: heartbeat 1.4s infinite;
+}
+
+.btn {
+  background: linear-gradient(135deg, #ff72b1, #c98bff);
+  color: white;
+  padding: 14px 28px;
+  border-radius: 50px;
+  margin: 12px 6px;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 7px 20px rgba(230, 90, 165, .25);
+}
+
+.btn.secondary {
+  background: white;
+  color: var(--dark-pink);
+  border: 2px solid #ffd0e5;
+  box-shadow: none;
+}
+
+input {
+  width: 100%;
+  max-width: 280px;
+  padding: 14px;
+  border-radius: 15px;
+  border: 2px solid #ffd2e6;
+  text-align: center;
+  font-size: 18px;
+  outline: none;
+  margin: 15px 0;
+  background: #fffafd;
+  color: var(--text);
+}
+
+input:focus {
+  border-color: var(--pink);
+}
+
+.error {
+  color: #e05282;
+  min-height: 25px;
+  font-size: 14px;
+}
+
+.small {
+  font-size: 13px;
+  opacity: .8;
+}
+
+.floating {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  animation: floatUp 8s linear infinite;
+  opacity: .45;
+  font-size: 25px;
+}
+
+.progress {
+  width: 100%;
+  height: 8px;
+  background: #ffe1ef;
+  border-radius: 20px;
+  margin: 20px 0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff72b1, #c98bff);
+  border-radius: 20px;
+  transition: width .4s;
+}
+
+/* BALLOONS */
+
+.balloon-area {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin: 25px 0;
+  min-height: 180px;
+}
+
+.balloon {
+  width: 90px;
+  height: 115px;
+  border-radius: 50% 50% 45% 45%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  position: relative;
+  color: white;
+  animation: balloonFloat 2.3s ease-in-out infinite;
+  box-shadow: inset -10px -10px 18px rgba(0,0,0,.06);
+}
+
+.balloon::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  left: 42px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 12px solid currentColor;
+}
+
+.balloon::before {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 55px;
+  background: rgba(180,100,150,.35);
+  bottom: -65px;
+}
+
+.balloon:nth-child(1) { background: #ff7eb5; animation-delay: 0s; }
+.balloon:nth-child(2) { background: #b58cff; animation-delay: .4s; }
+.balloon:nth-child(3) { background: #ffb86c; animation-delay: .8s; }
+.balloon:nth-child(4) { background: #74d7d2; animation-delay: 1.2s; }
+
+.balloon.popped {
+  animation: pop .35s forwards;
+  pointer-events: none;
+}
+
+.surprise-box {
+  display: none;
+  background: linear-gradient(135deg, #fff0f8, #f7edff);
+  border-radius: 20px;
+  padding: 20px;
+  margin: 15px 0;
+  animation: fadeIn .6s;
+  border: 1px dashed #f4a3ce;
+}
+
+.surprise-box.show {
+  display: block;
+}
+
+.surprise-number {
+  color: var(--pink);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* BIRTHDAY */
+
+.cake {
+  font-size: 110px;
+  animation: bounce 1.8s infinite;
+  margin: 15px;
+}
+
+.birthday-message {
+  background: #fff2f8;
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 20px;
+  line-height: 2;
+}
+
+/* LOVE LETTERS */
+
+.letter {
+  background: #fff7fb;
+  border: 1px solid #ffe0ef;
+  border-radius: 20px;
+  padding: 28px 20px;
+  min-height: 190px;
+  margin: 20px 0;
+  box-shadow: 0 5px 20px rgba(220, 100, 160, .1);
+}
+
+.letter-emoji {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.letter-text {
+  font-size: 17px;
+  line-height: 1.9;
+}
+
+/* GAME 1 */
+
+.heart-game {
+  height: 280px;
+  position: relative;
+  background: linear-gradient(135deg, #fff0f7, #f8edff);
+  border-radius: 25px;
+  margin: 20px 0;
+  overflow: hidden;
+  border: 2px dashed #ffc9e2;
+}
+
+.catch-heart {
+  position: absolute;
+  font-size: 36px;
+  background: none;
+  animation: heartBounce .7s infinite alternate;
+  cursor: pointer;
+  user-select: none;
+}
+
+.score {
+  font-size: 23px;
+  font-weight: 600;
+  color: var(--dark-pink);
+}
+
+/* GAME 2 */
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 360px;
+  margin: 20px auto;
+}
+
+.memory-card {
+  background: #ffd9ed;
+  height: 75px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 27px;
+  cursor: pointer;
+  transition: .3s;
+  border: 2px solid white;
+}
+
+.memory-card.open {
+  background: white;
+  transform: rotateY(180deg);
+}
+
+.memory-card.matched {
+  background: #e7d6ff;
+  cursor: default;
+}
+
+/* FINAL */
+
+.final-card {
+  background: linear-gradient(135deg, #fff1f8, #f1e9ff);
+  border-radius: 25px;
+  padding: 28px;
+  margin: 20px 0;
+}
+
+.final-heart {
+  font-size: 80px;
+  animation: heartbeat 1.2s infinite;
+}
+
+/* CONFETTI */
+
+.confetti {
+  position: fixed;
+  top: -20px;
+  z-index: 99;
+  pointer-events: none;
+  animation: confettiFall 4s linear forwards;
+}
+
+/* ANIMATIONS */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes heartbeat {
-    0%,100% {transform: scale(1);}
-    50% {transform: scale(1.15);}
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.18); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.12); }
 }
 
-@keyframes appear {
-    from {opacity: 0; transform: translateY(20px) scale(.95);}
-    to {opacity: 1; transform: translateY(0) scale(1);}
+@keyframes floatUp {
+  0% { transform: translateY(100vh) rotate(0deg); }
+  100% { transform: translateY(-120vh) rotate(360deg); }
 }
 
-/* WELCOME */
-
-.hero {
-    min-height: 100svh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 35px 20px;
-    background:
-        radial-gradient(circle at 15% 15%,#ffd1e1,transparent 40%),
-        radial-gradient(circle at 90% 85%,#ffc0d5,transparent 40%),
-        linear-gradient(135deg,#fff1f6,#ffe0ec);
-    position: relative;
-    overflow: hidden;
-}
-
-.hero-content {
-    max-width: 650px;
-    position: relative;
-    z-index: 2;
-    animation: appear 1s ease;
-}
-
-.tag {
-    display: inline-block;
-    background: white;
-    color: #e83d7a;
-    border-radius: 40px;
-    padding: 10px 20px;
-    font-size: 11px;
-    letter-spacing: 2px;
-    margin-bottom: 25px;
-    box-shadow: 0 5px 20px #e83d7a17;
-}
-
-.hero h1 {
-    font-size: clamp(33px,8vw,60px);
-    line-height: 1.3;
-}
-
-.hero .script {
-    display: block;
-    font-size: clamp(65px,15vw,105px);
-    line-height: 1.3;
-}
-
-.hero p {
-    max-width: 420px;
-    margin: 18px auto 25px;
-    color: #886c7a;
-    font-size: 13px;
-    line-height: 2;
-}
-
-.hero-heart {
-    font-size: 55px;
-    display: block;
-    margin: 15px;
-    animation: heartbeat 1.3s infinite;
-}
-
-/* NAVIGATION */
-
-.nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    display: flex;
-    justify-content: center;
-    gap: 7px;
-    padding: 12px 7px;
-    background: #ffffffed;
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid #ffe0eb;
-    overflow-x: auto;
-}
-
-.nav a {
-    text-decoration: none;
-    white-space: nowrap;
-    color: #d9437a;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 30px;
-    background: #fff1f6;
-}
-
-/* INTRO */
-
-.intro {
-    background: white;
-    text-align: center;
-}
-
-.intro h2 {
-    font-family: 'Great Vibes', cursive;
-    font-size: clamp(48px,11vw,72px);
-    color: var(--pink);
-    margin: 15px;
-}
-
-.intro p {
-    max-width: 480px;
-    margin: auto;
-    font-size: 14px;
-    color: var(--muted);
-    line-height: 2;
-}
-
-/* INVITATION CARDS */
-
-.invitation {
-    background: #fff6f9;
-}
-
-.cards {
-    max-width: 750px;
-    margin: auto;
-    display: grid;
-    grid-template-columns: repeat(2,minmax(0,1fr));
-    gap: 15px;
-}
-
-.card {
-    background: white;
-    padding: 25px 14px;
-    border-radius: 22px;
-    border: 1px solid #ffe0eb;
-    text-align: center;
-    box-shadow: 0 8px 25px #e9448110;
-    transition: .3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card .emoji {
-    font-size: 40px;
-    display: block;
-    margin-bottom: 12px;
-}
-
-.card h3 {
-    color: #e63c78;
-    font-size: 15px;
-    margin-bottom: 8px;
-}
-
-.card p {
-    color: var(--muted);
-    font-size: 11px;
-    line-height: 1.8;
-}
-
-.card button {
-    margin-top: 15px;
-    background: #fff0f5;
-    color: #e63c78;
-    border-radius: 30px;
-    padding: 10px 14px;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-/* LOVE LETTER */
-
-.letter-section {
-    background: linear-gradient(135deg,#ffe9f1,#fff7fa);
-    text-align: center;
-}
-
-.letter {
-    background: white;
-    max-width: 540px;
-    margin: auto;
-    padding: 30px 25px;
-    border-radius: 25px;
-    box-shadow: 0 15px 45px #d63b7514;
-    text-align: left;
-    color: #806777;
-    font-size: 13px;
-    line-height: 2.2;
-}
-
-.letter h2 {
-    font-family: 'Great Vibes',cursive;
-    color: #ef4380;
-    font-size: 49px;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.letter-sign {
-    font-family: 'Great Vibes',cursive;
-    color: #ed3e7b;
-    font-size: 35px;
-    margin-top: 20px;
-}
-
-/* LOVE WORLD */
-
-.love-world {
-    background: white;
-}
-
-.love-card {
-    max-width: 490px;
-    margin: 20px auto;
-    padding: 28px 20px;
-    border-radius: 25px;
-    background: #fff8fa;
-    border: 1px solid #ffe0eb;
-    box-shadow: 0 10px 30px #d9437910;
-    text-align: center;
-}
-
-.big-emoji {
-    font-size: 43px;
-    margin-bottom: 15px;
-}
-
-.love-card h3 {
-    color: #df3474;
-    font-size: 18px;
-    margin-bottom: 12px;
-}
-
-.love-card p {
-    color: #927582;
-    font-size: 12px;
-    line-height: 2;
-}
-
-.love-card button {
-    background: linear-gradient(135deg,#ff5791,#df286d);
-    color: white;
-    border-radius: 40px;
-    padding: 13px 23px;
-    margin-top: 18px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.love-answer {
-    display: none;
-    background: #ffedf3;
-    padding: 17px;
-    border-radius: 16px;
-    color: #e43c78;
-    font-size: 13px;
-    line-height: 2;
-    margin-top: 20px;
-    animation: appear .4s;
-}
-
-#loveMeter {
-    width: 100%;
-    margin: 23px 0 12px;
-    accent-color: #ed3e7b;
-}
-
-#lovePercent {
-    color: #ed3e7b;
-    font-size: 32px;
-    margin: 10px;
-}
-
-.secret-box {
-    max-width: 490px;
-    margin: 35px auto;
-    padding: 35px 22px;
-    background: linear-gradient(145deg,#301c30,#71354f);
-    color: white;
-    text-align: center;
-    border-radius: 28px;
-    box-shadow: 0 15px 40px #50243e35;
-}
-
-.secret-box h2 {
-    font-family: 'Great Vibes',cursive;
-    font-size: 44px;
-    color: #ffb8d0;
-}
-
-.secret-box p {
-    font-size: 12px;
-    line-height: 2;
-    color: #ffe1ed;
-    margin: 15px;
-}
-
-.secret-heart {
-    height: 75px;
-    width: 75px;
-    border-radius: 50%;
-    background: #ff4c89;
-    color: white;
-    font-size: 35px;
-    animation: heartbeat 1.3s infinite;
-    box-shadow: 0 0 30px #ff4c8970;
-}
-
-#secretMessage {
-    display: none;
-    margin-top: 25px;
-    color: #ffd8e6;
-    font-size: 13px;
-    line-height: 2.2;
-    animation: appear .5s;
-}
-
-/* BIRTHDAY DETAILS */
-
-.details {
-    background: #fff4f8;
-    text-align: center;
-}
-
-.detail-box {
-    max-width: 460px;
-    margin: auto;
-    background: linear-gradient(140deg,#ff508a,#d72b6e);
-    color: white;
-    border-radius: 26px;
-    padding: 25px;
-    box-shadow: 0 15px 35px #e83e7a30;
-}
-
-.detail-box div {
-    padding: 17px 5px;
-    border-bottom: 1px solid #ffffff35;
-}
-
-.detail-box div:last-child {
-    border: none;
-}
-
-.detail-box small {
-    display: block;
-    opacity: .8;
-    font-size: 10px;
-    margin-bottom: 7px;
-    letter-spacing: 1px;
-}
-
-.detail-box strong {
-    font-size: 15px;
-}
-
-/* PROMISE */
-
-.promise {
-    background: white;
-    text-align: center;
-}
-
-.promise-box {
-    max-width: 500px;
-    margin: auto;
-    padding: 35px 24px;
-    border-radius: 25px;
-    background: #fff0f5;
-    border: 1px solid #ffdce8;
-}
-
-.promise-box h2 {
-    font-family: 'Great Vibes',cursive;
-    font-size: 50px;
-    color: #e83d7a;
-}
-
-.promise-box p {
-    font-size: 13px;
-    color: #927582;
-    line-height: 2;
-    margin: 18px 0;
-}
-
-/* FINAL QUESTION */
-
-.final {
-    background: linear-gradient(145deg,#ffe4ee,#fff1f6);
-    text-align: center;
-    padding: 85px 20px;
-}
-
-.final h2 {
-    font-family: 'Great Vibes',cursive;
-    color: #ed3e7b;
-    font-size: clamp(55px,12vw,80px);
-}
-
-.final p {
-    color: #876978;
-    max-width: 410px;
-    margin: 20px auto;
-    font-size: 13px;
-    line-height: 2;
-}
-
-.answer-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 25px;
-}
-
-.answer-buttons button {
-    padding: 15px 25px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 600;
+@keyframes balloonFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 
-.yes {
-    background: #ed3e7b;
-    color: white;
-    box-shadow: 0 8px 20px #ed3e7b35;
+@keyframes pop {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: .7; }
+  100% { transform: scale(0); opacity: 0; }
 }
 
-.think {
-    background: white;
-    color: #e83d79;
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
 }
 
-#finalResponse {
-    display: none;
-    max-width: 450px;
-    margin: 30px auto 0;
-    padding: 22px;
-    background: white;
-    border-radius: 20px;
-    color: #e83d79;
-    font-size: 14px;
-    line-height: 2;
-    animation: appear .5s;
+@keyframes heartBounce {
+  from { transform: scale(.9); }
+  to { transform: scale(1.2); }
 }
 
-/* FOOTER */
-
-footer {
-    padding: 35px 15px;
-    background: #2e1b2c;
-    color: #ffd2e1;
-    text-align: center;
-    font-size: 12px;
-    line-height: 2;
-}
-
-footer span {
-    color: #ff5b92;
-}
-
-/* MODAL */
-
-.modal {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    background: #20101cc9;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.modal-content {
-    background: white;
-    padding: 35px 25px;
-    border-radius: 26px;
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    animation: appear .4s;
+@keyframes confettiFall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
 }
 
-.modal-content h2 {
-    font-family: 'Great Vibes',cursive;
-    font-size: 45px;
-    color: #ed3e7b;
-    margin-bottom: 15px;
-}
-
-.modal-content p {
-    font-size: 13px;
-    line-height: 2;
-    color: #866c7b;
-}
-
-.modal-content button {
-    background: #ed3e7b;
-    color: white;
-    padding: 13px 25px;
-    border-radius: 40px;
-    margin-top: 20px;
-}
-
-/* MOBILE */
+@media(max-width: 450px) {
+  .container {
+    padding: 25px 17px;
+  }
 
-@media(max-width: 430px) {
-    section {
-        padding: 60px 15px;
-    }
+  .balloon {
+    width: 70px;
+    height: 90px;
+  }
 
-    .cards {
-        gap: 10px;
-    }
+  .balloon::after {
+    left: 32px;
+  }
 
-    .card {
-        padding: 20px 9px;
-    }
-
-    .card h3 {
-        font-size: 13px;
-    }
-
-    .nav a {
-        font-size: 9px;
-        padding: 8px 10px;
-    }
+  .memory-card {
+    height: 65px;
+  }
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- WELCOME SCREEN -->
+<!-- Background floating hearts -->
+<div id="backgroundHearts"></div>
 
-<section class="hero" id="home">
+<!-- SCREEN 1: LOCK -->
+<section class="screen active" id="screen1">
+  <div class="container">
+    <div class="big-heart">🔐</div>
 
-    <div class="hero-content">
-
-        <div class="tag">💌 A VERY SPECIAL INVITATION</div>
-
-        <span class="hero-heart">💗</span>
-
-        <h1>
-            Hey Beautiful,
-            <span class="script">Himani 😍</span>
-        </h1>
-
-        <p>
-            Someone has a birthday coming up...
-            And there's one special person without whom
-            this celebration would never feel complete.
-            Can you guess who? 🤭
-        </p>
-
-        <button class="pink-btn" onclick="openWelcome()">
-            Open Your Surprise 💖
-        </button>
-
-        <p style="font-size:11px">
-            Made with endless love, especially for you.
-        </p>
-
-    </div>
-
-</section>
-
-
-<!-- NAVIGATION -->
-
-<nav class="nav">
-    <a href="#home">Home 🏠</a>
-    <a href="#invitation">Invites 💌</a>
-    <a href="#letter">Love Letter ❤️</a>
-    <a href="#love">Love Questions 🥰</a>
-    <a href="#birthday">Birthday 🎂</a>
-    <a href="#final">Answer 💗</a>
-</nav>
-
-
-<!-- INTRO -->
-
-<section class="intro">
-
-    <h2>Dear Himani...</h2>
+    <h1>Hey, My Cookie!</h1>
 
     <p>
-        I could have sent you a normal invitation,
-        but you're not an ordinary person to me.
-        So I created this little corner of happiness
-        just for you. ❤️
-        <br><br>
-        Now explore it, smile a little, and don't skip
-        the surprises at the end! 🤭
+      A little something has been made<br>
+      especially for you...
     </p>
 
+    <p>But first, you need the secret password 💗</p>
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Enter the secret password"
+      maxlength="20"
+    >
+
+    <div class="error" id="error"></div>
+
+    <button class="btn" onclick="unlock()">Unlock My Surprise ❤️</button>
+
+    <p class="small">Hint: A special year 😉</p>
+  </div>
 </section>
 
+<!-- SCREEN 2: BALLOONS -->
+<section class="screen" id="screen2">
+  <div class="container">
+    <h2>🎈 Pop the Balloons!</h2>
 
-<!-- DIFFERENT INVITATIONS -->
-
-<section class="invitation" id="invitation">
-
-    <h2 class="heading">Choose Your Invitation 💕</h2>
-
-    <p class="subheading">
-        Four different ways to invite one very special person.
+    <p>
+      There are 4 balloons waiting for you.<br>
+      Each one hides a little piece of my love.
     </p>
 
-    <div class="cards">
-
-        <div class="card">
-            <span class="emoji">🌹</span>
-            <h3>Romantic Invite</h3>
-            <p>A little romance, a lot of love.</p>
-            <button onclick="showInvite('romantic')">
-                Open Love Note
-            </button>
-        </div>
-
-        <div class="card">
-            <span class="emoji">🥰</span>
-            <h3>Cute Invite</h3>
-            <p>For the cutest person ever.</p>
-            <button onclick="showInvite('cute')">
-                Open Surprise
-            </button>
-        </div>
-
-        <div class="card">
-            <span class="emoji">😂</span>
-            <h3>Funny Invite</h3>
-            <p>Birthday emergency alert!</p>
-            <button onclick="showInvite('funny')">
-                Make Me Laugh
-            </button>
-        </div>
-
-        <div class="card">
-            <span class="emoji">🎬</span>
-            <h3>Filmy Invite</h3>
-            <p>Our own Bollywood love story.</p>
-            <button onclick="showInvite('filmy')">
-                Movie Dialogue
-            </button>
-        </div>
-
+    <div class="progress">
+      <div class="progress-fill" id="balloonProgress" style="width:0%"></div>
     </div>
 
+    <p id="balloonCount">Balloons popped: 0 / 4</p>
+
+    <div class="balloon-area" id="balloonArea"></div>
+
+    <div class="surprise-box" id="surpriseBox">
+      <div class="surprise-number" id="surpriseNumber"></div>
+      <div style="font-size:35px" id="surpriseEmoji"></div>
+      <p id="surpriseText"></p>
+      <button class="btn" onclick="nextBalloon()">Pop the Next Balloon 🎈</button>
+    </div>
+
+    <div id="balloonFinish" style="display:none">
+      <h2>All 4 popped! 💕</h2>
+      <p>You deserve a million more surprises.</p>
+      <button class="btn" onclick="goTo(3)">Continue to Your Birthday 🎂</button>
+    </div>
+  </div>
 </section>
 
+<!-- SCREEN 3: BIRTHDAY -->
+<section class="screen" id="screen3">
+  <div class="container">
+    <div class="cake">🎂</div>
 
-<!-- LOVE LETTER -->
+    <h1>Happy Birthday, Cookie!</h1>
 
-<section class="letter-section" id="letter">
+    <p style="font-size:20px">🎉🎀🎉🎀🎉</p>
 
-    <h2 class="heading">A Letter From My Heart 💌</h2>
+    <div class="birthday-message">
+      <p>
+        Happy birthday to my favourite person,
+        my sweetest Cookie, and the most beautiful
+        part of my world. ❤️
+      </p>
 
-    <p class="subheading">Read this slowly, Himani. ❤️</p>
+      <p>
+        Today is your day, but honestly,
+        every day feels special because you exist
+        in my life.
+      </p>
+
+      <p>
+        I wish all your dreams come true,
+        all your worries become smaller,
+        and your smile never fades.
+      </p>
+
+      <p><strong>Today, tomorrow, and always — you deserve all the love. 💗</strong></p>
+    </div>
+
+    <button class="btn" onclick="celebrate();goTo(4)">
+      Open Your Love Letters 💌
+    </button>
+  </div>
+</section>
+
+<!-- SCREEN 4: LOVE LETTERS -->
+<section class="screen" id="screen4">
+  <div class="container">
+    <h2>Little Love Notes 💌</h2>
+
+    <p>Read them one by one, my love...</p>
+
+    <div class="progress">
+      <div class="progress-fill" id="letterProgress" style="width:0%"></div>
+    </div>
+
+    <p id="letterCounter">Letter 1 of 6</p>
 
     <div class="letter">
-
-        <h2>Dear Himani ❤️</h2>
-
-        Heyyy Himani! 🥰
-
-        <br><br>
-
-        My birthday is coming, and I've been thinking
-        about what would make it truly special.
-
-        <br><br>
-
-        I don't need a huge party, expensive gifts
-        or anything extraordinary.
-
-        <br><br>
-
-        I just want some beautiful moments,
-        genuine smiles, silly conversations,
-        and someone special beside me.
-
-        <br><br>
-
-        And when I think about that someone,
-        your name comes to my mind. ❤️
-
-        <br><br>
-
-        Your presence can make an ordinary day
-        feel extraordinary.
-
-        <br><br>
-
-        So here's my little birthday wish...
-
-        <br><br>
-
-        <strong style="color:#e83d7a">
-            Please be a part of my special day.
-            Your presence would mean more than
-            any birthday gift. 🥺
-        </strong>
-
-        <br><br>
-
-        And before you leave this page...
-
-        <br><br>
-
-        I want you to know that you are genuinely
-        special to me, Himani.
-
-        <div class="letter-sign">
-            Lots of Love, ❤️
-        </div>
-
-        <strong>Your Birthday Person 🤭</strong>
-
+      <div class="letter-emoji" id="letterEmoji">💗</div>
+      <div class="letter-text" id="letterText"></div>
     </div>
 
+    <button class="btn" id="letterButton" onclick="nextLetter()">
+      Next Love Note 💕
+    </button>
+  </div>
 </section>
 
-
-<!-- LOVE WORLD -->
-
-<section class="love-world" id="love">
-
-    <h2 class="heading">A Little Love Quiz ❤️</h2>
-
-    <p class="subheading">
-        Now let's talk about something other than birthdays! 🤭
-    </p>
-
-    <!-- QUESTION 1 -->
-
-    <div class="love-card">
-
-        <div class="big-emoji">🥰</div>
-
-        <h3>Do You Know Something?</h3>
-
-        <p>
-            Someone smiles a little more whenever
-            they think about you. Can you guess who?
-        </p>
-
-        <button onclick="loveAnswer(1)">
-            Is it me? 🤭
-        </button>
-
-        <div class="love-answer" id="loveAnswer1"></div>
-
-    </div>
-
-
-    <!-- QUESTION 2 -->
-
-    <div class="love-card">
-
-        <div class="big-emoji">❤️</div>
-
-        <h3>Can I Tell You A Secret?</h3>
-
-        <p>
-            There's something I've wanted to tell you
-            from the bottom of my heart...
-        </p>
-
-        <button onclick="loveAnswer(2)">
-            Tell Me! 🙈
-        </button>
-
-        <div class="love-answer" id="loveAnswer2"></div>
-
-    </div>
-
-
-    <!-- QUESTION 3 -->
-
-    <div class="love-card">
-
-        <div class="big-emoji">🌍</div>
-
-        <h3>Do You Know How Special You Are?</h3>
-
-        <p>
-            Want to know your place in someone's little world?
-        </p>
-
-        <button onclick="loveAnswer(3)">
-            Show Me 💕
-        </button>
-
-        <div class="love-answer" id="loveAnswer3"></div>
-
-    </div>
-
-
-    <!-- LOVE METER -->
-
-    <div class="love-card">
-
-        <div class="big-emoji">💘</div>
-
-        <h3>How Much Do You Love Me?</h3>
-
-        <p>
-            Be honest, Himani! Move the slider
-            and give me your answer. 😂
-        </p>
-
-        <input
-            type="range"
-            id="loveMeter"
-            min="0"
-            max="100"
-            value="50"
-            oninput="updateLove(this.value)"
-        >
-
-        <h2 id="lovePercent">50% 💗</h2>
-
-        <p id="loveMeterText">
-            Hmm, I need more love! 😂
-        </p>
-
-    </div>
-
-
-    <!-- QUESTION 4 -->
-
-    <div class="love-card">
-
-        <div class="big-emoji">🫶</div>
-
-        <h3>Can We Make A Promise?</h3>
-
-        <p>
-            No matter how busy life gets,
-            let's never stop making beautiful memories.
-        </p>
-
-        <button onclick="loveAnswer(4)">
-            Promise! 🥺
-        </button>
-
-        <div class="love-answer" id="loveAnswer4"></div>
-
-    </div>
-
-
-    <!-- SECRET MESSAGE -->
-
-    <div class="secret-box">
-
-        <div class="big-emoji">🔐</div>
-
-        <h2>One Last Secret, Himani...</h2>
-
-        <p>
-            A special message is hidden here.
-            Tap the heart and discover what's inside.
-        </p>
-
-        <button class="secret-heart" onclick="unlockSecret()">
-            ❤️
-        </button>
-
-        <div id="secretMessage"></div>
-
-    </div>
-
-</section>
-
-
-<!-- BIRTHDAY DETAILS -->
-
-<section class="details" id="birthday">
-
-    <h2 class="heading">Our Special Day 🎂</h2>
-
-    <p class="subheading">
-        Save this little date in your heart!
-    </p>
-
-    <div class="detail-box">
-
-        <div>
-            <small>🎉 OCCASION</small>
-            <strong>My Birthday Celebration</strong>
-        </div>
-
-        <div>
-            <small>📅 DATE</small>
-            <strong>YOUR BIRTHDAY DATE</strong>
-        </div>
-
-        <div>
-            <small>⏰ TIME</small>
-            <strong>YOUR CELEBRATION TIME</strong>
-        </div>
-
-        <div>
-            <small>📍 LOCATION</small>
-            <strong>OUR SPECIAL PLACE</strong>
-        </div>
-
-        <div>
-            <small>👗 DRESS CODE</small>
-            <strong>Just Be Yourself! ✨</strong>
-        </div>
-
-    </div>
-
-    <p style="font-size:12px;color:#927582;margin-top:25px">
-        P.S. Your smile is the only gift I need! ❤️
-    </p>
-
-</section>
-
-
-<!-- PROMISE SECTION -->
-
-<section class="promise">
-
-    <div class="promise-box">
-
-        <div class="big-emoji">🤝</div>
-
-        <h2>One Promise?</h2>
-
-        <p>
-            Let's promise to collect beautiful memories,
-            laugh at silly jokes, support each other,
-            celebrate little achievements and make
-            ordinary moments unforgettable.
-            <br><br>
-            Because sometimes the smallest moments
-            become the biggest memories. ❤️
-        </p>
-
-        <button class="pink-btn" onclick="promiseClicked()">
-            Pinky Promise! 🫶
-        </button>
-
-        <div id="promiseResponse" class="love-answer"></div>
-
-    </div>
-
-</section>
-
-
-<!-- FINAL INVITATION -->
-
-<section class="final" id="final">
-
-    <span style="font-size:50px">🥺💗</span>
-
-    <h2>So, Himani...</h2>
+<!-- SCREEN 5: GAME 1 -->
+<section class="screen" id="screen5">
+  <div class="container">
+    <h2>Game 1: Catch My Love 💖</h2>
 
     <p>
-        After all these little surprises,
-        I have one final question for you.
-
-        <br><br>
-
-        Will you come and celebrate my birthday with me?
-
-        <br><br>
-
-        I promise laughter, happiness, lovely memories
-        and maybe a little cake stealing! 🤭🎂
+      Catch 7 hearts to prove how much love
+      you can collect!
     </p>
 
-    <h3 style="color:#e83d7a;font-size:17px">
-        Will You Be My Birthday Date? ❤️
-    </h3>
-
-    <div class="answer-buttons">
-
-        <button class="yes" onclick="sayYes()">
-            YESSS! 😍❤️
-        </button>
-
-        <button class="think" onclick="sayThink()">
-            Let Me Think 🤭
-        </button>
-
+    <div class="score">
+      Hearts: <span id="heartScore">0</span> / 7
     </div>
 
-    <div id="finalResponse"></div>
+    <div class="heart-game" id="heartGame"></div>
 
+    <div id="game1Message"></div>
+
+    <button class="btn" id="game1Button" onclick="startHeartGame()">
+      Start the Game 🎮
+    </button>
+  </div>
 </section>
 
+<!-- SCREEN 6: GAME 2 -->
+<section class="screen" id="screen6">
+  <div class="container">
+    <h2>Game 2: Match the Love 💕</h2>
 
-<!-- FOOTER -->
+    <p>
+      Match all the identical cute symbols!
+    </p>
 
-<footer>
+    <p id="memoryStatus">Find all 4 matching pairs 💗</p>
 
-    Made with <span>♥</span> especially for Himani
+    <div class="memory-grid" id="memoryGrid"></div>
 
-    <br>
+    <div id="game2Message"></div>
 
-    One birthday. One special person.
-    Countless beautiful memories. ✨
+    <button class="btn" id="game2Button" onclick="startMemoryGame()">
+      Start Matching 🎮
+    </button>
+  </div>
+</section>
 
-    <br><br>
+<!-- SCREEN 7: FINAL -->
+<section class="screen" id="screen7">
+  <div class="container">
+    <div class="final-heart">❤️</div>
 
-    <span>Always Smile, Himani! 😘</span>
+    <h1>For My Cookie</h1>
 
-</footer>
+    <div class="final-card">
+      <h2>One Last Thing...</h2>
 
+      <p>
+        If I could give you one thing in this world,
+        I would give you the ability to see yourself
+        through my eyes.
+      </p>
 
-<!-- POPUP -->
+      <p>
+        Then you would understand how special you are,
+        how much happiness you bring,
+        and why my heart chooses you every single day.
+      </p>
 
-<div class="modal" id="modal" onclick="outsideClose(event)">
+      <p>
+        You aren't just a person I love.
+        You're my favourite notification,
+        my favourite thought,
+        my favourite smile,
+        and my favourite "goodnight".
+      </p>
 
-    <div class="modal-content">
+      <p>
+        No matter how many birthdays come,
+        I hope I get to make you smile in every one of them.
+      </p>
 
-        <h2 id="modalTitle">For You ❤️</h2>
+      <h2>Happy Birthday, My Love! 🎂</h2>
 
-        <p id="modalText"></p>
-
-        <button onclick="closeModal()">
-            Awww! 💗
-        </button>
-
+      <p><strong>Forever yours. 💗</strong></p>
     </div>
 
-</div>
+    <button class="btn" onclick="finalSurprise()">
+      One Last Surprise 🎁
+    </button>
 
+    <div id="finalSurpriseBox" class="surprise-box">
+      <h2>🎁 Your Final Surprise!</h2>
+
+      <p>
+        You have officially unlocked unlimited hugs,
+        kisses, cuddles, forehead kisses,
+        and an infinite supply of "I love yous".
+      </p>
+
+      <div style="font-size:50px">😘 🫂 💗 💋</div>
+
+      <h2>I Love You, Cookie! ❤️</h2>
+    </div>
+
+    <button class="btn secondary" onclick="restart()">
+      Replay Your Birthday 💞
+    </button>
+  </div>
+</section>
 
 <script>
 
-// FLOATING HEARTS
+/* ===========================
+   PERSONALIZE YOUR CONTENT
+=========================== */
 
-function createHeart() {
+const PASSWORD = "2006";
 
-    const heart = document.createElement("div");
+const balloonSurprises = [
+  {
+    emoji: "🥰",
+    text: "Surprise #1: If I had to choose my favourite place in the whole world, it would be wherever you are."
+  },
+  {
+    emoji: "💗",
+    text: "Surprise #2: Your smile is literally one of my favourite things in existence. Never stop smiling, Cookie."
+  },
+  {
+    emoji: "🫂",
+    text: "Surprise #3: Sending you the biggest virtual hug ever! Imagine me holding you close and never letting go."
+  },
+  {
+    emoji: "💋",
+    text: "Surprise #4: One birthday kiss from me... and an unlimited number more whenever you want. Mwah!"
+  }
+];
 
-    heart.className = "float-item";
+const loveLetters = [
+  {
+    emoji: "💗",
+    text: "You make ordinary days feel extraordinary. Even a simple conversation with you can turn my entire day around."
+  },
+  {
+    emoji: "🥹",
+    text: "I love the little things about you. Things you probably don't even notice, but somehow they make me fall for you even more."
+  },
+  {
+    emoji: "🌷",
+    text: "I hope whenever life gets hard, you remember that you don't have to be perfect. You are already more than enough."
+  },
+  {
+    emoji: "🫶",
+    text: "If I could relive any moment, I wouldn't necessarily choose the biggest or most exciting one. I'd choose another moment with you."
+  },
+  {
+    emoji: "😘",
+    text: "You deserve soft love, genuine happiness, peaceful nights, beautiful mornings, and someone who reminds you how precious you are."
+  },
+  {
+    emoji: "❤️",
+    text: "And finally... thank you for being you. Thank you for existing, for being in my life, and for giving my heart a reason to smile."
+  }
+];
 
-    const emojis = [
-        "❤️","💕","💗","💖","🌸","✨","🥰","💘"
-    ];
+/* ===========================
+   SCREEN NAVIGATION
+=========================== */
 
-    heart.innerHTML =
-        emojis[Math.floor(Math.random() * emojis.length)];
+function goTo(number) {
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
+  });
 
-    heart.style.left = Math.random() * 100 + "vw";
+  document.getElementById("screen" + number).classList.add("active");
 
-    heart.style.fontSize =
-        (15 + Math.random() * 22) + "px";
-
-    heart.style.animationDuration =
-        (4 + Math.random() * 5) + "s";
-
-    document.body.appendChild(heart);
-
-    setTimeout(() => heart.remove(), 9000);
-
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 
-setInterval(createHeart, 900);
+/* ===========================
+   PASSWORD
+=========================== */
 
+function unlock() {
+  const entered = document.getElementById("password").value;
+  const error = document.getElementById("error");
 
-// CELEBRATION EFFECT
+  if (entered === PASSWORD) {
+    error.textContent = "";
+    createBalloons();
+    goTo(2);
+    celebrate();
+  } else {
+    error.textContent = "Oops! That's not the secret password 😘";
+    document.getElementById("password").value = "";
+  }
+}
+
+document.getElementById("password").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") unlock();
+});
+
+/* ===========================
+   BALLOON GAME
+=========================== */
+
+let popped = 0;
+let currentBalloon = 0;
+
+function createBalloons() {
+  const area = document.getElementById("balloonArea");
+  area.innerHTML = "";
+
+  popped = 0;
+  currentBalloon = 0;
+
+  document.getElementById("balloonCount").textContent =
+    "Balloons popped: 0 / 4";
+
+  document.getElementById("balloonProgress").style.width = "0%";
+  document.getElementById("surpriseBox").classList.remove("show");
+  document.getElementById("balloonFinish").style.display = "none";
+
+  balloonSurprises.forEach((item, index) => {
+    const balloon = document.createElement("button");
+
+    balloon.className = "balloon";
+    balloon.innerHTML = "🎈";
+    balloon.setAttribute("aria-label", "Pop balloon " + (index + 1));
+
+    balloon.onclick = () => popBalloon(balloon, index);
+
+    area.appendChild(balloon);
+  });
+}
+
+function popBalloon(balloon, index) {
+  if (balloon.classList.contains("popped")) return;
+
+  balloon.classList.add("popped");
+
+  popped++;
+
+  document.getElementById("balloonCount").textContent =
+    `Balloons popped: ${popped} / 4`;
+
+  document.getElementById("balloonProgress").style.width =
+    (popped / 4 * 100) + "%";
+
+  const surprise = balloonSurprises[index];
+
+  document.getElementById("surpriseNumber").textContent =
+    `Surprise ${index + 1} of 4`;
+
+  document.getElementById("surpriseEmoji").textContent =
+    surprise.emoji;
+
+  document.getElementById("surpriseText").textContent =
+    surprise.text;
+
+  document.getElementById("surpriseBox").classList.add("show");
+
+  celebrate();
+
+  if (popped === 4) {
+    document.getElementById("balloonFinish").style.display = "block";
+
+    document.querySelector(
+      "#surpriseBox button"
+    ).style.display = "none";
+  }
+}
+
+function nextBalloon() {
+  document.getElementById("surpriseBox").classList.remove("show");
+}
+
+/* ===========================
+   BIRTHDAY CONFETTI
+=========================== */
 
 function celebrate() {
+  const emojis = ["💗", "💖", "✨", "🎉", "🌸", "💕", "🎊"];
 
-    const emojis = ["💖","🎉","❤️","✨","🥳","💕","🌹"];
+  for (let i = 0; i < 35; i++) {
+    const piece = document.createElement("div");
 
-    for(let i = 0; i < 35; i++) {
+    piece.className = "confetti";
+    piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
 
-        setTimeout(() => {
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.fontSize = (12 + Math.random() * 22) + "px";
+    piece.style.animationDuration = (2 + Math.random() * 3) + "s";
 
-            const item = document.createElement("div");
+    document.body.appendChild(piece);
 
-            item.className = "float-item";
-
-            item.innerHTML =
-                emojis[Math.floor(Math.random() * emojis.length)];
-
-            item.style.left = Math.random() * 100 + "vw";
-
-            item.style.fontSize = "25px";
-
-            item.style.animationDuration = "3s";
-
-            document.body.appendChild(item);
-
-            setTimeout(() => item.remove(), 3500);
-
-        }, i * 65);
-
-    }
-
+    setTimeout(() => piece.remove(), 5000);
+  }
 }
 
+/* ===========================
+   LOVE LETTERS
+=========================== */
 
-// WELCOME POPUP
+let letterIndex = 0;
 
-function openWelcome() {
+function showLetter() {
+  const letter = loveLetters[letterIndex];
 
-    document.getElementById("modalTitle").innerHTML =
-        "Surprise, Himani! 😍";
+  document.getElementById("letterEmoji").textContent =
+    letter.emoji;
 
-    document.getElementById("modalText").innerHTML =
-        "You are officially invited to my birthday celebration! 🎂<br><br>" +
-        "Your presence is the little missing piece of my happiness. ❤️";
+  document.getElementById("letterText").textContent =
+    letter.text;
 
-    document.getElementById("modal").style.display = "flex";
+  document.getElementById("letterCounter").textContent =
+    `Letter ${letterIndex + 1} of ${loveLetters.length}`;
+
+  document.getElementById("letterProgress").style.width =
+    ((letterIndex + 1) / loveLetters.length * 100) + "%";
+
+  const button = document.getElementById("letterButton");
+
+  if (letterIndex === loveLetters.length - 1) {
+    button.textContent = "Let's Play Games! 🎮";
+  } else {
+    button.textContent = "Next Love Note 💕";
+  }
+}
+
+function nextLetter() {
+  if (letterIndex < loveLetters.length - 1) {
+    letterIndex++;
+    showLetter();
+  } else {
+    letterIndex = 0;
+    goTo(5);
+  }
+}
+
+showLetter();
+
+/* ===========================
+   GAME 1: CATCH HEARTS
+=========================== */
+
+let heartScore = 0;
+let heartGameStarted = false;
+
+function startHeartGame() {
+  heartScore = 0;
+  heartGameStarted = true;
+
+  document.getElementById("heartScore").textContent = "0";
+  document.getElementById("game1Message").textContent = "";
+
+  const area = document.getElementById("heartGame");
+  area.innerHTML = "";
+
+  document.getElementById("game1Button").textContent =
+    "Catch Hearts! 💗";
+
+  spawnHeart();
+}
+
+function spawnHeart() {
+  if (!heartGameStarted) return;
+
+  const area = document.getElementById("heartGame");
+
+  if (heartScore >= 7) {
+    heartGameStarted = false;
+
+    area.innerHTML = "";
+
+    document.getElementById("game1Message").innerHTML =
+      "<h2>Yay! You caught all my love! 💗</h2>" +
+      "<p>Reward: 1000 kisses and unlimited cuddles!</p>";
+
+    document.getElementById("game1Button").textContent =
+      "Next Game 🎮";
+
+    document.getElementById("game1Button").onclick =
+      () => goTo(6);
 
     celebrate();
 
+    return;
+  }
+
+  const heart = document.createElement("button");
+
+  heart.className = "catch-heart";
+  heart.textContent = ["💗", "❤️", "💕", "💖"][
+    Math.floor(Math.random() * 4)
+  ];
+
+  const maxX = area.clientWidth - 50;
+  const maxY = area.clientHeight - 50;
+
+  heart.style.left = Math.random() * maxX + "px";
+  heart.style.top = Math.random() * maxY + "px";
+
+  heart.onclick = () => {
+    heartScore++;
+
+    document.getElementById("heartScore").textContent =
+      heartScore;
+
+    heart.remove();
+
+    spawnHeart();
+  };
+
+  area.appendChild(heart);
 }
 
+/* ===========================
+   GAME 2: MEMORY MATCH
+=========================== */
 
-// DIFFERENT INVITATIONS
+let memoryValues = [];
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false;
+let matches = 0;
 
-function showInvite(type) {
+function startMemoryGame() {
+  const emojis = ["💗", "🎂", "😘", "🌸"];
 
-    const messages = {
+  memoryValues = [...emojis, ...emojis].sort(
+    () => Math.random() - .5
+  );
 
-        romantic: [
-            "A Date With Destiny 🌹",
-            "If I could choose one person to spend my birthday with, it would always be you. Let's turn an ordinary birthday into a beautiful memory together. ❤️"
-        ],
+  matches = 0;
+  firstCard = null;
+  secondCard = null;
+  lockBoard = false;
 
-        cute: [
-            "Cutieee Himani! 🥰",
-            "Breaking news! A certain birthday person desperately needs your smile, your company and your cute presence on their special day. That's you! 🤭💕"
-        ],
+  document.getElementById("game2Message").textContent = "";
+  document.getElementById("memoryStatus").textContent =
+    "Find all 4 matching pairs 💗";
 
-        funny: [
-            "IMPORTANT NOTICE 😂",
-            "You have been selected for a very important birthday mission! Your duties include eating cake, smiling, taking pictures and tolerating the birthday person's drama. No excuses! 🤣🎂"
-        ],
+  document.getElementById("game2Button").style.display = "none";
 
-        filmy: [
-            "Picture Abhi Baaki Hai! 🎬",
-            "Himani ji, iss birthday ki kahaani mein hero toh main hoon, lekin meri heroine ke bina picture incomplete hai! Toh kya aap is special day par humare saath hongi? ❤️"
-        ]
+  const grid = document.getElementById("memoryGrid");
+  grid.innerHTML = "";
 
+  memoryValues.forEach((emoji, index) => {
+    const card = document.createElement("button");
+
+    card.className = "memory-card";
+    card.textContent = "❔";
+    card.dataset.emoji = emoji;
+    card.dataset.index = index;
+
+    card.onclick = () => flipCard(card);
+
+    grid.appendChild(card);
+  });
+}
+
+function flipCard(card) {
+  if (
+    lockBoard ||
+    card.classList.contains("matched") ||
+    card === firstCard
+  ) return;
+
+  card.classList.add("open");
+  card.textContent = card.dataset.emoji;
+
+  if (!firstCard) {
+    firstCard = card;
+    return;
+  }
+
+  secondCard = card;
+  lockBoard = true;
+
+  if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+    firstCard.classList.add("matched");
+    secondCard.classList.add("matched");
+
+    matches++;
+
+    resetMemoryTurn();
+
+    if (matches === 4) {
+      memoryWon();
+    }
+
+  } else {
+    setTimeout(() => {
+      firstCard.classList.remove("open");
+      secondCard.classList.remove("open");
+
+      firstCard.textContent = "❔";
+      secondCard.textContent = "❔";
+
+      resetMemoryTurn();
+    }, 700);
+  }
+}
+
+function resetMemoryTurn() {
+  firstCard = null;
+  secondCard = null;
+  lockBoard = false;
+}
+
+function memoryWon() {
+  document.getElementById("memoryStatus").textContent =
+    "You matched all the love! 🥰";
+
+  document.getElementById("game2Message").innerHTML =
+    "<h2>You Win! 💖</h2>" +
+    "<p>Prize: One giant cuddle and a million kisses!</p>";
+
+  document.getElementById("game2Button").style.display = "block";
+  document.getElementById("game2Button").textContent =
+    "Unlock the Final Surprise 🎁";
+
+  document.getElementById("game2Button").onclick =
+    () => {
+      goTo(7);
+      celebrate();
     };
 
-    document.getElementById("modalTitle").innerHTML =
-        messages[type][0];
-
-    document.getElementById("modalText").innerHTML =
-        messages[type][1];
-
-    document.getElementById("modal").style.display = "flex";
-
-    celebrate();
-
+  celebrate();
 }
 
+/* ===========================
+   FINAL SURPRISE
+=========================== */
 
-// CLOSE POPUP
+function finalSurprise() {
+  const box = document.getElementById("finalSurpriseBox");
 
-function closeModal() {
+  box.classList.add("show");
 
-    document.getElementById("modal").style.display = "none";
+  celebrate();
 
+  box.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
 }
 
-function outsideClose(event) {
+/* ===========================
+   RESTART
+=========================== */
 
-    if(event.target.id === "modal") {
+function restart() {
+  letterIndex = 0;
+  showLetter();
 
-        closeModal();
+  document.getElementById("password").value = "";
+  document.getElementById("finalSurpriseBox").classList.remove("show");
 
-    }
+  document.getElementById("game1Button").onclick = startHeartGame;
+  document.getElementById("game1Button").textContent = "Start the Game 🎮";
 
+  document.getElementById("game2Button").onclick = startMemoryGame;
+  document.getElementById("game2Button").textContent = "Start Matching 🎮";
+
+  document.getElementById("game2Button").style.display = "block";
+
+  createBalloons();
+
+  goTo(1);
 }
 
+/* ===========================
+   BACKGROUND FLOATING HEARTS
+=========================== */
 
-// LOVE QUESTIONS
+function createBackgroundHearts() {
+  const container = document.getElementById("backgroundHearts");
 
-function loveAnswer(number) {
+  const symbols = ["♡", "♥", "💕", "✨"];
 
-    const answers = {
+  for (let i = 0; i < 18; i++) {
+    const heart = document.createElement("div");
 
-        1:
-        "YESSS! It's you, Himani! 😍 Every time I think about you, there's a little extra happiness in my heart. ❤️",
+    heart.className = "floating";
+    heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
 
-        2:
-        "My secret is... I LOVE YOU, HIMANI! ❤️🥺 Not just today, but in all those little moments when you make me smile. 💗",
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.animationDelay = Math.random() * 8 + "s";
+    heart.style.animationDuration = (6 + Math.random() * 8) + "s";
 
-        3:
-        "You are someone whose presence can turn an ordinary day into a beautiful memory. You are genuinely special to me, Himani. 🌍💕",
-
-        4:
-        "Pakka promise! 🤝 Let's keep laughing, caring, supporting each other and collecting beautiful memories. 🫶❤️"
-
-    };
-
-    const element =
-        document.getElementById("loveAnswer" + number);
-
-    element.innerHTML = answers[number];
-
-    element.style.display = "block";
-
-    celebrate();
-
+    container.appendChild(heart);
+  }
 }
 
-
-// LOVE METER
-
-function updateLove(value) {
-
-    document.getElementById("lovePercent").innerHTML =
-        value + "% 💗";
-
-    let message;
-
-    if(value < 25) {
-
-        message = "Awww, thoda aur pyaar chahiye! 🥺";
-
-    }
-
-    else if(value < 50) {
-
-        message = "I'm waiting for more love! 🤭";
-
-    }
-
-    else if(value < 75) {
-
-        message = "Ohooo! Someone likes me! 😍";
-
-    }
-
-    else if(value < 100) {
-
-        message = "My heart is dancing! 💃❤️";
-
-    }
-
-    else {
-
-        message = "INFINITE LOVE! I LOVE YOU TOO! 🥹💖";
-
-        celebrate();
-
-    }
-
-    document.getElementById("loveMeterText").innerHTML =
-        message;
-
-}
-
-
-// SECRET LOVE MESSAGE
-
-function unlockSecret() {
-
-    const secret =
-        document.getElementById("secretMessage");
-
-    if(secret.style.display === "block") {
-
-        secret.style.display = "none";
-
-        return;
-
-    }
-
-    secret.style.display = "block";
-
-    secret.innerHTML =
-        "Himani... ❤️<br><br>" +
-
-        "If I could make one birthday wish come true, " +
-        "it would be to see you smiling and happy.<br><br>" +
-
-        "You are someone I genuinely care about, " +
-        "and I hope you always know how special you are to me.<br><br>" +
-
-        "I LOVE YOU! 😘💗<br><br>" +
-
-        "And one last thing...<br>" +
-
-        "My birthday won't be complete without you! 🎂🥺";
-
-    celebrate();
-
-}
-
-
-// PROMISE BUTTON
-
-function promiseClicked() {
-
-    const element =
-        document.getElementById("promiseResponse");
-
-    element.innerHTML =
-        "Pinky promise accepted! 🥹❤️ " +
-        "Now let's make some unforgettable memories together! 💗";
-
-    element.style.display = "block";
-
-    celebrate();
-
-}
-
-
-// FINAL YES
-
-function sayYes() {
-
-    const response =
-        document.getElementById("finalResponse");
-
-    response.style.display = "block";
-
-    response.innerHTML =
-        "YAYYYYY! 😍🥳❤️<br><br>" +
-
-        "You just made my birthday a thousand times more special!<br><br>" +
-
-        "Get ready for cake, laughter, pictures and beautiful memories! 🎂💕<br><br>" +
-
-        "I LOVE YOU, HIMANI! 😘";
-
-    celebrate();
-
-}
-
-
-// FINAL THINK
-
-function sayThink() {
-
-    const response =
-        document.getElementById("finalResponse");
-
-    response.style.display = "block";
-
-    response.innerHTML =
-        "Okayyy Himani! 🤭💕<br><br>" +
-
-        "Take your time, but remember...<br><br>" +
-
-        "There's a birthday person secretly hoping for a YES! 🥺❤️";
-
-}
+createBackgroundHearts();
 
 </script>
 
